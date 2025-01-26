@@ -169,6 +169,46 @@ LEFT JOIN Notifications ON Users.user_id = Notifications.user_id
 GROUP BY Users.user_id;
 
 
+-- view to get the latest notifications for a user
+CREATE VIEW LatestNotifications AS
+SELECT 
+    Notifications.notification_id,
+    Notifications.user_id,
+    Notifications.notification_text,
+    Notifications.notification_type,
+    Notifications.is_read,
+    Notifications.created_at,
+    Users.username
+FROM Notifications
+JOIN Users ON Notifications.user_id = Users.user_id
+ORDER BY Notifications.created_at DESC;
+
+
+-- view to get the latest materials uploaded by users
+CREATE VIEW LatestMaterials AS
+SELECT 
+    StudyMaterials.material_id,
+    StudyMaterials.title,
+    StudyMaterials.user_id,
+    StudyMaterials.description,
+    StudyMaterials.created_at,
+    Users.username
+FROM StudyMaterials
+JOIN Users ON StudyMaterials.user_id = Users.user_id
+ORDER BY StudyMaterials.created_at DESC;
+
+
+
+-- events --
+
+-- event for deleting read notifications older than 30 days
+CREATE EVENT DeleteOldNotifications
+ON SCHEDULE EVERY 1 DAY
+DO
+DELETE FROM Notifications
+WHERE is_read = TRUE AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
+
+
 -- indexes --
 
 
@@ -189,6 +229,8 @@ CREATE UNIQUE INDEX idx_username ON Users(username);
 CREATE INDEX idx_material_user ON Ratings(material_id, user_id);
 CREATE INDEX idx_user_read ON Notifications(user_id, is_read);
 
+-- index for read notifications to improve performance of queries
+CREATE INDEX idx_notifications_read_created On Notifications(is_read, created_at);
 
 
 -- Sample data --
@@ -203,7 +245,11 @@ INSERT INTO Users (username, password_hash, email, bio, study_field, user_level_
 INSERT INTO StudyMaterials (user_id, filename, filesize, filetype, title, description) VALUES
 (1, 'file1.pdf', 1024, 'pdf', 'Introduction to Algorithms', 'This is a great book for learning algorithms.'),
 (2, 'file2.doc', 2048, 'doc', 'Linear Algebra Notes', 'These are my notes from the linear algebra course.'),
-(3, 'file3.py', 512, 'py', 'Python Basics', 'A very simple course for beginners. Data Structures and Algorithms are covered in depth.');
+(3, 'file3.py', 512, 'py', 'Python Basics', 'A very simple course for beginners. Data Structures and Algorithms are covered in depth.'),
+(1, 'file4.html', 4096, 'html', 'Web Development Basics', 'Learn HTML, CSS, and JavaScript from scratch.'),
+(2, 'file5.cpp', 8192, 'cpp', 'C++ Programming', 'A comprehensive guide to C++ programming language.'),
+(3, 'file6.js', 1024, 'js', 'JavaScript Crash Course', 'A quick introduction to JavaScript programming.'),
+(1, 'file7.sql', 2048, 'sql', 'SQL Basics', 'Learn SQL queries and database management.');
 
 INSERT INTO Tags (tag_name) VALUES ('Algorithms'), ('Linear Algebra'), ('Python'), ('Data Structures'), ('JavaScript'),
 ('Java'), ('C++'), ('HTML'), ('CSS'), ('SQL');
