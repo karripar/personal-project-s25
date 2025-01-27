@@ -82,14 +82,6 @@
 - PUT /tags/:id 
 - DELETE /tags/:id 
 
-### Tags
-
-- POST /tags 
-- GET /tags 
-- GET /tags/:id 
-- PUT /tags/:id 
-- DELETE /tags/:id 
-
 ### Material Tags
 
 - POST /materials/:id/tags - Add tags to a material.
