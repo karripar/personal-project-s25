@@ -48,4 +48,98 @@
 - **Responsiivinen käyttöliittymä:** Bootstrap tai Tailwind CSS, valinta tarkentuu lähempänä varsinaista kehitystä.
 - **Progressiivinen web-sovellus:** Vite PWA toiminnallisuus.
 
+---
 
+## Suunnitelma API-päätteille
+
+### Users
+
+- POST /users 
+- GET /users
+- GET /users/:id 
+- PUT /users/:id
+- DELETE /users/:id
+
+### User authentication
+
+- POST /auth/login
+- POST /auth/logout
+- POST /auth/refresh (tokenin päivitys)
+
+### Material
+
+- POST /materials 
+- GET /materials 
+- GET /materials/:id 
+- PUT /materials/:id 
+- DELETE /materials/:id 
+
+### Tags
+
+- POST /tags 
+- GET /tags 
+- GET /tags/:id 
+- PUT /tags/:id 
+- DELETE /tags/:id 
+
+### Tags
+
+- POST /tags 
+- GET /tags 
+- GET /tags/:id 
+- PUT /tags/:id 
+- DELETE /tags/:id 
+
+### Material Tags
+
+- POST /materials/:id/tags - Add tags to a material.
+- DELETE /materials/:id/tags/:tagId - Remove a tag from a material.
+
+### Comments
+
+- POST /materials/:id/comments - Add a comment to a material.
+- GET /materials/:id/comments - Get all comments for a material.
+- GET /comments/:id - Get a specific comment by ID.
+- PUT /comments/:id - Update a comment (admin).
+- DELETE /comments/:id - Delete a comment (author or admin).
+
+### Likes
+
+- POST /materials/:id/likes - Like a material.
+- POST /comments/:id/likes - Like a comment.
+- DELETE /materials/:id/likes - Remove a like from a material.
+- DELETE /comments/:id/likes - Remove a like from a comment.
+
+### Ratings
+
+- POST /materials/:id/ratings - Rate a material.
+- GET /materials/:id/ratings - Get all ratings for a material (average rating and individual ratings).
+
+### Follows
+
+- POST /follows - Follow a user.
+- DELETE /follows/:id - Unfollow a user.
+- GET /users/:id/followers - Get all followers of a user.
+- GET /users/:id/following - Get all users a user is following.
+
+### Notifications
+
+- GET /notifications - Get all notifications for the current user.
+- PUT /notifications/:id/mark-read - Mark a notification as read.
+- DELETE /notifications/:id - Delete a notification.
+
+### Analytics
+
+- GET /materials/ratings - Get average ratings for all materials (from the MaterialRatings view).
+- GET /materials/comments - Get a list of materials and their comment counts (from the MaterialComments view).
+- GET /users/activity - Get user activity stats (from the UserActivity view).
+- GET /users/:id/notifications - Get unread notification counts for a user (from the UserNotifications view).
+
+### Latest Data
+
+- GET /materials/latest - Get the latest uploaded materials (from the LatestMaterials view).
+- GET /notifications/latest - Get the latest notifications (from the LatestNotifications view).
+
+### Search
+
+- GET /search/materials - Search for materials by title, tags, or description.
