@@ -5,6 +5,7 @@ USE scriptflow;
 
 -- tables --
 
+-- source c:/users/karri/onedrive/documents/hybrid-applications/personal-project/scriptflow.sql
 
 -- user levels to differentiate between regular users and admins, etc.
 CREATE TABLE UserLevels (
@@ -106,15 +107,23 @@ CREATE TABLE Follows (
     FOREIGN KEY (followed_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+
+CREATE TABLE NotificationTypes (
+    notification_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    notification_type_name VARCHAR(50) NOT NULL UNIQUE
+);
+
 -- notifications for users, when someone follows them, comments on their material, etc.
 CREATE TABLE Notifications (
     notification_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     notification_text TEXT NOT NULL,
-    notification_type ENUM('Follow', 'Comment', 'Rating', 'Event') NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
+    notification_type_id INT NOT NULL,
+    is_archived BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (notification_type_id) REFERENCES NotificationTypes(notification_type_id)
 );
 
 
@@ -175,12 +184,13 @@ SELECT
     Notifications.notification_id,
     Notifications.user_id,
     Notifications.notification_text,
-    Notifications.notification_type,
+    NotificationTypes.notification_type_name, -- Fixed column reference
     Notifications.is_read,
     Notifications.created_at,
     Users.username
 FROM Notifications
 JOIN Users ON Notifications.user_id = Users.user_id
+JOIN NotificationTypes ON Notifications.notification_type_id = NotificationTypes.notification_type_id -- Fix
 ORDER BY Notifications.created_at DESC;
 
 
@@ -201,11 +211,12 @@ ORDER BY StudyMaterials.created_at DESC;
 
 -- events --
 
--- event for deleting read notifications older than 30 days
-CREATE EVENT DeleteOldNotifications
+-- event for archiving read notifications older than 30 days
+CREATE EVENT ArchiveOldNotifications
 ON SCHEDULE EVERY 1 DAY
 DO
-DELETE FROM Notifications
+UPDATE Notifications 
+SET is_archived = TRUE 
 WHERE is_read = TRUE AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
 
 
@@ -213,14 +224,14 @@ WHERE is_read = TRUE AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
 
 
 CREATE INDEX idx_material_id ON Ratings(material_id);
-CREATE INDEX idx_user_id ON Ratings(user_id);
+CREATE INDEX idx_ratings_user_id ON Ratings(user_id);
 
+CREATE INDEX idx_notifications_user_id ON Notifications(user_id);
 
-CREATE INDEX idx_user_id ON Notifications(user_id);
 CREATE INDEX idx_is_read ON Notifications(is_read);
 
 -- full-text search index
-CREATE INDEX idx_title ON StudyMaterials(title);
+CREATE FULLTEXT INDEX idx_ft_title ON StudyMaterials(title, description);
 
 -- unique indexes
 CREATE UNIQUE INDEX idx_username ON Users(username);
@@ -231,6 +242,8 @@ CREATE INDEX idx_user_read ON Notifications(user_id, is_read);
 
 -- index for read notifications to improve performance of queries
 CREATE INDEX idx_notifications_read_created On Notifications(is_read, created_at);
+
+CREATE UNIQUE INDEX idx_unique_follow ON Follows(follower_id, followed_id);
 
 
 -- Sample data --
@@ -278,6 +291,26 @@ INSERT INTO Follows (follower_id, followed_id) VALUES
 (1, 3),
 (2, 1),
 (3, 1);
+
+-- Notification types
+INSERT INTO NotificationTypes (notification_type_name) VALUES ('Follow'), ('Comment'), ('Rating'), ('Event');
+
+-- Sample notifications for testing
+INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES
+(2, 'JohnDoe started following you.', 1),
+(3, 'JohnDoe started following you.', 1),
+(1, 'JaneSmith started following you.', 1),
+(1, 'JaneSmith started following you.', 1),
+(1, 'JaneSmith commented on your material.', 2),
+(1, 'JaneSmith rated your material.', 3),
+(2, 'JohnDoe commented on your material.', 2),
+(2, 'JohnDoe rated your material.', 3),
+(3, 'JaneSmith commented on your material.', 2),
+(3, 'JaneSmith rated your material.', 3),
+(1, 'JaneSmith commented on your material.', 2),
+(1, 'JaneSmith rated your material.', 3),
+(1, 'JaneSmith commented on your material.', 2),
+(1, 'JaneSmith rated your material.', 3);
 
 
 
