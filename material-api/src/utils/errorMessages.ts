@@ -42,4 +42,12 @@ export const ERROR_MESSAGES = {
     NOT_UPDATED: 'Comment not updated',
     NO_ID: 'No comment id provided',
   },
+  FOLLOW: {
+    NOT_FOUND: 'No follows found',
+    NOT_FOUND_USER: 'No follows found for user',
+    NOT_CREATED: 'Follow not created',
+    NOT_DELETED: 'Follow not deleted',
+    ALREADY_EXISTS: 'User is already following this user',
+    SELF_FOLLOW: 'User cannot follow themselves',
+  },
 } as const;

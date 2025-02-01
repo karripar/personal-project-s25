@@ -1,0 +1,79 @@
+import {Request, Response, NextFunction} from 'express';
+import {MessageResponse} from 'hybrid-types/MessageTypes';
+import {Follow, TokenContent} from 'hybrid-types/DBTypes';
+import {
+  fetchFollowersByUserId,
+  fetchFollowedUsersByUserId,
+  addFollow,
+  removeFollow,
+} from '../models/followModel';
+
+
+// Request a list of followers by user ID
+const getFollowersByUserId = async (
+  req: Request,
+  res: Response<Follow[]>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(req.params.user_id);
+    const followers = await fetchFollowersByUserId(user_id);
+    res.json(followers);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Request a list of followed users by user ID
+const getFollowedUsersByUserId = async (
+  req: Request,
+  res: Response<Follow[]>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(req.params.user_id);
+    const followedUsers = await fetchFollowedUsersByUserId(user_id);
+    res.json(followedUsers);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Add a follow
+const postFollow = async (
+  req: Request<{}, {}, {followed_id: string}>,
+  res: Response<MessageResponse, {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    const result = await addFollow(
+      res.locals.user.user_id,
+      Number(req.body.followed_id),
+    );
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// Remove a follow
+const deleteFollow = async (
+  req: Request<{follow_id: string}>,
+  res: Response<MessageResponse, {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    const result = await removeFollow(
+      Number(req.params.follow_id),
+      res.locals.user.user_id,
+      res.locals.user.level_name,
+    );
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export {getFollowersByUserId, getFollowedUsersByUserId, postFollow, deleteFollow};

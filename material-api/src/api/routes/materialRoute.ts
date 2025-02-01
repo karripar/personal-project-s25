@@ -11,9 +11,9 @@ import {
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param, query} from 'express-validator';
 
-const router = express.Router();
+const materialRouter = express.Router();
 
-router
+materialRouter
   .route('/')
   .get(
     query('page').optional().isInt({min: 1}).toInt(),
@@ -47,9 +47,9 @@ router
     materialPost,
   );
 
-router.route('/mostliked').get(materialListMostLikedGet);
+materialRouter.route('/mostliked').get(materialListMostLikedGet);
 
-router
+materialRouter
   .route('/:id')
   .get(param('id').isInt({min: 1}).toInt(), validationErrors, materialGet)
   .put(
@@ -77,8 +77,8 @@ router
     materialDelete,
   );
 
-router.route('/byuser/:id').get(materialByUserGet);
+materialRouter.route('/byuser/:id').get(materialByUserGet);
 
-router.route('/bytoken').get(authenticate, materialByUserGet);
+materialRouter.route('/bytoken').get(authenticate, materialByUserGet);
 
-export default router;
+export default materialRouter;

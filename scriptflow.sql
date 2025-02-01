@@ -254,9 +254,14 @@ INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
 INSERT INTO Users (username, password_hash, email, bio, study_field, user_level_id) VALUES
 ('JohnDoe', 'to-be-hashed-pw1', 'johndoe@example.com', 'Tech enthusiast.', 'Computer Science', 2),
 ('JaneSmith', 'to-be-hashed-pw2', 'janesmith@example.com', 'Math lover.', 'Mathematics', 2),
-('AdminUser', 'to-be-hashed-pw3', 'adminuser@example.com', 'Site admin.', NULL, 1);
+('AdminUser', 'to-be-hashed-pw3', 'adminuser@example.com', 'Site admin.', NULL, 1),
+('AliceBrown', 'to-be-hashed-pw4', 'alicebrown@example.com', 'Aspiring data scientist.', 'Data Science', 2),
+('BobWhite', 'to-be-hashed-pw5', 'bobwhite@example.com', 'AI and ML enthusiast.', 'Artificial Intelligence', 2),
+('CharlieGreen', 'to-be-hashed-pw6', 'charliegreen@example.com', 'Passionate about cybersecurity.', 'Cybersecurity', 2),
+('DavidBlack', 'to-be-hashed-pw7', 'davidblack@example.com', 'Full-stack web developer.', 'Software Engineering', 2),
+('EveBlue', 'to-be-hashed-pw8', 'eveblue@example.com', 'Quantum computing geek.', 'Physics', 2);
 
-INSERT INTO StudyMaterials (user_id, filename, filesize, filetype, title, description) VALUES
+INSERT INTO StudyMaterials (user_id, filename, filesize, media_type, title, description) VALUES
 (1, 'file1.pdf', 1024, 'pdf', 'Introduction to Algorithms', 'This is a great book for learning algorithms.'),
 (2, 'file2.doc', 2048, 'doc', 'Linear Algebra Notes', 'These are my notes from the linear algebra course.'),
 (3, 'file3.py', 512, 'py', 'Python Basics', 'A very simple course for beginners. Data Structures and Algorithms are covered in depth.'),
@@ -291,7 +296,24 @@ INSERT INTO Follows (follower_id, followed_id) VALUES
 (1, 2),
 (1, 3),
 (2, 1),
-(3, 1);
+(3, 1),
+(3, 2),
+(2, 3),
+(4, 1),
+(4, 2),
+(4, 3),
+(5, 1),
+(5, 2),
+(5, 3),
+(6, 1),
+(6, 2),
+(6, 3),
+(7, 1),
+(7, 2),
+(7, 3),
+(8, 1),
+(8, 2),
+(8, 3);
 
 -- Notification types
 INSERT INTO NotificationTypes (notification_type_name) VALUES ('Follow'), ('Comment'), ('Rating'), ('Event');

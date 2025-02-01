@@ -11,9 +11,9 @@ import {
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
 
-const router = express.Router();
+const likeRouter = express.Router();
 
-router
+likeRouter
   .route('/')
   .get(likeListGet)
   .post(
@@ -23,7 +23,7 @@ router
     likePost,
   );
 
-router
+likeRouter
   .route('/bymedia/:material_id')
   .get(
     param('material_id').isInt({min: 1}).toInt(),
@@ -31,7 +31,7 @@ router
     likeListByMaterialIdGet,
   );
 
-router
+likeRouter
   .route('/bymedia/user/:material_id')
   .get(
     authenticate,
@@ -40,7 +40,7 @@ router
     likeByMaterialIdAndUserIdGet,
   );
 
-router
+likeRouter
   .route('/byuser/:id')
   .get(
     authenticate,
@@ -49,7 +49,7 @@ router
     likeListByUserIdGet,
   );
 
-router
+likeRouter
   .route('/count/:id')
   .get(
     param('id').isInt({min: 1}).toInt(),
@@ -57,7 +57,7 @@ router
     likeCountByMaterialIdGet,
   );
 
-router
+likeRouter
   .route('/:id')
   .delete(
     authenticate,
@@ -66,4 +66,4 @@ router
     likeDelete,
   );
 
-export default router;
+export default likeRouter;

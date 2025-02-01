@@ -10,9 +10,9 @@ import {
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
 
-const router = express.Router();
+const ratingRouter = express.Router();
 
-router
+ratingRouter
   .route('/')
   .get(ratingListGet)
   .post(
@@ -23,7 +23,7 @@ router
     ratingPost,
   );
 
-router
+ratingRouter
   .route('/bymedia/:id')
   .get(
     param('id').isInt({min: 1}).toInt(),
@@ -31,9 +31,9 @@ router
     ratingListByMaterialIdGet,
   );
 
-router.route('/byuser').get(authenticate, ratingListByUserGet);
+ratingRouter.route('/byuser').get(authenticate, ratingListByUserGet);
 
-router
+ratingRouter
   .route('/average/:id')
   .get(
     param('id').isInt({min: 1}).toInt(),
@@ -41,7 +41,7 @@ router
     ratingAverageByMaterialIdGet,
   );
 
-router
+ratingRouter
   .route('/:id')
   .delete(
     authenticate,
@@ -50,4 +50,4 @@ router
     ratingDelete,
   );
 
-export default router;
+export default ratingRouter;

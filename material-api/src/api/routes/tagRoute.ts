@@ -10,9 +10,9 @@ import {
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
 
-const router = express.Router();
+const tagRouter = express.Router();
 
-router
+tagRouter
   .route('/')
   .get(tagListGet)
   .post(
@@ -28,7 +28,7 @@ router
     tagPost,
   );
 
-router
+tagRouter
   .route('/bymedia/:id')
   .get(
     param('id').isInt({min: 1}).toInt(),
@@ -36,7 +36,7 @@ router
     tagListByMaterialIdGet,
   );
 
-router
+tagRouter
   .route('/bymedia/:material/:tag_id')
   .delete(
     authenticate,
@@ -46,7 +46,7 @@ router
     tagDeleteFromMaterial,
   );
 
-router
+tagRouter
   .route('/bytag/:tag_id')
   .get(
     param('tag_id').isInt({min: 1}).toInt(),
@@ -54,7 +54,7 @@ router
     tagFilesByTagGet,
   );
 
-router
+tagRouter
   .route('/:id')
   .delete(
     authenticate,
@@ -63,4 +63,4 @@ router
     tagDelete,
   );
 
-export default router;
+export default tagRouter;
