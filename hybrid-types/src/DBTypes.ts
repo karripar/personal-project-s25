@@ -12,8 +12,8 @@ type User = {
   created_at: Date | string;
 };
 
-type MediaItem = {
-  media_id: number;
+type StudyMaterial = {
+  material_id: number;
   user_id: number;
   filename: string;
   thumbnail: string | null;
@@ -27,7 +27,7 @@ type MediaItem = {
 
 type Comment = {
   comment_id: number;
-  media_id: number;
+  material_id: number;
   user_id: number;
   comment_text: string;
   created_at: Date;
@@ -35,14 +35,14 @@ type Comment = {
 
 type Like = {
   like_id: number;
-  media_id: number;
+  material_id: number;
   user_id: number;
   created_at: Date;
 };
 
 type Rating = {
   rating_id: number;
-  media_id: number;
+  material_id: number;
   user_id: number;
   rating_value: number;
   created_at: Date;
@@ -53,12 +53,12 @@ type Tag = {
   tag_name: string;
 };
 
-type MediaItemTag = {
-  media_id: number;
+type MaterialTag = {
+  material_id: number;
   tag_id: number;
 };
 
-type TagResult = MediaItemTag & Tag;
+type TagResult = MaterialTag & Tag;
 
 type UploadResult = {
   message: string;
@@ -68,8 +68,8 @@ type UploadResult = {
 };
 
 type MostLikedMedia = Pick<
-  MediaItem,
-  | 'media_id'
+  StudyMaterial,
+  | 'material_id'
   | 'filename'
   | 'filesize'
   | 'media_type'
@@ -89,7 +89,7 @@ type UserWithNoPassword = Omit<UserWithLevel, 'password'>;
 
 type TokenContent = Pick<User, 'user_id'> & Pick<UserLevel, 'level_name'>;
 
-type MediaItemWithOwner = MediaItem & Pick<User, 'username'>;
+type MediaItemWithOwner = StudyMaterial & Pick<User, 'username'>;
 
 // for upload server
 type FileInfo = {
@@ -100,12 +100,12 @@ type FileInfo = {
 export type {
   UserLevel,
   User,
-  MediaItem,
+  StudyMaterial,
   Comment,
   Like,
   Rating,
   Tag,
-  MediaItemTag,
+  MaterialTag,
   TagResult,
   UploadResult,
   MostLikedMedia,
