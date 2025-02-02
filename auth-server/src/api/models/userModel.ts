@@ -38,7 +38,7 @@ const getAllUsers = async (): Promise<UserWithNoPassword[]> => {
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.password, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      WHERE Users.email = ?`,
@@ -54,9 +54,9 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
 
 const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.password, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
      FROM Users
-     JOIN UserLevels ON Users.user_level_id = UserLevels.level_id
+     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      WHERE Users.username = ?`,
     [username],
   );
@@ -69,14 +69,14 @@ const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
 
 
 const createUser = async (
-  user: Pick<User, 'username' | 'password' | 'email'>,
+  user: Pick<User, 'username' | 'password_hash' | 'email'>,
   userLevelId = 2,
 ): Promise<UserWithNoPassword> => {
-  const sql = `INSERT INTO Users (username, password, email, user_level_id)
+  const sql = `INSERT INTO Users (username, password_hash, email, user_level_id)
        VALUES (?, ?, ?, ?)`;
   const stmt = promisePool.format(sql, [
     user.username,
-    user.password,
+    user.password_hash,
     user.email,
     userLevelId,
   ]);
@@ -99,7 +99,7 @@ const modifyUser = async (
   try {
     await connection.beginTransaction();
 
-    const allowedFields = ['username', 'email', 'password', 'user_level_id'];
+    const allowedFields = ['username', 'email', 'password_hash', 'user_level_id'];
     const updates = Object.entries(user)
       .filter(([key]) => allowedFields.includes(key))
       .map(([key]) => `${key} = ?`);

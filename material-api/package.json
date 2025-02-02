@@ -45,7 +45,7 @@
     "apidoc": "^1.2.0",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
-    "hybrid-types": "github:ilkkamtk/hybrid-types",
+    "hybrid-types": "github:karripar/hybrid-types",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",

@@ -15,7 +15,7 @@ const login = async (
     const {username, password} = req.body;
     const user = await getUserByUsername(username);
 
-    if (!bcrypt.compare(password, user.password)) {
+    if (!bcrypt.compare(password, user.password_hash)) {
       next(new CustomError('Incorrect username/password', 403));
       return;
     }
@@ -25,7 +25,7 @@ const login = async (
       return;
     }
 
-    const outUser: Omit<UserWithLevel, 'password'> = {
+    const outUser: Omit<UserWithLevel, 'password_hash'> = {
       user_id: user.user_id,
       username: user.username,
       email: user.email,
