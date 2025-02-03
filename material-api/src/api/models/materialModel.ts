@@ -5,7 +5,6 @@ import promisePool from '../../lib/db';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
 import {fetchData} from '../../lib/functions';
-
 const uploadPath = process.env.UPLOAD_URL;
 
 // Common SQL fragments

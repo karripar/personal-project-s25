@@ -17,7 +17,7 @@ const fetchAllComments = async (): Promise<Comment[]> => {
 };
 
 // Request a list of comments by study material ID
-const fetchCommentsByMediaId = async (id: number): Promise<Comment[]> => {
+const fetchCommentsByMaterialId = async (id: number): Promise<Comment[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Comment[]>(
     'SELECT * FROM Comments WHERE material_id = ?',
     [id],
@@ -29,7 +29,7 @@ const fetchCommentsByMediaId = async (id: number): Promise<Comment[]> => {
 };
 
 // Request a count of comments by study material ID
-const fetchCommentsCountByMediaId = async (id: number): Promise<number> => {
+const fetchCommentsCountByMaterialId = async (id: number): Promise<number> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & { commentsCount: number }[]
   >(
@@ -130,8 +130,8 @@ const deleteComment = async (
 
 export {
   fetchAllComments,
-  fetchCommentsByMediaId,
-  fetchCommentsCountByMediaId,
+  fetchCommentsByMaterialId,
+  fetchCommentsCountByMaterialId,
   fetchCommentsByUserId,
   fetchCommentById,
   postComment,

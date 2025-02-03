@@ -50,7 +50,7 @@ const userPost = async (
 ) => {
   try {
     const user = req.body;
-    user.password = await bcrypt.hash(user.password, salt);
+    user.password_hash = await bcrypt.hash(user.password_hash, salt);
 
     console.log(user);
 
@@ -80,8 +80,8 @@ const userPut = async (
     const userFromToken = res.locals.user;
 
     const user = req.body;
-    if (user.password) {
-      user.password = await bcrypt.hash(user.password, salt);
+    if (user.password_hash) {
+      user.password_hash = await bcrypt.hash(user.password_hash, salt);
     }
 
     console.log('userPut', userFromToken, user);
@@ -138,8 +138,8 @@ const userPutAsAdmin = async (
       return;
     }
     const user = req.body;
-    if (user.password) {
-      user.password = await bcrypt.hash(user.password, salt);
+    if (user.password_hash) {
+      user.password_hash = await bcrypt.hash(user.password_hash, salt);
     }
 
     const result = await modifyUser(user, Number(req.params.id));

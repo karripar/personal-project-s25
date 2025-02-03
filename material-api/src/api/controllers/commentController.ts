@@ -1,8 +1,8 @@
 import {Request, Response, NextFunction} from 'express';
 import {
   fetchAllComments,
-  fetchCommentsByMediaId,
-  fetchCommentsCountByMediaId,
+  fetchCommentsByMaterialId,
+  fetchCommentsCountByMaterialId,
   fetchCommentsByUserId,
   fetchCommentById,
   postComment,
@@ -27,13 +27,13 @@ const commentListGet = async (
 };
 
 // list of comments by media item id
-const commentListByMediaIdGet = async (
+const commentListByMaterialIdGet = async (
   req: Request<{id: string}>,
   res: Response<Comment[]>,
   next: NextFunction,
 ) => {
   try {
-    const comments = await fetchCommentsByMediaId(Number(req.params.id));
+    const comments = await fetchCommentsByMaterialId(Number(req.params.id));
     res.json(comments);
   } catch (error) {
     next(error);
@@ -57,13 +57,13 @@ const commentListByUserGet = async (
 };
 
 // list of comments count by media item id
-const commentCountByMediaIdGet = async (
+const commentCountByMaterialIdGet = async (
   req: Request<{id: string}>,
   res: Response<{count: number}>,
   next: NextFunction,
 ) => {
   try {
-    const count = await fetchCommentsCountByMediaId(Number(req.params.id));
+    const count = await fetchCommentsCountByMaterialId(Number(req.params.id));
     res.json({count});
   } catch (error) {
     next(error);
@@ -141,9 +141,9 @@ const commentDelete = async (
 
 export {
   commentListGet,
-  commentListByMediaIdGet,
+  commentListByMaterialIdGet,
   commentListByUserGet,
-  commentCountByMediaIdGet,
+  commentCountByMaterialIdGet,
   commentGet,
   commentPost,
   commentPut,

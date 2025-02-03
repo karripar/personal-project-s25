@@ -5,6 +5,8 @@ import tagRouter from './routes/tagRoute';
 import likeRouter from './routes/likeRoute';
 import ratingRouter from './routes/ratingRoute';
 import commentRouter from './routes/commentRoute';
+import notificationRouter from './routes/notificationRoute';
+import analyticsRouter from './routes/analyticsRoute';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 
 const router = express.Router();
@@ -21,5 +23,7 @@ router.use('/likes', likeRouter);
 router.use('/comments', commentRouter);
 router.use('/ratings', ratingRouter);
 router.use('/follows', followRouter);
+router.use('/notifications', notificationRouter);
+router.use('/analytics', analyticsRouter);
 
 export default router;

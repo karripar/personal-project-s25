@@ -50,4 +50,13 @@ export const ERROR_MESSAGES = {
     ALREADY_EXISTS: 'User is already following this user',
     SELF_FOLLOW: 'User cannot follow themselves',
   },
+  NOTIFICATIONS: {
+    NOT_FOUND: 'No notifications found',
+    NOT_FOUND_USER: 'No notifications found for user',
+    NOT_CREATED: 'Notification not created',
+    NOT_DELETED: 'Notification not deleted',
+  },
+  ACTIVITY: {
+    NOT_FOUND: 'No activity found',
+  },
 } as const;
