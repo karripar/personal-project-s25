@@ -127,6 +127,15 @@ CREATE TABLE Notifications (
     FOREIGN KEY (notification_type_id) REFERENCES NotificationTypes(notification_type_id)
 );
 
+CREATE TABLE Favorites (
+    favorite_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    material_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (material_id) REFERENCES StudyMaterials(material_id) ON DELETE CASCADE
+);
+
 
 -- views --
 
@@ -210,12 +219,11 @@ ORDER BY StudyMaterials.created_at DESC;
 
 
 -- view to get the material from a user that is followed by the current user
-CREATE VIEW FollowedMaterials AS
+CREATE VIEW FollowedMaterials AS 
 SELECT 
-    f.follower_id, -- Include follower_id
     sm.material_id,
     sm.user_id AS author_id,
-    u.username AS author_username,
+    f.follower_id AS follower_id,
     sm.filename,
     sm.filesize,
     sm.media_type,
@@ -223,8 +231,7 @@ SELECT
     sm.description,
     sm.created_at
 FROM StudyMaterials sm
-JOIN Follows f ON sm.user_id = f.followed_id
-JOIN Users u ON sm.user_id = u.user_id;
+JOIN Follows f ON sm.user_id = f.followed_id;
 
 
 
@@ -359,6 +366,22 @@ INSERT INTO Notifications (user_id, notification_text, notification_type_id) VAL
 (1, 'JaneSmith rated your material.', 3),
 (1, 'JaneSmith commented on your material.', 2),
 (1, 'JaneSmith rated your material.', 3);
+
+
+-- Sample favorites
+INSERT INTO Favorites (user_id, material_id) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(2, 1),
+(2, 2),
+(2, 3),
+(3, 1),
+(3, 2),
+(3, 3),
+(4, 1),
+(4, 2),
+(4, 3);
 
 
 

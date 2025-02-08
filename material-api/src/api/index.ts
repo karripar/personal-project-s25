@@ -5,6 +5,7 @@ import tagRouter from './routes/tagRoute';
 import likeRouter from './routes/likeRoute';
 import ratingRouter from './routes/ratingRoute';
 import commentRouter from './routes/commentRoute';
+import { favoriteRouter } from './routes/favoriteRoute';
 import notificationRouter from './routes/notificationRoute';
 import analyticsRouter from './routes/analyticsRoute';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
@@ -25,5 +26,6 @@ router.use('/ratings', ratingRouter);
 router.use('/follows', followRouter);
 router.use('/notifications', notificationRouter);
 router.use('/analytics', analyticsRouter);
+router.use('/favorites', favoriteRouter);
 
 export default router;

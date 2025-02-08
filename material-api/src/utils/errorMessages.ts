@@ -59,4 +59,12 @@ export const ERROR_MESSAGES = {
   ACTIVITY: {
     NOT_FOUND: 'No activity found',
   },
+  FAVORITE: {
+    NOT_FOUND: 'No favorites found',
+    NOT_FOUND_USER: 'No favorites found for user',
+    NOT_CREATED: 'Favorite not created',
+    NOT_DELETED: 'Favorite not deleted',
+    UNAUTHORIZED: 'User is not authorized to remove this favorite',
+    ALREADY_EXISTS: 'User has already favorited this media item',
+  },
 } as const;
