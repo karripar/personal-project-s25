@@ -13,7 +13,7 @@ import {
   getUserByUsername,
   modifyUser,
 } from '../models/userModel';
-import {TokenContent, User, UserWithNoPassword} from 'hybrid-types/DBTypes';
+import {TokenContent, User, UserWithNoPassword, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
 
 const salt = bcrypt.genSaltSync(12);
 
@@ -44,13 +44,19 @@ const userGet = async (
 };
 
 const userPost = async (
-  req: Request<object, object, User>,
+  req: Request<object, object, UserWithUnhashedPassword>,
   res: Response<UserResponse>,
   next: NextFunction,
 ) => {
   try {
     const user = req.body;
-    user.password_hash = await bcrypt.hash(user.password_hash, salt);
+
+    if (!user.password || !user.email || !user.username) {
+      next(new CustomError('Missing required fields', 400));
+      return;
+    }
+
+    user.password = await bcrypt.hash(user.password, salt);
 
     console.log(user);
 

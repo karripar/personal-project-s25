@@ -1,6 +1,6 @@
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {promisePool} from '../../lib/db';
-import {UserWithLevel, User, UserWithNoPassword} from 'hybrid-types/DBTypes';
+import {UserWithLevel, User, UserWithNoPassword, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
 import {UserDeleteResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
 import { customLog } from '../../lib/functions';
@@ -69,14 +69,14 @@ const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
 
 
 const createUser = async (
-  user: Pick<User, 'username' | 'password_hash' | 'email'>,
+  user: Pick<UserWithUnhashedPassword, 'username' | 'password' | 'email'>,
   userLevelId = 2,
 ): Promise<UserWithNoPassword> => {
   const sql = `INSERT INTO Users (username, password_hash, email, user_level_id)
        VALUES (?, ?, ?, ?)`;
   const stmt = promisePool.format(sql, [
     user.username,
-    user.password_hash,
+    user.password,
     user.email,
     userLevelId,
   ]);

@@ -3,17 +3,17 @@ import bcrypt from 'bcryptjs';
 import {NextFunction, Request, Response} from 'express';
 import CustomError from '../../classes/CustomError';
 import {LoginResponse} from 'hybrid-types/MessageTypes';
-import {getUserByUsername} from '../models/userModel';
+import {getUserByEmail} from '../models/userModel';
 import {UserWithLevel, TokenContent} from 'hybrid-types/DBTypes';
 
 const login = async (
-  req: Request<object, object, {username: string; password: string}>,
+  req: Request<object, object, {email: string; password: string}>,
   res: Response<LoginResponse>,
   next: NextFunction,
 ) => {
   try {
-    const {username, password} = req.body;
-    const user = await getUserByUsername(username);
+    const {email, password} = req.body;
+    const user = await getUserByEmail(email);
 
     if (!bcrypt.compare(password, user.password_hash)) {
       next(new CustomError('Incorrect username/password', 403));
