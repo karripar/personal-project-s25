@@ -6,7 +6,9 @@ import {
   deleteMaterial,
   fetchMostLikedMaterial,
   fetchMaterialByUserId,
+  fetchFollowedMaterial,
   putMaterial,
+  fetchSearchedMaterial,
 } from '../models/materialModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {StudyMaterial, TokenContent} from 'hybrid-types/DBTypes';
@@ -125,6 +127,51 @@ const materialListMostLikedGet = async (
   }
 };
 
+const materialListFollowedGet = async (
+  req: Request,
+  res: Response<StudyMaterial[]>,
+  next: NextFunction,
+) => {
+  try {
+    const id = res.locals.user.user_id;
+    if (isNaN(id)) {
+      throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);
+    }
+    const media = await fetchFollowedMaterial(id);
+    res.json(media);
+  } catch (error) {
+    next(error);
+  }
+}
+
+const materialWithSearchGet = async (
+  req: Request<{}, {}, { page: string; limit: string; search: string }>,
+  res: Response<StudyMaterial[]>,
+  next: NextFunction
+) => {
+  try {
+    // Destructure query parameters with proper conversion
+    const { page, limit} = req.query;
+    const { search } = req.query;
+
+    // Validate parameters (ensure page, limit are integers and search is a string)
+    const pageNum = page ? Number(page) : 1;
+    const limitNum = limit ? Number(limit) : 10;
+
+    // Check if search string is empty
+    if (!search) {
+      const media = await fetchAllMaterial(pageNum, limitNum);
+      res.json(media);
+    }
+
+    // Fetch the data from the database
+    const media = await fetchSearchedMaterial(search as string, pageNum, limitNum);
+    res.json(media);
+  } catch (error) {
+    next(error); // Pass any error to the error handler middleware
+  }
+}
+
 export {
   materialListGet,
   materialGet,
@@ -133,4 +180,6 @@ export {
   materialDelete,
   materialByUserGet,
   materialListMostLikedGet,
+  materialListFollowedGet,
+  materialWithSearchGet
 };

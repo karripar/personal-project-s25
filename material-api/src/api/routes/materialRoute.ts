@@ -7,6 +7,8 @@ import {
   materialDelete,
   materialByUserGet,
   materialListMostLikedGet,
+  materialListFollowedGet,
+  materialWithSearchGet
 } from '../controllers/materialController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param, query} from 'express-validator';
@@ -48,6 +50,22 @@ materialRouter
   );
 
 materialRouter.route('/mostliked').get(materialListMostLikedGet);
+
+materialRouter.route('/search').get(
+  query('page').optional().isInt({min: 1}).toInt(),
+  query('limit').optional().isInt({min: 1}).toInt(),
+  param('search').optional().isString().trim().escape(),
+  validationErrors,
+  materialWithSearchGet
+);
+
+materialRouter.route('/followed/:follower_id')
+.get(
+  authenticate,
+  param('follower_id').isInt({min: 1}).toInt(),
+  validationErrors,
+  materialListFollowedGet
+);
 
 materialRouter
   .route('/:id')

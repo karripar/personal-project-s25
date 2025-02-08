@@ -225,6 +225,38 @@ const fetchMostLikedMaterial = async (): Promise<StudyMaterial> => {
   return rows[0];
 };
 
+
+const fetchFollowedMaterial = async (user_id: number): Promise<StudyMaterial[]> => {
+  const sql = `SELECT * FROM FollowedMaterials WHERE follower_id = ?`;
+  const params = [user_id];
+  const stmt = promisePool.format(sql, params);
+  console.log(stmt);
+
+  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  if (!rows.length) {
+    throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_FOUND, 404);
+  }
+  return rows;
+};
+
+
+const fetchSearchedMaterial = async (
+  search: string,
+  page: number | undefined = undefined,
+  limit: number | undefined = undefined,
+): Promise<StudyMaterial[]> => {
+  const offset = ((page || 1) - 1) * (limit || 10);
+  const sql = `${BASE_MEDIA_QUERY}
+    WHERE title LIKE ?
+    ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
+  const params = [uploadPath, `%${search}%`, limit, offset];
+  const stmt = promisePool.format(sql, params);
+  console.log(stmt);
+
+  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  return rows;
+}
+
 export {
   fetchAllMaterial,
   fetchMaterialById,
@@ -233,4 +265,6 @@ export {
   fetchMostLikedMaterial,
   fetchMaterialByUserId,
   putMaterial,
+  fetchFollowedMaterial,
+  fetchSearchedMaterial,
 };

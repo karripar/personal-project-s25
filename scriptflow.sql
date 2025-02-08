@@ -5,7 +5,7 @@ USE scriptflow;
 
 -- tables --
 
--- source c:/users/karri/onedrive/documents/hybrid-applications/personal-project/scriptflow.sql
+-- source c:/users/karri/WebDev/personal-project-s25/scriptflow.sql
 
 -- user levels to differentiate between regular users and admins, etc.
 CREATE TABLE UserLevels (
@@ -209,6 +209,24 @@ JOIN Users ON StudyMaterials.user_id = Users.user_id
 ORDER BY StudyMaterials.created_at DESC;
 
 
+-- view to get the material from a user that is followed by the current user
+CREATE VIEW FollowedMaterials AS
+SELECT 
+    f.follower_id, -- Include follower_id
+    sm.material_id,
+    sm.user_id AS author_id,
+    u.username AS author_username,
+    sm.filename,
+    sm.filesize,
+    sm.media_type,
+    sm.title,
+    sm.description,
+    sm.created_at
+FROM StudyMaterials sm
+JOIN Follows f ON sm.user_id = f.followed_id
+JOIN Users u ON sm.user_id = u.user_id;
+
+
 
 -- events --
 
@@ -268,7 +286,14 @@ INSERT INTO StudyMaterials (user_id, filename, filesize, media_type, title, desc
 (1, 'file4.html', 4096, 'html', 'Web Development Basics', 'Learn HTML, CSS, and JavaScript from scratch.'),
 (2, 'file5.cpp', 8192, 'cpp', 'C++ Programming', 'A comprehensive guide to C++ programming language.'),
 (3, 'file6.js', 1024, 'js', 'JavaScript Crash Course', 'A quick introduction to JavaScript programming.'),
-(1, 'file7.sql', 2048, 'sql', 'SQL Basics', 'Learn SQL queries and database management.');
+(1, 'file7.sql', 2048, 'sql', 'SQL Basics', 'Learn SQL queries and database management.'),
+(4, 'file8.pdf', 4096, 'pdf', 'Data Science Essentials', 'An essential guide to data science concepts and tools.'),
+(5, 'file9.doc', 8192, 'doc', 'Machine Learning Fundamentals', 'A beginner-friendly guide to machine learning algorithms.'),
+(6, 'file10.py', 1024, 'py', 'Cybersecurity Basics', 'Learn the basics of cybersecurity and how to protect your data.'),
+(7, 'file11.html', 2048, 'html', 'Web Development Advanced', 'Advanced topics in web development, including frameworks and libraries.'),
+(8, 'file12.cpp', 4096, 'cpp', 'Advanced C++ Programming', 'Advanced concepts and techniques in C++ programming.'),
+(1, 'file13.js', 8192, 'js', 'Advanced JavaScript', 'Advanced topics in JavaScript programming.'),
+(2, 'file14.sql', 1024, 'sql', 'Advanced SQL Queries', 'Advanced SQL queries and database optimization techniques.');
 
 INSERT INTO Tags (tag_name) VALUES ('Algorithms'), ('Linear Algebra'), ('Python'), ('Data Structures'), ('JavaScript'),
 ('Java'), ('C++'), ('HTML'), ('CSS'), ('SQL');
@@ -307,13 +332,13 @@ INSERT INTO Follows (follower_id, followed_id) VALUES
 (5, 3),
 (6, 1),
 (6, 2),
-(6, 3),
 (7, 1),
 (7, 2),
 (7, 3),
 (8, 1),
 (8, 2),
-(8, 3);
+(8, 3),
+(6, 3);
 
 -- Notification types
 INSERT INTO NotificationTypes (notification_type_name) VALUES ('Follow'), ('Comment'), ('Rating'), ('Event');
