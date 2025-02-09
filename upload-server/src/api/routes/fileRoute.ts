@@ -3,16 +3,19 @@ import {deleteFile, uploadFile} from '../controllers/uploadController';
 import multer, {FileFilterCallback} from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
 
+const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/webm', 'video/quicktime', 'application/pdf', 'text/plain'];
+
 const fileFilter = (
   _request: Request,
   file: Express.Multer.File,
   cb: FileFilterCallback
 ) => {
   console.log('file', file);
-  if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
+  if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(null, false);
+    throw new Error('Invalid file type');
   }
 };
 const upload = multer({dest: './uploads/', fileFilter});

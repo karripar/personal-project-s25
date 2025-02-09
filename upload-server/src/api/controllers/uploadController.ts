@@ -26,6 +26,12 @@ const uploadFile = async (
       throw new CustomError('file not valid', 400);
     }
 
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/webm', 'video/quicktime', 'application/pdf', 'text/plain'];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      cleanup(tempFiles);
+      throw new CustomError('Invalid file type', 400);
+    }
+
     const extension = req.file.originalname.split('.').pop();
     if (!extension) {
       throw new CustomError('Invalid file extension', 400);

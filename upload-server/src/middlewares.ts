@@ -59,43 +59,56 @@ const authenticate = async (
   }
 };
 
-const makeThumbnail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const makeThumbnail = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.file) {
-      next(new CustomError('File not uploaded', 500));
-      return;
+      return next(new CustomError('File not uploaded', 500));
     }
-
-    // const src =
-    //   process.env.NODE_ENV === 'development'
-    //     ? path.join(__dirname, '..', 'uploads', req.file.path)
-    //     : req.file.path;
 
     console.log('polku', req.file.path);
 
-    if (!req.file.mimetype.includes('video')) {
-      await sharp(req.file.path)
-        .resize(320, 320)
-        .png()
-        .toFile(req.file.path + '-thumb.png')
-        .catch((error) => {
-          console.error('sharp error', error);
-          next(new CustomError('Thumbnail not created by sharp', 500));
-        });
-      next();
-      return;
+    const isImage = req.file.mimetype.startsWith('image/'); // ✅ Only allow images
+    const isVideo = req.file.mimetype.startsWith('video/'); // ✅ Check for videos
+
+    if (isImage) {
+      try {
+        const thumbnailPath = req.file.path + '-thumb.png';
+
+        await sharp(req.file.path)
+          .resize(320, 320)
+          .png()
+          .toFile(thumbnailPath);
+
+        console.log('Thumbnail created:', thumbnailPath);
+        res.locals.thumbnail = thumbnailPath;
+      } catch (error) {
+        console.error('Sharp error:', error);
+        return next(new CustomError('Thumbnail creation failed', 500));
+      }
+
+      return next();
     }
 
-    const screenshots: string[] = await getVideoThumbnail(req.file.path);
-    res.locals.screenshots = screenshots;
+    if (isVideo) {
+      try {
+        const screenshots: string[] = await getVideoThumbnail(req.file.path);
+        res.locals.screenshots = screenshots;
+        console.log('Video thumbnails created:', screenshots);
+      } catch (error) {
+        console.error('Video thumbnail error:', error);
+        return next(new CustomError('Video thumbnail creation failed', 500));
+      }
+
+      return next();
+    }
+
+    // If file is neither an image nor a video, just move to the next middleware
+    console.log('No thumbnail created: unsupported file type', req.file.mimetype);
     next();
   } catch (error) {
-    next(new CustomError('Thumbnail not created', 500));
+    next(new CustomError('Unexpected error in makeThumbnail', 500));
   }
 };
+
 
 export {notFound, errorHandler, authenticate, makeThumbnail};
