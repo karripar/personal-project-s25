@@ -1,8 +1,8 @@
 import {Request, Response, NextFunction} from 'express';
 import {
   fetchAllComments,
-  fetchCommentsByMaterialId,
-  fetchCommentsCountByMaterialId,
+  fetchCommentsByMediaId,
+  fetchCommentsCountByMediaId,
   fetchCommentsByUserId,
   fetchCommentById,
   postComment,
@@ -27,13 +27,13 @@ const commentListGet = async (
 };
 
 // list of comments by media item id
-const commentListByMaterialIdGet = async (
+const commentListByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<Comment[]>,
   next: NextFunction,
 ) => {
   try {
-    const comments = await fetchCommentsByMaterialId(Number(req.params.id));
+    const comments = await fetchCommentsByMediaId(Number(req.params.id));
     res.json(comments);
   } catch (error) {
     next(error);
@@ -57,13 +57,13 @@ const commentListByUserGet = async (
 };
 
 // list of comments count by media item id
-const commentCountByMaterialIdGet = async (
+const commentCountByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<{count: number}>,
   next: NextFunction,
 ) => {
   try {
-    const count = await fetchCommentsCountByMaterialId(Number(req.params.id));
+    const count = await fetchCommentsCountByMediaId(Number(req.params.id));
     res.json({count});
   } catch (error) {
     next(error);
@@ -86,13 +86,13 @@ const commentGet = async (
 
 // Post a new comment
 const commentPost = async (
-  req: Request<{}, {}, {comment_text: string; material_id: string}>,
+  req: Request<{}, {}, {comment_text: string; media_id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
     const result = await postComment(
-      Number(req.body.material_id),
+      Number(req.body.media_id),
       res.locals.user.user_id,
       req.body.comment_text,
     );
@@ -141,9 +141,9 @@ const commentDelete = async (
 
 export {
   commentListGet,
-  commentListByMaterialIdGet,
+  commentListByMediaIdGet,
   commentListByUserGet,
-  commentCountByMaterialIdGet,
+  commentCountByMediaIdGet,
   commentGet,
   commentPost,
   commentPut,

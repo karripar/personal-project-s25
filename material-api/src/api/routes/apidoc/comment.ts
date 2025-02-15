@@ -6,7 +6,7 @@
  * @apiSuccess {Object[]} Array of comment objects
  * @apiSuccess {Number} comment_id Comment's unique ID
  * @apiSuccess {Number} user_id User's ID who made the comment
- * @apiSuccess {Number} material_id ID of the commented media
+ * @apiSuccess {Number} media_id ID of the commented media
  * @apiSuccess {String} comment_text Content of the comment
  * @apiSuccess {String} created_at Timestamp when comment was created
  *
@@ -16,7 +16,7 @@
  *       {
  *         "comment_id": 1,
  *         "user_id": 1,
- *         "material_id": 1,
+ *         "media_id": 1,
  *         "comment_text": "Great photo!",
  *         "created_at": "2024-01-26T09:38:08.000Z"
  *       }
@@ -32,7 +32,7 @@
  * @apiHeader {String} Authorization Bearer token for authentication
  *
  * @apiParam {String} comment_text Text of the comment
- * @apiParam {Number} material_id ID of the media
+ * @apiParam {Number} media_id ID of the media
  *
  * @apiSuccess {String} message Success message
  *
@@ -55,7 +55,7 @@
  * @apiSuccess {Object[]} comments List of comments for the media
  * @apiSuccess {Number} comments.comment_id ID of the comment
  * @apiSuccess {Number} comments.user_id ID of the user who commented
- * @apiSuccess {Number} comments.material_id ID of the media
+ * @apiSuccess {Number} comments.media_id ID of the media
  * @apiSuccess {String} comments.comment_text Content of the comment
  * @apiSuccess {String} comments.created_at Timestamp when created
  *
@@ -67,7 +67,7 @@
  *         {
  *           "comment_id": 1,
  *           "user_id": 1,
- *           "material_id": 1,
+ *           "media_id": 1,
  *           "comment_text": "This is a comment",
  *           "created_at": "2024-01-26T09:38:08.000Z"
  *         }
@@ -141,7 +141,7 @@
  * @apiSuccess {Object} comment Comment object
  * @apiSuccess {Number} comment.comment_id ID of the comment
  * @apiSuccess {Number} comment.user_id ID of the user
- * @apiSuccess {Number} comment.material_id ID of the media
+ * @apiSuccess {Number} comment.media_id ID of the media
  * @apiSuccess {String} comment.comment_text Content of the comment
  * @apiSuccess {String} comment.created_at Timestamp when created
  *
@@ -152,7 +152,7 @@
  *       "comment": {
  *         "comment_id": 1,
  *         "user_id": 1,
- *         "material_id": 1,
+ *         "media_id": 1,
  *         "comment_text": "This is a comment",
  *         "created_at": "2024-01-26T09:38:08.000Z"
  *       }
@@ -183,7 +183,7 @@
  *
  * @apiSuccess {Number} comment_id ID of the updated comment.
  * @apiSuccess {Number} user_id ID of the user who commented.
- * @apiSuccess {Number} material_id ID of the media that was commented on.
+ * @apiSuccess {Number} media_id ID of the media that was commented on.
  * @apiSuccess {String} content Updated content of the comment.
  * @apiSuccess {created_at} created_at Timestamp of when the comment was created.
  *
@@ -192,7 +192,7 @@
  *     {
  *       "comment_id": 1,
  *       "user_id": 1,
- *       "material_id": 1,
+ *       "media_id": 1,
  *       "content": "This is an updated comment"
  *       "created_at": "2022-01-01T00:00:00.000Z"
  *     }

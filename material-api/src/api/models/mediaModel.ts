@@ -1,6 +1,6 @@
 import {ERROR_MESSAGES} from '../../utils/errorMessages';
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
-import {StudyMaterial, UserLevel} from 'hybrid-types/DBTypes';
+import {MediaItem, UserLevel} from 'hybrid-types/DBTypes';
 import promisePool from '../../lib/db';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -15,7 +15,7 @@ const uploadPath = process.env.UPLOAD_URL;
 // ....execute(BASE_MEDIA_QUERY, [uploadPath, otherParams]);
 const BASE_MEDIA_QUERY = `
   SELECT
-    material_id,
+    media_id,
     user_id,
     filename,
     filesize,
@@ -42,13 +42,13 @@ const BASE_MEDIA_QUERY = `
       )
       ELSE NULL
     END AS screenshots
-  FROM StudyMaterials
+  FROM MediaItems
 `;
 
-const fetchAllMaterial = async (
+const fetchAllMedia = async (
   page: number | undefined = undefined,
   limit: number | undefined = undefined,
-): Promise<StudyMaterial[]> => {
+): Promise<MediaItem[]> => {
   const offset = ((page || 1) - 1) * (limit || 10);
   const sql = `${BASE_MEDIA_QUERY}
     ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
@@ -56,28 +56,28 @@ const fetchAllMaterial = async (
   const stmt = promisePool.format(sql, params);
   console.log(stmt);
 
-  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   return rows;
 };
 
-const fetchMaterialById = async (id: number): Promise<StudyMaterial> => {
+const fetchMediaById = async (id: number): Promise<MediaItem> => {
   const sql = `${BASE_MEDIA_QUERY}
-              WHERE material_id=?`;
+              WHERE media_id = ?`;
   const params = [uploadPath, id];
   const stmt = promisePool.format(sql, params);
   console.log(stmt);
-  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   if (rows.length === 0) {
     throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_FOUND, 404);
   }
   return rows[0];
 };
 
-const postMaterial = async (
-  media: Omit<StudyMaterial, 'material_id' | 'created_at' | 'thumbnail'>,
-): Promise<StudyMaterial> => {
+const postMedia = async (
+  media: Omit<MediaItem, 'media_id' | 'created_at' | 'thumbnail'>,
+): Promise<MediaItem> => {
   const {user_id, filename, filesize, media_type, title, description} = media;
-  const sql = `INSERT INTO StudyMaterials (user_id, filename, filesize, media_type, title, description)
+  const sql = `INSERT INTO MediaItems (user_id, filename, filesize, media_type, title, description)
                VALUES (?, ?, ?, ?, ?, ?)`;
   const params = [user_id, filename, filesize, media_type, title, description];
   const stmt = promisePool.format(sql, params);
@@ -87,24 +87,24 @@ const postMaterial = async (
   if (result.affectedRows === 0) {
     throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_CREATED, 500);
   }
-  return await fetchMaterialById(result.insertId);
+  return await fetchMediaById(result.insertId);
 };
 
-const putMaterial = async (
-  material: Pick<StudyMaterial, 'title' | 'description'>,
+const putMedia = async (
+  Media: Pick<MediaItem, 'title' | 'description'>,
   id: number,
   user_id: number,
   user_level: UserLevel['level_name'],
-): Promise<StudyMaterial> => {
+): Promise<MediaItem> => {
   const sql =
     user_level === 'Admin'
-      ? 'UPDATE StudyMaterials SET title = ?, description = ? WHERE material_id = ?'
-      : 'UPDATE StudyMaterials SET title = ?, description = ? WHERE material_id = ? AND user_id = ?';
+      ? 'UPDATE MediaItems SET title = ?, description = ? WHERE media_id = ?'
+      : 'UPDATE MediaItems SET title = ?, description = ? WHERE media_id = ? AND user_id = ?';
 
   const params =
     user_level === 'Admin'
-      ? [material.title, material.description, id]
-      : [material.title, material.description, id, user_id];
+      ? [Media.title, Media.description, id]
+      : [Media.title, Media.description, id, user_id];
 
   const stmt = promisePool.format(sql, params);
   const [result] = await promisePool.execute<ResultSetHeader>(stmt);
@@ -113,22 +113,22 @@ const putMaterial = async (
     throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_UPDATED, 404);
   }
 
-  return await fetchMaterialById(id);
+  return await fetchMediaById(id);
 };
 
-const deleteMaterial = async (
-  material_id: number,
+const deleteMedia = async (
+  media_id: number,
   user_id: number,
   token: string,
   level_name: UserLevel['level_name'],
 ): Promise<MessageResponse> => {
-  const material = await fetchMaterialById(material_id);
+  const Media = await fetchMediaById(media_id);
 
-  if (!material) {
+  if (!Media) {
     return {message: 'Media not found'};
   }
 
-  material.filename = material?.filename.replace(
+  Media.filename = Media?.filename.replace(
     process.env.UPLOAD_URL as string,
     '',
   );
@@ -137,28 +137,28 @@ const deleteMaterial = async (
 
   await connection.beginTransaction();
 
-  await connection.execute('DELETE FROM Likes WHERE material_id = ?;', [material_id]);
+  await connection.execute('DELETE FROM Likes WHERE media_id = ?;', [media_id]);
 
-  await connection.execute('DELETE FROM Comments WHERE material_id = ?;', [
-    material_id,
+  await connection.execute('DELETE FROM Comments WHERE media_id = ?;', [
+    media_id,
   ]);
 
-  await connection.execute('DELETE FROM Ratings WHERE material_id = ?;', [
-    material_id,
+  await connection.execute('DELETE FROM Ratings WHERE media_id = ?;', [
+    media_id,
   ]);
 
-  await connection.execute('DELETE FROM MaterialTags WHERE material_id = ?;', [
-    material_id,
+  await connection.execute('DELETE FROM MediaTags WHERE media_id = ?;', [
+    media_id,
   ]);
 
   const sql =
     level_name === 'Admin'
-      ? connection.format('DELETE FROM StudyMaterials WHERE material_id = ?', [
-        material_id,
+      ? connection.format('DELETE FROM MediaItems WHERE media_id = ?', [
+        media_id,
         ])
       : connection.format(
-          'DELETE FROM StudyMaterials WHERE material_id = ? AND user_id = ?',
-          [material_id, user_id],
+          'DELETE FROM MediaItems WHERE media_id = ? AND user_id = ?',
+          [media_id, user_id],
         );
 
   const [result] = await connection.execute<ResultSetHeader>(sql);
@@ -176,7 +176,7 @@ const deleteMaterial = async (
 
   try {
     const deleteResult = await fetchData<MessageResponse>(
-      `${process.env.UPLOAD_SERVER}/delete/${material.filename}`,
+      `${process.env.UPLOAD_SERVER}/delete/${Media.filename}`,
       options,
     );
 
@@ -192,22 +192,22 @@ const deleteMaterial = async (
   };
 };
 
-const fetchMaterialByUserId = async (user_id: number): Promise<StudyMaterial[]> => {
+const fetchMediaByUserId = async (user_id: number): Promise<MediaItem[]> => {
   const sql = `${BASE_MEDIA_QUERY} WHERE user_id = ?`;
   const params = [uploadPath, user_id];
   const stmt = promisePool.format(sql, params);
   console.log(stmt);
 
-  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   return rows;
 };
 
-const fetchMostLikedMaterial = async (): Promise<StudyMaterial> => {
+const fetchMostLikedMedia = async (): Promise<MediaItem> => {
   // you could also use a view for this
   const sql = `${BASE_MEDIA_QUERY}
-     WHERE material_id = (
-       SELECT material_id FROM Likes
-       GROUP BY material_id
+     WHERE media_id = (
+       SELECT media_id FROM Likes
+       GROUP BY media_id
        ORDER BY COUNT(*) DESC
        LIMIT 1
      )`;
@@ -216,7 +216,7 @@ const fetchMostLikedMaterial = async (): Promise<StudyMaterial> => {
   console.log(stmt);
 
   const [rows] = await promisePool.execute<
-    RowDataPacket[] & StudyMaterial[] & {likes_count: number}
+    RowDataPacket[] & MediaItem[] & {likes_count: number}
   >(stmt);
 
   if (!rows.length) {
@@ -226,13 +226,13 @@ const fetchMostLikedMaterial = async (): Promise<StudyMaterial> => {
 };
 
 
-const fetchFollowedMaterial = async (user_id: number): Promise<StudyMaterial[]> => {
-  const sql = `SELECT * FROM FollowedMaterials WHERE follower_id = ?`;
+const fetchFollowedMedia = async (user_id: number): Promise<MediaItem[]> => {
+  const sql = `SELECT * FROM FollowedMedias WHERE follower_id = ?`;
   const params = [user_id];
   const stmt = promisePool.format(sql, params);
   console.log(stmt);
 
-  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   if (!rows.length) {
     throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_FOUND, 404);
   }
@@ -240,11 +240,11 @@ const fetchFollowedMaterial = async (user_id: number): Promise<StudyMaterial[]> 
 };
 
 
-const fetchSearchedMaterial = async (
+const fetchSearchedMedia = async (
   search: string,
   page: number | undefined = undefined,
   limit: number | undefined = undefined,
-): Promise<StudyMaterial[]> => {
+): Promise<MediaItem[]> => {
   const offset = ((page || 1) - 1) * (limit || 10);
   const sql = `${BASE_MEDIA_QUERY}
     WHERE title LIKE ?
@@ -253,18 +253,18 @@ const fetchSearchedMaterial = async (
   const stmt = promisePool.format(sql, params);
   console.log(stmt);
 
-  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(stmt);
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   return rows;
 }
 
 export {
-  fetchAllMaterial,
-  fetchMaterialById,
-  postMaterial,
-  deleteMaterial,
-  fetchMostLikedMaterial,
-  fetchMaterialByUserId,
-  putMaterial,
-  fetchFollowedMaterial,
-  fetchSearchedMaterial,
+  fetchAllMedia,
+  fetchMediaById,
+  postMedia,
+  deleteMedia,
+  fetchMostLikedMedia,
+  fetchMediaByUserId,
+  putMedia,
+  fetchFollowedMedia,
+  fetchSearchedMedia,
 };

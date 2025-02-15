@@ -27,7 +27,7 @@
  * @apiHeader {String} Authorization Bearer token for authentication
  *
  * @apiParam {String} tag_name Name of the tag (2-50 characters)
- * @apiParam {Number} material_id ID of the media to tag (min: 1)
+ * @apiParam {Number} media_id ID of the media to tag (min: 1)
  *
  * @apiSuccess {String} message Success message
  *
@@ -37,7 +37,7 @@
  *       "message": "Tag added"
  *     }
  *
- * @apiError ValidationError Invalid tag name or material_id
+ * @apiError ValidationError Invalid tag name or media_id
  * @apiError Unauthorized Authentication required
  */
 
@@ -51,19 +51,19 @@
  * @apiSuccess {Object[]} tags Array of tags for the media
  * @apiSuccess {Number} tags.tag_id Tag's ID
  * @apiSuccess {String} tags.tag_name Tag's name
- * @apiSuccess {Number} tags.material_id Media's ID
+ * @apiSuccess {Number} tags.media_id Media's ID
  *
  * @apiError TagsNotFound No tags found for this media
  */
 
 /**
- * @api {delete} /tag/bymedia/:material_id/:tag_id Delete Tag from Media
+ * @api {delete} /tag/bymedia/:media_id/:tag_id Delete Tag from Media
  * @apiName DeleteTagFromMedia
  * @apiGroup Tag
  *
  * @apiHeader {String} Authorization Bearer token for authentication
  *
- * @apiParam {Number} material_id Media's ID (min: 1)
+ * @apiParam {Number} media_id Media's ID (min: 1)
  * @apiParam {Number} tag_id Tag's ID (min: 1)
  *
  * @apiSuccess {String} message Success message

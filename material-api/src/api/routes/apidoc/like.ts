@@ -6,7 +6,7 @@
  * @apiSuccess {Object[]} likes List of likes.
  * @apiSuccess {Number} likes.like_id ID of the like.
  * @apiSuccess {Number} likes.user_id ID of the user who liked.
- * @apiSuccess {Number} likes.material_id ID of the media that was liked.
+ * @apiSuccess {Number} likes.media_id ID of the media that was liked.
  * @apiSuccess {created_at} likes.created_at Timestamp of when the like was created.
  *
  * @apiSuccessExample {json} Success-Response:
@@ -15,7 +15,7 @@
  *       {
  *         "like_id": 1,
  *         "user_id": 1,
- *         "material_id": 1
+ *         "media_id": 1
  *         "created_at": "2022-01-01T00:00:00.000Z"
  *       },
  *       ...
@@ -36,12 +36,12 @@
  *
  * @apiHeader {String} Authorization Bearer token for authentication.
  *
- * @apiParam {Number} material_id ID of the media to be liked.
+ * @apiParam {Number} media_id ID of the media to be liked.
  *
  * @apiExample {json} Request-Example:
  *     POST /likes
  *     {
- *       "material_id": 1
+ *       "media_id": 1
  *     }
  *
  * @apiSuccess {String} message Success message.
@@ -71,7 +71,7 @@
  * @apiSuccess {Object[]} likes List of likes.
  * @apiSuccess {Number} likes.like_id ID of the like.
  * @apiSuccess {Number} likes.user_id ID of the user who liked.
- * @apiSuccess {Number} likes.material_id ID of the media that was liked.
+ * @apiSuccess {Number} likes.media_id ID of the media that was liked.
  * @apiSuccess {created_at} likes.created_at Timestamp of when the like was created.
  *
  * @apiSuccessExample {json} Success-Response:
@@ -80,7 +80,7 @@
  *       {
  *         "like_id": 1,
  *         "user_id": 1,
- *         "material_id": 1
+ *         "media_id": 1
  *         "created_at": "2022-01-01T00:00:00.000Z"
  *       },
  *       ...
@@ -104,7 +104,7 @@
  * @apiSuccess {Object[]} likes List of likes.
  * @apiSuccess {Number} likes.like_id ID of the like.
  * @apiSuccess {Number} likes.user_id ID of the user who liked.
- * @apiSuccess {Number} likes.material_id ID of the media that was liked.
+ * @apiSuccess {Number} likes.media_id ID of the media that was liked.
  * @apiSuccess {created_at} likes.created_at Timestamp of when the like was created.
  *
  * @apiSuccessExample {json} Success-Response:
@@ -113,7 +113,7 @@
  *       {
  *         "like_id": 1,
  *         "user_id": 1,
- *         "material_id": 1
+ *         "media_id": 1
  *         "created_at": "2022-01-01T00:00:00.000Z"
  *       },
  *       ...
@@ -176,20 +176,20 @@
  *     }
  */
 /**
- * @api {get} /like/bymedia/user/:material_id Get Likes by Media ID and User ID
+ * @api {get} /like/bymedia/user/:media_id Get Likes by Media ID and User ID
  * @apiName GetLikesByMediaIdAndUserId
  * @apiGroup Like
  *
  * @apiHeader {String} Authorization Bearer token for authentication.
  *
- * @apiParam {Number} material_id Material's unique ID.
+ * @apiParam {Number} media_id media's unique ID.
  *
  * @apiExample {json} Request-Example:
  *     GET /like/bymedia/user/1
  *
  * @apiSuccess {Object[]} likes List of Likes.
  * @apiSuccess {Number} likes.id Like's ID.
- * @apiSuccess {Number} likes.material_id Media's ID.
+ * @apiSuccess {Number} likes.media_id Media's ID.
  * @apiSuccess {Number} likes.user_id User's ID.
  *
  * @apiSuccessExample {json} Success-Response:
@@ -198,7 +198,7 @@
  *       "likes": [
  *         {
  *           "id": 1,
- *           "material_id": 1,
+ *           "media_id": 1,
  *           "user_id": 1
  *         }
  *       ]
@@ -219,7 +219,7 @@
  *
  * @apiSuccess {Object[]} likes Array of like objects
  * @apiSuccess {Number} likes.like_id Like's unique ID
- * @apiSuccess {Number} likes.material_id ID of the liked media
+ * @apiSuccess {Number} likes.media_id ID of the liked media
  * @apiSuccess {Number} likes.user_id ID of the user who liked
  * @apiSuccess {String} likes.created_at Timestamp when the like was created
  *
@@ -228,7 +228,7 @@
  *     [
  *       {
  *         "like_id": 1,
- *         "material_id": 1,
+ *         "media_id": 1,
  *         "user_id": 1,
  *         "created_at": "2024-01-26T09:38:08.000Z"
  *       }
@@ -244,7 +244,7 @@
  *
  * @apiHeader {String} Authorization Bearer token for authentication
  *
- * @apiParam {Number} material_id ID of the media to like (min: 1)
+ * @apiParam {Number} media_id ID of the media to like (min: 1)
  *
  * @apiSuccess {String} message Success message
  *
@@ -254,17 +254,17 @@
  *       "message": "Like added"
  *     }
  *
- * @apiError ValidationError Invalid material_id
+ * @apiError ValidationError Invalid media_id
  * @apiError AlreadyLiked User has already liked this media
  * @apiError Unauthorized Authentication required
  */
 
 /**
- * @api {get} /like/bymedia/:material_id Get Likes by Media ID
+ * @api {get} /like/bymedia/:media_id Get Likes by Media ID
  * @apiName GetLikesByMediaId
  * @apiGroup Like
  *
- * @apiParam {Number} material_id Media's ID (min: 1)
+ * @apiParam {Number} media_id Media's ID (min: 1)
  *
  * @apiSuccess {Object[]} likes Array of likes for the media
  *
@@ -272,13 +272,13 @@
  */
 
 /**
- * @api {get} /like/bymedia/user/:material_id Check User Like
+ * @api {get} /like/bymedia/user/:media_id Check User Like
  * @apiName CheckUserLike
  * @apiGroup Like
  *
  * @apiHeader {String} Authorization Bearer token for authentication
  *
- * @apiParam {Number} material_id Media's ID (min: 1)
+ * @apiParam {Number} media_id Media's ID (min: 1)
  *
  * @apiSuccess {Object} like Like object if user has liked the media
  *

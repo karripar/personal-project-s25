@@ -10,7 +10,7 @@ favoriteRouter
   .get(authenticate, favoriteListGet)
   .post(
     authenticate,
-    body('material_id').notEmpty().isInt({min: 1}).toInt(),
+    body('media_id').notEmpty().isInt({min: 1}).toInt(),
     validationErrors,
     favoriteAdd,
 );
@@ -24,15 +24,15 @@ favoriteRouter
   );
 
 favoriteRouter
-  .route('/:material_id')
+  .route('/:media_id')
   .get(
-    param('material_id').isInt({min: 1}).toInt(),
+    param('media_id').isInt({min: 1}).toInt(),
     validationErrors,
     favoriteCountGet,
   )
   .delete(
     authenticate,
-    param('material_id').isInt({min: 1}).toInt(),
+    param('media_id').isInt({min: 1}).toInt(),
     validationErrors,
     favoriteRemove,
   );

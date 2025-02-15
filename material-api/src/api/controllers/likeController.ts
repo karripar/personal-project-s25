@@ -1,12 +1,12 @@
 import {Request, Response, NextFunction} from 'express';
 import {
   fetchAllLikes,
-  fetchLikesByMaterialId,
+  fetchLikesByMediaId,
   fetchLikesByUserId,
   postLike,
   deleteLike,
-  fetchLikesCountByMaterialId,
-  fetchLikeByMaterialIdAndUserId,
+  fetchLikesCountByMediaId,
+  fetchLikeByMediaIdAndUserId,
 } from '../models/likeModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Like, TokenContent} from 'hybrid-types/DBTypes';
@@ -24,13 +24,13 @@ const likeListGet = async (
   }
 };
 
-const likeListByMaterialIdGet = async (
-  req: Request<{material_id: string}>,
+const likeListByMediaIdGet = async (
+  req: Request<{media_id: string}>,
   res: Response<Like[]>,
   next: NextFunction,
 ) => {
   try {
-    const likes = await fetchLikesByMaterialId(Number(req.params.material_id));
+    const likes = await fetchLikesByMediaId(Number(req.params.media_id));
     res.json(likes);
   } catch (error) {
     next(error);
@@ -51,13 +51,13 @@ const likeListByUserIdGet = async (
 };
 
 const likePost = async (
-  req: Request<{}, {}, {material_id: string}>,
+  req: Request<{}, {}, {media_id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
     const result = await postLike(
-      Number(req.body.material_id),
+      Number(req.body.media_id),
       res.locals.user.user_id,
     );
     res.json(result);
@@ -84,27 +84,27 @@ const likeDelete = async (
 };
 
 // Fetch likes count by media id
-const likeCountByMaterialIdGet = async (
+const likeCountByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<{count: number}>,
   next: NextFunction,
 ) => {
   try {
-    const count = await fetchLikesCountByMaterialId(Number(req.params.id));
+    const count = await fetchLikesCountByMediaId(Number(req.params.id));
     res.json({count});
   } catch (error) {
     next(error);
   }
 };
 
-const likeByMaterialIdAndUserIdGet = async (
-  req: Request<{material_id: string}>,
+const likeByMediaIdAndUserIdGet = async (
+  req: Request<{media_id: string}>,
   res: Response<Like, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
-    const result = await fetchLikeByMaterialIdAndUserId(
-      Number(req.params.material_id),
+    const result = await fetchLikeByMediaIdAndUserId(
+      Number(req.params.media_id),
       res.locals.user.user_id,
     );
     res.json(result);
@@ -115,10 +115,10 @@ const likeByMaterialIdAndUserIdGet = async (
 
 export {
   likeListGet,
-  likeListByMaterialIdGet,
+  likeListByMediaIdGet,
   likeListByUserIdGet,
   likePost,
   likeDelete,
-  likeCountByMaterialIdGet,
-  likeByMaterialIdAndUserIdGet,
+  likeCountByMediaIdGet,
+  likeByMediaIdAndUserIdGet,
 };

@@ -1,11 +1,11 @@
 import express from 'express';
 import {
   ratingListGet,
-  ratingListByMaterialIdGet,
+  ratingListByMediaIdGet,
   ratingListByUserGet,
   ratingPost,
   ratingDelete,
-  ratingAverageByMaterialIdGet,
+  ratingAverageByMediaIdGet,
 } from '../controllers/ratingController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -18,7 +18,7 @@ ratingRouter
   .post(
     authenticate,
     body('rating_value').notEmpty().isInt({min: 1, max: 5}).toInt(),
-    body('material_id').notEmpty().isInt({min: 1}).toInt(),
+    body('media_id').notEmpty().isInt({min: 1}).toInt(),
     validationErrors,
     ratingPost,
   );
@@ -28,7 +28,7 @@ ratingRouter
   .get(
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    ratingListByMaterialIdGet,
+    ratingListByMediaIdGet,
   );
 
 ratingRouter.route('/byuser').get(authenticate, ratingListByUserGet);
@@ -38,7 +38,7 @@ ratingRouter
   .get(
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    ratingAverageByMaterialIdGet,
+    ratingAverageByMediaIdGet,
   );
 
 ratingRouter

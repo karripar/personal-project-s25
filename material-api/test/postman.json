@@ -61,7 +61,7 @@
                   "pm.test('Media items have required fields', function() {",
                   "    const response = pm.response.json();",
                   "    if (response.media.length > 0) {",
-                  "        pm.expect(response.media[0]).to.have.all.keys('material_id', 'user_id', 'filename', 'filesize', 'media_type', 'title', 'description', 'created_at', 'thumbnail');",
+                  "        pm.expect(response.media[0]).to.have.all.keys('media_id', 'user_id', 'filename', 'filesize', 'media_type', 'title', 'description', 'created_at', 'thumbnail');",
                   "    }",
                   "});"
                 ]
@@ -102,7 +102,7 @@
                   "pm.test('Response has created media', function() {",
                   "    const response = pm.response.json();",
                   "    pm.expect(response.media).to.be.an('object');",
-                  "    pm.globals.set('mediaId', response.media.material_id);",
+                  "    pm.globals.set('mediaId', response.media.media_id);",
                   "});"
                 ]
               }
@@ -151,7 +151,7 @@
             "body": {
               "mode": "raw",
               "raw": {
-                "material_id": "{{materialId}}"
+                "media_id": "{{mediaId}}"
               }
             }
           },
@@ -215,7 +215,7 @@
               "mode": "raw",
               "raw": {
                 "tag_name": "test_tag",
-                "material_id": "{{materialId}}"
+                "media_id": "{{mediaId}}"
               }
             }
           },

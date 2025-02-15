@@ -7,7 +7,7 @@
  * @apiParam {Number} [limit=10] Number of items per page (min: 1). Use both page and limit to implement pagination.
  *
  * @apiSuccess {Object[]} media Array of media items
- * @apiSuccess {Number} media.material_id Media's unique ID
+ * @apiSuccess {Number} media.media_id Media's unique ID
  * @apiSuccess {Number} media.user_id User's unique ID
  * @apiSuccess {String} media.filename Media's filename
  * @apiSuccess {Number} media.filesize Media's filesize
@@ -21,7 +21,7 @@
  *     HTTP/1.1 200 OK
  *     [
  *       {
- *         "material_id": 73,
+ *         "media_id": 73,
  *         "user_id": 7,
  *         "filename": "//localhost:3002/uploads/example.png",
  *         "filesize": 1256723,
@@ -91,7 +91,7 @@
  *
  * @apiParam {Number} id Media's unique ID (min: 1)
  *
- * @apiSuccess {Number} material_id Media's unique ID
+ * @apiSuccess {Number} media_id Media's unique ID
  * @apiSuccess {Number} user_id User's unique ID
  * @apiSuccess {String} filename Media's filename
  * @apiSuccess {Number} filesize Media's filesize
@@ -104,7 +104,7 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "material_id": 1,
+ *       "media_id": 1,
  *       "user_id": 1,
  *       "filename": "example.jpg",
  *       "filesize": 12345,
@@ -178,7 +178,7 @@
  *     HTTP/1.1 200 OK
  *     [
  *       {
- *         "material_id": 1,
+ *         "media_id": 1,
  *         "user_id": 1,
  *         "filename": "example.jpg",
  *         "filesize": 12345,
@@ -213,7 +213,7 @@
  *     HTTP/1.1 200 OK
  *     [
  *       {
- *         "material_id": 1,
+ *         "media_id": 1,
  *         "user_id": 1,
  *         "filename": "example.jpg",
  *         "filesize": 12345,
@@ -250,7 +250,7 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "material_id": 1,
+ *       "media_id": 1,
  *       "user_id": 1,
  *       "filename": "example.jpg",
  *       "filesize": 12345,

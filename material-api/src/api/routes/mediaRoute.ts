@@ -1,27 +1,27 @@
 import express from 'express';
 import {
-  materialListGet,
-  materialGet,
-  materialPost,
-  materialPut,
-  materialDelete,
-  materialByUserGet,
-  materialListMostLikedGet,
-  materialListFollowedGet,
-  materialWithSearchGet
-} from '../controllers/materialController';
+  mediaListGet,
+  mediaListMostLikedGet,
+  mediaListFollowedGet,
+  mediaPost,
+  mediaGet,
+  mediaPut,
+  mediaDelete,
+  mediaByUserGet,
+  mediaWithSearchGet
+} from '../controllers/mediaController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param, query} from 'express-validator';
 
-const materialRouter = express.Router();
+const mediaRouter = express.Router();
 
-materialRouter
+mediaRouter
   .route('/')
   .get(
     query('page').optional().isInt({min: 1}).toInt(),
     query('limit').optional().isInt({min: 1}).toInt(),
     validationErrors,
-    materialListGet,
+    mediaListGet,
   )
   .post(
     authenticate,
@@ -46,30 +46,30 @@ materialRouter
     body('media_type').trim().notEmpty().isMimeType(),
     body('filesize').notEmpty().isInt({min: 1}).toInt(),
     validationErrors,
-    materialPost,
+    mediaPost,
   );
 
-materialRouter.route('/mostliked').get(materialListMostLikedGet);
+mediaRouter.route('/mostliked').get(mediaListMostLikedGet);
 
-materialRouter.route('/search').get(
+mediaRouter.route('/search').get(
   query('page').optional().isInt({min: 1}).toInt(),
   query('limit').optional().isInt({min: 1}).toInt(),
   param('search').optional().isString().trim().escape(),
   validationErrors,
-  materialWithSearchGet
+  mediaWithSearchGet
 );
 
-materialRouter.route('/followed/:follower_id')
+mediaRouter.route('/followed/:follower_id')
 .get(
   authenticate,
   param('follower_id').isInt({min: 1}).toInt(),
   validationErrors,
-  materialListFollowedGet
+  mediaListFollowedGet
 );
 
-materialRouter
+mediaRouter
   .route('/:id')
-  .get(param('id').isInt({min: 1}).toInt(), validationErrors, materialGet)
+  .get(param('id').isInt({min: 1}).toInt(), validationErrors, mediaGet)
   .put(
     authenticate,
     param('id').isInt({min: 1}).toInt(),
@@ -86,17 +86,17 @@ materialRouter
       .isLength({max: 1000})
       .escape(),
     validationErrors,
-    materialPut,
+    mediaPut,
   )
   .delete(
     authenticate,
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    materialDelete,
+    mediaDelete,
   );
 
-materialRouter.route('/byuser/:id').get(materialByUserGet);
+mediaRouter.route('/byuser/:id').get(mediaByUserGet);
 
-materialRouter.route('/bytoken').get(authenticate, materialByUserGet);
+mediaRouter.route('/bytoken').get(authenticate, mediaByUserGet);
 
-export default materialRouter;
+export default mediaRouter;

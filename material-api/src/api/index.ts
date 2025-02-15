@@ -1,6 +1,6 @@
 import express, {Request, Response} from 'express';
 import followRouter from './routes/followRoute';
-import materialRouter from './routes/materialRoute';
+import mediaRouter from './routes/mediaRoute';
 import tagRouter from './routes/tagRoute';
 import likeRouter from './routes/likeRoute';
 import ratingRouter from './routes/ratingRoute';
@@ -18,7 +18,7 @@ router.get('/', (req: Request, res: Response<MessageResponse>) => {
   });
 });
 
-router.use('/material', materialRouter);
+router.use('/media', mediaRouter);
 router.use('/tags', tagRouter);
 router.use('/likes', likeRouter);
 router.use('/comments', commentRouter);
