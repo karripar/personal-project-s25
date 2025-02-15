@@ -1,9 +1,9 @@
 import express from 'express';
 import {
   commentListGet,
-  commentListByMaterialIdGet,
+  commentListByMediaIdGet,
   commentListByUserGet,
-  commentCountByMaterialIdGet,
+  commentCountByMediaIdGet,
   commentGet,
   commentPost,
   commentPut,
@@ -25,17 +25,17 @@ commentRouter
       .isString()
       .isLength({min: 1})
       .escape(),
-    body('material_id').notEmpty().isInt({min: 1}).toInt(),
+    body('media_id').notEmpty().isInt({min: 1}).toInt(),
     validationErrors,
     commentPost,
   );
 
 commentRouter
-  .route('/bymaterial/:id')
+  .route('/byMedia/:id')
   .get(
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    commentListByMaterialIdGet,
+    commentListByMediaIdGet,
   );
 
 commentRouter.route('/byuser').get(authenticate, commentListByUserGet);
@@ -45,7 +45,7 @@ commentRouter
   .get(
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    commentCountByMaterialIdGet,
+    commentCountByMediaIdGet,
   );
 
 commentRouter

@@ -29,7 +29,6 @@ const login = async (
       user_id: user.user_id,
       username: user.username,
       bio: user.bio,
-      study_field: user.study_field,
       email: user.email,
       created_at: user.created_at,
       level_name: user.level_name,

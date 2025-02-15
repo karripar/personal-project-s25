@@ -1,6 +1,6 @@
 import express from 'express';
 import {authenticate, validationErrors} from '../../middlewares';
-import { getMaterialRatings, getLatestMaterials, getLatestNotifications, getMaterialComments, getUserActivity, getUserNotifications } from '../controllers/analyticsController';
+import { getMediaRatings, getLatestMedias, getLatestNotifications, getMediaComments, getUserActivity, getUserNotifications } from '../controllers/analyticsController';
 
 
 const analyticsRouter = express.Router();
@@ -21,25 +21,25 @@ analyticsRouter
 
 
 analyticsRouter
-  .route('/latestmaterials')
-  .get(authenticate, getLatestMaterials);
+  .route('/latestMedias')
+  .get(authenticate, getLatestMedias);
 
 
 analyticsRouter
-  .route('/materialratings')
+  .route('/Mediaratings')
   .get(
     authenticate,
     validationErrors,
-    getMaterialRatings,
+    getMediaRatings,
   );
 
 
 analyticsRouter
-  .route('/materialcomments')
+  .route('/Mediacomments')
   .get(
     authenticate,
     validationErrors,
-    getMaterialComments,
+    getMediaComments,
   );
 
 

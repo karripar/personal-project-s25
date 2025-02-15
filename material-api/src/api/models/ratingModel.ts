@@ -14,22 +14,22 @@ const fetchAllRatings = async (): Promise<Rating[]> => {
 };
 
 // Request a list of ratings by media item id
-const fetchRatingsByMaterialId = async (material_id: number): Promise<Rating[]> => {
+const fetchRatingsByMediaId = async (media_id: number): Promise<Rating[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Rating[]>(
-    'SELECT * FROM Ratings WHERE material_id = ?',
-    [material_id],
+    'SELECT * FROM Ratings WHERE media_id = ?',
+    [media_id],
   );
   return rows;
 };
 
-const fetchAverageRatingByMaterialId = async (
-  material_id: number,
+const fetchAverageRatingByMediaId = async (
+  media_id: number,
 ): Promise<number> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & {averageRating: number}[]
   >(
-    'SELECT AVG(rating_value) as averageRating FROM Ratings WHERE material_id = ?',
-    [material_id],
+    'SELECT AVG(rating_value) as averageRating FROM Ratings WHERE media_id = ?',
+    [media_id],
   );
   if (!rows[0].averageRating) {
     throw new CustomError(ERROR_MESSAGES.RATING.NOT_FOUND_MEDIA, 404);
@@ -47,7 +47,7 @@ const fetchRatingsByUserId = async (user_id: number): Promise<Rating[]> => {
 
 // Post a new rating
 const postRating = async (
-  material_id: number,
+  media_id: number,
   user_id: number,
   rating_value: number,
 ): Promise<MessageResponse> => {
@@ -56,8 +56,8 @@ const postRating = async (
     await connection.beginTransaction();
 
     const [ratingExists] = await connection.execute<RowDataPacket[] & Rating[]>(
-      'SELECT * FROM Ratings WHERE material_id = ? AND user_id = ? FOR UPDATE',
-      [material_id, user_id],
+      'SELECT * FROM Ratings WHERE media_id = ? AND user_id = ? FOR UPDATE',
+      [media_id, user_id],
     );
 
     if (ratingExists.length > 0) {
@@ -76,8 +76,8 @@ const postRating = async (
     }
 
     const [ratingResult] = await connection.execute<ResultSetHeader>(
-      'INSERT INTO Ratings (material_id, user_id, rating_value) VALUES (?, ?, ?)',
-      [material_id, user_id, rating_value],
+      'INSERT INTO Ratings (media_id, user_id, rating_value) VALUES (?, ?, ?)',
+      [media_id, user_id, rating_value],
     );
 
     if (ratingResult.affectedRows === 0) {
@@ -96,7 +96,7 @@ const postRating = async (
 
 // Delete a rating
 const deleteRating = async (
-  material_id: number,
+  media_id: number,
   user_id: number,
   level_name: UserLevel['level_name'],
 ): Promise<MessageResponse> => {
@@ -107,7 +107,7 @@ const deleteRating = async (
     sql = 'DELETE FROM Ratings WHERE rating_id = ? AND user_id = ?';
   }
 
-  const params = level_name === 'Admin' ? [material_id] : [material_id, user_id];
+  const params = level_name === 'Admin' ? [media_id] : [media_id, user_id];
   const [result] = await promisePool.execute<ResultSetHeader>(sql, params);
 
   if (result.affectedRows === 0) {
@@ -119,9 +119,9 @@ const deleteRating = async (
 
 export {
   fetchAllRatings,
-  fetchRatingsByMaterialId,
+  fetchRatingsByMediaId,
   fetchRatingsByUserId,
-  fetchAverageRatingByMaterialId,
+  fetchAverageRatingByMediaId,
   postRating,
   deleteRating,
 };

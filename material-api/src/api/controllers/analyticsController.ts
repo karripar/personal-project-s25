@@ -1,16 +1,16 @@
-import { MaterialRating, MaterialComment, UserActivity, UserNotification, LatestNotification, LatestMaterial } from "hybrid-types/DBTypes";
+import { MediaRating, MediaComment, UserActivity, UserNotification, LatestNotification, LatestMedia } from "hybrid-types/DBTypes";
 import {Request, Response, NextFunction} from 'express';
-import { fetchMaterialRatings, fetchLatestMaterials, fetchLatestNotifications, fetchMaterialComments, fetchUserActivity, fetchUserNotifications } from "../models/analyticsModel";
+import { fetchMediaRatings, fetchLatestMedia, fetchLatestNotifications, fetchMediaComments, fetchUserActivity, fetchUserNotifications } from "../models/analyticsModel";
 
 
-// fetch average rating for all materials
-const getMaterialRatings = async (
+// fetch average rating for all Medias
+const getMediaRatings = async (
   req: Request,
-  res: Response<MaterialRating[]>,
+  res: Response<MediaRating[]>,
   next: NextFunction,
 ) => {
   try {
-    const ratings = await fetchMaterialRatings();
+    const ratings = await fetchMediaRatings();
     res.json(ratings);
   } catch (error) {
     next(error);
@@ -18,14 +18,14 @@ const getMaterialRatings = async (
 };
 
 
-// fetch number of comments per material
-const getMaterialComments = async (
+// fetch number of comments per Media
+const getMediaComments = async (
   req: Request,
-  res: Response<MaterialComment[]>,
+  res: Response<MediaComment[]>,
   next: NextFunction,
 ) => {
   try {
-    const comments = await fetchMaterialComments();
+    const comments = await fetchMediaComments();
     res.json(comments);
   } catch (error) {
     next(error);
@@ -33,7 +33,7 @@ const getMaterialComments = async (
 };
 
 
-// fetch user activity (number of materials, comments, ratings)
+// fetch user activity (number of Medias, comments, ratings)
 const getUserActivity = async (
   req: Request,
   res: Response<UserActivity[]>,
@@ -78,18 +78,18 @@ const getLatestNotifications = async (
 };
 
 
-// fetch latest materials
-const getLatestMaterials = async (
+// fetch latest Medias
+const getLatestMedias = async (
   req: Request,
-  res: Response<LatestMaterial[]>,
+  res: Response<LatestMedia[]>,
   next: NextFunction,
 ) => {
   try {
-    const materials = await fetchLatestMaterials();
-    res.json(materials);
+    const Medias = await fetchLatestMedia();
+    res.json(Medias);
   } catch (error) {
     next(error);
   }
 };
 
-export { getMaterialRatings, getMaterialComments, getUserActivity, getUserNotifications, getLatestNotifications, getLatestMaterials };
+export { getMediaRatings, getMediaComments, getUserActivity, getUserNotifications, getLatestNotifications, getLatestMedias };

@@ -73,14 +73,14 @@ type MediaItemTag = {
   tag_id: number;
 };
 
-type MaterialRating = {
-  material_id: number;
+type MediaRating = {
+  media_id: number;
   title: string;
   avg_rating: number | null;
 };
 
-type MaterialComment = {
-  material_id: number;
+type MediaComment = {
+  media_id: number;
   title: string;
   comment_count: number;
 };
@@ -88,7 +88,7 @@ type MaterialComment = {
 type UserActivity = {
   user_id: number;
   username: string;
-  material_count: number;
+  media_count: number;
   comment_count: number;
   rating_count: number;
 };
@@ -110,8 +110,8 @@ type LatestNotification = {
   username: string;
 };
 
-type LatestMaterial = {
-  material_id: number;
+type LatestMedia = {
+  media_id: number;
   title: string;
   user_id: number;
   description: string | null;
@@ -174,10 +174,10 @@ export type {
   FileInfo,
   Notification,
   NotificationType,
-  MaterialRating,
-  MaterialComment,
+  MediaRating,
+  MediaComment,
   UserActivity,
   UserNotification,
   LatestNotification,
-  LatestMaterial,
+  LatestMedia,
 };

@@ -3,31 +3,31 @@
 ---
 
 ## Kuvaus:
-**ScriptFlow** on etenkin IT-alojen opiskelijoiden yhteisöllinen alusta, jossa käyttäjät voivat jakaa muistiinpanoja, PDF-tiedostoja ja kuvia. Sovelluksen avulla opiskelijat voivat löytää ja jakaa materiaalia eri kursseilta, jakaa opiskelukokemuksia ja tukea toisiaan opintojen aikana esimerkiksi kommentoimalla toisten julkaisuja. Sovelluksessa on esimerkiksi helppo jakaa koodiratkaisuja yleisiin ongelmiin.
+**WildLens** on etenkin retkeilijöiden ja luonnossa liikkuvien yhteisöllinen alusta, jossa käyttäjät voivat jakaa kuvia, videoita, huomioita ja muuta olennaista. Sovelluksen avulla voidaan löytää alueella havaittuja eläimiä, vedenlaatuongelmia, sinilevähuomioita, marjasadon tilanteita ja muuta aiheeseen liittyvää.
 
 ---
 
 ## Toiminnot:
 
 ### 1. Käyttäjäprofiilit:
-- Käyttäjät voivat luoda profiilin, johon he voivat lisätä tietoja itsestään (esim. opiskeltavat aineet, kurssit, kiinnostuksen kohteet).
-- Profiilissa voi olla mahdollisuus seurata muita opiskelijoita ja saada ilmoituksia uusista julkaisuista.
+- Käyttäjät voivat luoda profiilin, johon he voivat lisätä tietoja itsestään
+- Profiilissa voi olla mahdollisuus seurata muita käyttäjiä ja saada ilmoituksia uusista julkaisuista.
 
 ### 2. Materiaalin jakaminen:
-- Käyttäjät voivat ladata ja jakaa muistiinpanoja (tekstitiedostoja), PDF-tiedostoja, kuvia ja muita opiskelumateriaaleja.
-- Mahdollisuus lisätä kuvauksia ja tageja (esim. kurssin nimi, aihealue), jotta materiaalin löytäminen olisi helpompaa.
+- Käyttäjät voivat ladata ja jakaa mediatiedostoja, PDF-tiedostoja, kuvia ja muita materiaaleja.
+- Mahdollisuus lisätä kuvauksia ja tageja (esim. eläinlaji, aihe), jotta materiaalin löytäminen olisi helpompaa.
 - Julkaisujen yksityisyysasetukset, kuten "julkinen", "vain seuraajille".
 
 ### 3. Haku ja suodatus:
-- Materiaalit voidaan etsiä hakusanojen, kurssin nimen, aiheen tai jopa materiaalin tyypin (muistiinpanot, PDF, kuvat) perusteella.
-- Suodattimet, kuten kurssit, opiskeluvuosi tai suosituimmat materiaalit.
+- Materiaalit voidaan etsiä hakusanojen, nimen, aiheen tai jopa materiaalin tyypin (muistiinpanot, PDF, kuvat) perusteella.
+- Suodattimet
 
 ### 4. Keskustelu ja kommentointi:
-- Käyttäjät voivat kommentoida ja keskustella jakamistaan materiaaleista, tarjota lisävinkkejä tai kysyä tarkennuksia.
+- Käyttäjät voivat kommentoida ja keskustella jakamistaan mediioista, tarjota lisävinkkejä tai kysyä tarkennuksia.
 - Mahdollisuus lisätä keskusteluketjuja ja jakaa kysymyksiä ja vastauksia.
 
 ### 5. Arvostelut ja suositukset:
-- Käyttäjät voivat arvostella ja suositella materiaaleja muiden opiskelijoiden käyttöön.
+- Käyttäjät voivat arvostella ja suositella materiaaleja muiden käyttäjien käyttöön.
 - Arvostelujen perusteella käyttäjät voivat löytää suosituimmat ja hyödyllisimmät materiaalit.
 
 ### 6. Ilmoitukset:
@@ -66,13 +66,13 @@
 - POST /auth/logout
 - POST /auth/refresh (tokenin päivitys)
 
-### Material
+### Media
 
-- POST /materials 
-- GET /materials 
-- GET /materials/:id 
-- PUT /materials/:id 
-- DELETE /materials/:id 
+- POST /media 
+- GET /media 
+- GET /media/:id 
+- PUT /media/:id 
+- DELETE /media/:id 
 
 ### Tags
 
@@ -82,30 +82,30 @@
 - PUT /tags/:id 
 - DELETE /tags/:id 
 
-### Material Tags
+### Media Tags
 
-- POST /materials/:id/tags - Add tags to a material.
-- DELETE /materials/:id/tags/:tagId - Remove a tag from a material.
+- POST /media/:id/tags - Add tags to a media.
+- DELETE /media/:id/tags/:tagId - Remove a tag from a media.
 
 ### Comments
 
-- POST /materials/:id/comments - Add a comment to a material.
-- GET /materials/:id/comments - Get all comments for a material.
+- POST /media/:id/comments - Add a comment to a media.
+- GET /media/:id/comments - Get all comments for a media.
 - GET /comments/:id - Get a specific comment by ID.
 - PUT /comments/:id - Update a comment (admin).
 - DELETE /comments/:id - Delete a comment (author or admin).
 
 ### Likes
 
-- POST /materials/:id/likes - Like a material.
+- POST /media/:id/likes - Like a media.
 - POST /comments/:id/likes - Like a comment.
-- DELETE /materials/:id/likes - Remove a like from a material.
+- DELETE /media/:id/likes - Remove a like from a media.
 - DELETE /comments/:id/likes - Remove a like from a comment.
 
 ### Ratings
 
-- POST /materials/:id/ratings - Rate a material.
-- GET /materials/:id/ratings - Get all ratings for a material (average rating and individual ratings).
+- POST /media/:id/ratings - Rate a media.
+- GET /media/:id/ratings - Get all ratings for a media (average rating and individual ratings).
 
 ### Follows
 
@@ -122,16 +122,16 @@
 
 ### Analytics
 
-- GET /materials/ratings - Get average ratings for all materials (from the MaterialRatings view).
-- GET /materials/comments - Get a list of materials and their comment counts (from the MaterialComments view).
+- GET /media/ratings - Get average ratings for all medias (from the mediaRatings view).
+- GET /media/comments - Get a list of medias and their comment counts (from the mediaComments view).
 - GET /users/activity - Get user activity stats (from the UserActivity view).
 - GET /users/:id/notifications - Get unread notification counts for a user (from the UserNotifications view).
 
 ### Latest Data
 
-- GET /materials/latest - Get the latest uploaded materials (from the LatestMaterials view).
+- GET /media/latest - Get the latest uploaded medias (from the Latestmedias view).
 - GET /notifications/latest - Get the latest notifications (from the LatestNotifications view).
 
 ### Search
 
-- GET /search/materials - Search for materials by title, tags, or description.
+- GET /search/media - Search for medias by title, tags, or description.

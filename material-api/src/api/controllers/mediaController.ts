@@ -1,71 +1,71 @@
 import {Request, Response, NextFunction} from 'express';
 import {
-  fetchAllMaterial,
-  fetchMaterialById,
-  postMaterial,
-  deleteMaterial,
-  fetchMostLikedMaterial,
-  fetchMaterialByUserId,
-  fetchFollowedMaterial,
-  putMaterial,
-  fetchSearchedMaterial,
-} from '../models/materialModel';
+  fetchAllMedia,
+  fetchMediaById,
+  postMedia,
+  putMedia,
+  deleteMedia,
+  fetchMediaByUserId,
+  fetchMostLikedMedia,
+  fetchFollowedMedia,
+  fetchSearchedMedia
+} from '../models/mediaModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
-import {StudyMaterial, TokenContent} from 'hybrid-types/DBTypes';
+import {MediaItem, TokenContent} from 'hybrid-types/DBTypes';
 import CustomError from '../../classes/CustomError';
 import {ERROR_MESSAGES} from '../../utils/errorMessages';
 
-const materialListGet = async (
+const mediaListGet = async (
   req: Request<{}, {}, {page: string; limit: string}>,
-  res: Response<StudyMaterial[]>,
+  res: Response<MediaItem[]>,
   next: NextFunction,
 ) => {
   try {
     const {page, limit} = req.query;
-    const media = await fetchAllMaterial(Number(page), Number(limit));
-    res.json(media);
+    const Media = await fetchAllMedia(Number(page), Number(limit));
+    res.json(Media);
   } catch (error) {
     next(error);
   }
 };
 
-const materialGet = async (
+const mediaGet = async (
   req: Request<{id: string}>,
-  res: Response<StudyMaterial>,
+  res: Response<MediaItem>,
   next: NextFunction,
 ) => {
   try {
     const id = Number(req.params.id);
-    const media = await fetchMaterialById(id);
-    res.json(media);
+    const Media = await fetchMediaById(id);
+    res.json(Media);
   } catch (error) {
     next(error);
   }
 };
 
-const materialPost = async (
-  req: Request<{}, {}, Omit<StudyMaterial, 'material_id' | 'created_at'>>,
+const mediaPost = async (
+  req: Request<{}, {}, Omit<MediaItem, 'Media_id' | 'created_at'>>,
   res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
-    // add user_id to media object from token
+    // add user_id to Media object from token
     req.body.user_id = res.locals.user.user_id;
-    await postMaterial(req.body);
+    await postMedia(req.body);
     res.json({message: 'Media created'});
   } catch (error) {
     next(error);
   }
 };
 
-const materialDelete = async (
+const mediaDelete = async (
   req: Request<{id: string}>,
   res: Response<MessageResponse, {user: TokenContent; token: string}>,
   next: NextFunction,
 ) => {
   try {
     const id = Number(req.params.id);
-    const result = await deleteMaterial(
+    const result = await deleteMedia(
       id,
       res.locals.user.user_id,
       res.locals.token,
@@ -77,14 +77,14 @@ const materialDelete = async (
   }
 };
 
-const materialPut = async (
-  req: Request<{id: string}, {}, Pick<StudyMaterial, 'title' | 'description'>>,
+const mediaPut = async (
+  req: Request<{id: string}, {}, Pick<MediaItem, 'title' | 'description'>>,
   res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
     const id = Number(req.params.id);
-    await putMaterial(
+    await putMedia(
       req.body,
       id,
       res.locals.user.user_id,
@@ -96,9 +96,9 @@ const materialPut = async (
   }
 };
 
-const materialByUserGet = async (
+const mediaByUserGet = async (
   req: Request<{id: string}>,
-  res: Response<StudyMaterial[], {user: TokenContent}>,
+  res: Response<MediaItem[], {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
@@ -107,29 +107,29 @@ const materialByUserGet = async (
       throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);
     }
 
-    const media = await fetchMaterialByUserId(id);
-    res.json(media);
+    const Media = await fetchMediaByUserId(id);
+    res.json(Media);
   } catch (error) {
     next(error);
   }
 };
 
-const materialListMostLikedGet = async (
+const mediaListMostLikedGet = async (
   req: Request,
-  res: Response<StudyMaterial[]>,
+  res: Response<MediaItem[]>,
   next: NextFunction,
 ) => {
   try {
-    const media = await fetchMostLikedMaterial();
-    res.json([media]);
+    const Media = await fetchMostLikedMedia();
+    res.json([Media]);
   } catch (error) {
     next(error);
   }
 };
 
-const materialListFollowedGet = async (
+const mediaListFollowedGet = async (
   req: Request,
-  res: Response<StudyMaterial[]>,
+  res: Response<MediaItem[]>,
   next: NextFunction,
 ) => {
   try {
@@ -137,16 +137,16 @@ const materialListFollowedGet = async (
     if (isNaN(id)) {
       throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);
     }
-    const media = await fetchFollowedMaterial(id);
-    res.json(media);
+    const Media = await fetchFollowedMedia(id);
+    res.json(Media);
   } catch (error) {
     next(error);
   }
 }
 
-const materialWithSearchGet = async (
+const mediaWithSearchGet = async (
   req: Request<{}, {}, { page: string; limit: string; search: string }>,
-  res: Response<StudyMaterial[]>,
+  res: Response<MediaItem[]>,
   next: NextFunction
 ) => {
   try {
@@ -160,26 +160,26 @@ const materialWithSearchGet = async (
 
     // Check if search string is empty
     if (!search) {
-      const media = await fetchAllMaterial(pageNum, limitNum);
-      res.json(media);
+      const Media = await fetchAllMedia(pageNum, limitNum);
+      res.json(Media);
     }
 
     // Fetch the data from the database
-    const media = await fetchSearchedMaterial(search as string, pageNum, limitNum);
-    res.json(media);
+    const Media = await fetchSearchedMedia(search as string, pageNum, limitNum);
+    res.json(Media);
   } catch (error) {
     next(error); // Pass any error to the error handler middleware
   }
 }
 
 export {
-  materialListGet,
-  materialGet,
-  materialPost,
-  materialPut,
-  materialDelete,
-  materialByUserGet,
-  materialListMostLikedGet,
-  materialListFollowedGet,
-  materialWithSearchGet
+  mediaListGet,
+  mediaGet,
+  mediaPost,
+  mediaDelete,
+  mediaPut,
+  mediaByUserGet,
+  mediaListMostLikedGet,
+  mediaListFollowedGet,
+  mediaWithSearchGet,
 };

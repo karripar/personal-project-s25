@@ -2,13 +2,13 @@ import {Request, Response, NextFunction} from 'express';
 import {
   fetchAllTags,
   postTag,
-  fetchTagsByMaterialId,
+  fetchTagsByMediaId,
   fetchFilesByTagById,
   deleteTag,
-  deleteTagFromMaterial,
+  deleteTagFromMedia,
 } from '../models/tagModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
-import {StudyMaterial, Tag, TagResult, TokenContent} from 'hybrid-types/DBTypes';
+import {MediaItem, Tag, TagResult, TokenContent} from 'hybrid-types/DBTypes';
 import CustomError from '../../classes/CustomError';
 
 const tagListGet = async (
@@ -24,13 +24,13 @@ const tagListGet = async (
   }
 };
 
-const tagListByMaterialIdGet = async (
+const tagListByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<TagResult[]>,
   next: NextFunction,
 ) => {
   try {
-    const tags = await fetchTagsByMaterialId(Number(req.params.id));
+    const tags = await fetchTagsByMediaId(Number(req.params.id));
     res.json(tags);
   } catch (error) {
     next(error);
@@ -38,12 +38,12 @@ const tagListByMaterialIdGet = async (
 };
 
 const tagPost = async (
-  req: Request<{}, {}, {tag_name: string; material_id: string}>,
+  req: Request<{}, {}, {tag_name: string; media_id: string}>,
   res: Response<MessageResponse>,
   next: NextFunction,
 ) => {
   try {
-    const result = await postTag(req.body.tag_name, Number(req.body.material_id));
+    const result = await postTag(req.body.tag_name, Number(req.body.media_id));
     res.json(result);
   } catch (error) {
     next(error);
@@ -52,7 +52,7 @@ const tagPost = async (
 
 const tagFilesByTagGet = async (
   req: Request<{tag_id: string}>,
-  res: Response<StudyMaterial[]>,
+  res: Response<MediaItem[]>,
   next: NextFunction,
 ) => {
   try {
@@ -79,15 +79,15 @@ const tagDelete = async (
   }
 };
 
-const tagDeleteFromMaterial = async (
-  req: Request<{tag_id: string; material_id: string}>,
+const tagDeleteFromMedia = async (
+  req: Request<{tag_id: string; media_id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
-    const result = await deleteTagFromMaterial(
+    const result = await deleteTagFromMedia(
       Number(req.params.tag_id),
-      Number(req.params.material_id),
+      Number(req.params.media_id),
       res.locals.user.user_id,
     );
     res.json(result);
@@ -98,9 +98,9 @@ const tagDeleteFromMaterial = async (
 
 export {
   tagListGet,
-  tagListByMaterialIdGet,
+  tagListByMediaIdGet,
   tagPost,
   tagDelete,
   tagFilesByTagGet,
-  tagDeleteFromMaterial,
+  tagDeleteFromMedia,
 };

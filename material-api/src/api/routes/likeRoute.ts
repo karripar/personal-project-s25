@@ -1,12 +1,12 @@
 import express from 'express';
 import {
   likeListGet,
-  likeListByMaterialIdGet,
+  likeListByMediaIdGet,
   likeListByUserIdGet,
   likePost,
   likeDelete,
-  likeCountByMaterialIdGet,
-  likeByMaterialIdAndUserIdGet,
+  likeCountByMediaIdGet,
+  likeByMediaIdAndUserIdGet,
 } from '../controllers/likeController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -18,26 +18,26 @@ likeRouter
   .get(likeListGet)
   .post(
     authenticate,
-    body('material_id').isInt({min: 1}).toInt(),
+    body('media_id').isInt({min: 1}).toInt(),
     validationErrors,
     likePost,
   );
 
 likeRouter
-  .route('/bymedia/:material_id')
+  .route('/bymedia/:media_id')
   .get(
-    param('material_id').isInt({min: 1}).toInt(),
+    param('media_id').isInt({min: 1}).toInt(),
     validationErrors,
-    likeListByMaterialIdGet,
+    likeListByMediaIdGet,
   );
 
 likeRouter
-  .route('/bymedia/user/:material_id')
+  .route('/bymedia/user/:media_id')
   .get(
     authenticate,
-    param('material_id').isInt({min: 1}).toInt(),
+    param('media_id').isInt({min: 1}).toInt(),
     validationErrors,
-    likeByMaterialIdAndUserIdGet,
+    likeByMediaIdAndUserIdGet,
   );
 
 likeRouter
@@ -54,7 +54,7 @@ likeRouter
   .get(
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    likeCountByMaterialIdGet,
+    likeCountByMediaIdGet,
   );
 
 likeRouter

@@ -27,8 +27,8 @@ const favoriteListGetByUserId = async (req: Request, res: Response, next: NextFu
 const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: NextFunction) => {
   try {
     const user_id = res.locals.user.user_id;
-    const material_id = Number(req.body.material_id);
-    const result = await addFavorite(user_id, material_id);
+    const media_id = Number(req.body.media_id);
+    const result = await addFavorite(user_id, media_id);
     res.json(result);
   } catch (err) {
     next(err);
@@ -36,11 +36,11 @@ const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: N
 };
 
 
-// Get the number of favorites for a material
+// Get the number of favorites for a media
 const favoriteCountGet = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const material_id = Number(req.params.material_id);
-    const count = await countFavorites(material_id);
+    const media_id = Number(req.params.media_id);
+    const count = await countFavorites(media_id);
     res.json({ count });
   } catch (err) {
     next(err);
@@ -52,8 +52,8 @@ const favoriteCountGet = async (req: Request, res: Response, next: NextFunction)
 const favoriteRemove = async (req: Request, res: Response<MessageResponse>, next: NextFunction) => {
   try {
     const user_id = res.locals.user.user_id;
-    const material_id = Number(req.body.material_id);
-    const result = await removeFavorite(user_id, material_id);
+    const media_id = Number(req.body.media_id);
+    const result = await removeFavorite(user_id, media_id);
     res.json(result);
   } catch (err) {
     next(err);

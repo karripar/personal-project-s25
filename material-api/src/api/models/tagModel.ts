@@ -1,5 +1,5 @@
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
-import {StudyMaterial, Tag, TagResult} from 'hybrid-types/DBTypes';
+import {MediaItem, Tag, TagResult} from 'hybrid-types/DBTypes';
 import promisePool from '../../lib/db';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -13,11 +13,11 @@ const fetchAllTags = async (): Promise<Tag[]> => {
   return rows;
 };
 
-const fetchFilesByTagById = async (tag_id: number): Promise<StudyMaterial[]> => {
-  const [rows] = await promisePool.execute<RowDataPacket[] & StudyMaterial[]>(
+const fetchFilesByTagById = async (tag_id: number): Promise<MediaItem[]> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(
     `SELECT * FROM MediaItems
-     JOIN MaterialTags ON StudyMaterials.material_id = MaterialTags.material_id
-     WHERE MaterialTags.tag_id = ?`,
+     JOIN MediaTags ON MediaItems.media_id = MediaTags.media_id
+     WHERE MediaTags.tag_id = ?`,
     [tag_id],
   );
   return rows;
@@ -26,7 +26,7 @@ const fetchFilesByTagById = async (tag_id: number): Promise<StudyMaterial[]> => 
 // Post a new tag
 const postTag = async (
   tag_name: string,
-  material_id: number,
+  media_id: number,
 ): Promise<MessageResponse> => {
   let tag_id = 0;
   // check if tag exists (case insensitive)
@@ -47,8 +47,8 @@ const postTag = async (
   }
 
   const [result] = await promisePool.execute<ResultSetHeader>(
-    'INSERT INTO MediaItemTags (tag_id, material_id) VALUES (?, ?)',
-    [tag_id, material_id],
+    'INSERT INTO MediaItemTags (tag_id, media_id) VALUES (?, ?)',
+    [tag_id, media_id],
   );
 
   if (result.affectedRows === 0) {
@@ -59,12 +59,12 @@ const postTag = async (
 };
 
 // Request a list of tags by media item id
-const fetchTagsByMaterialId = async (id: number): Promise<TagResult[]> => {
+const fetchTagsByMediaId = async (id: number): Promise<TagResult[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & TagResult[]>(
-    `SELECT Tags.tag_id, Tags.tag_name, MaterialTags.material_id
+    `SELECT Tags.tag_id, Tags.tag_name, MediaTags.media_id
      FROM Tags
-     JOIN MaterialTags ON Tags.tag_id = StudyMaterials.tag_id
-     WHERE MaterialTags.material_id = ?`,
+     JOIN MediaTags ON Tags.tag_id = MediaItems.tag_id
+     WHERE MediaTags.media_id = ?`,
     [id],
   );
   return rows;
@@ -77,7 +77,7 @@ const deleteTag = async (id: number): Promise<MessageResponse> => {
 
   try {
     const [result1] = await connection.execute<ResultSetHeader>(
-      'DELETE FROM MaterialTags WHERE tag_id = ?',
+      'DELETE FROM MediaTags WHERE tag_id = ?',
       [id],
     );
 
@@ -100,15 +100,15 @@ const deleteTag = async (id: number): Promise<MessageResponse> => {
   }
 };
 
-const deleteTagFromMaterial = async (
+const deleteTagFromMedia = async (
   tag_id: number,
-  material_id: number,
+  media_id: number,
   user_id: number,
 ): Promise<MessageResponse> => {
   // check if user owns media item
   const [mediaItem] = await promisePool.execute<RowDataPacket[]>(
-    'SELECT * FROM StudyMaterials WHERE material_id = ? AND user_id = ?',
-    [material_id, user_id],
+    'SELECT * FROM MediaItems WHERE media_id = ? AND user_id = ?',
+    [media_id, user_id],
   );
 
   if (mediaItem.length === 0) {
@@ -116,8 +116,8 @@ const deleteTagFromMaterial = async (
   }
 
   const [result] = await promisePool.execute<ResultSetHeader>(
-    'DELETE FROM MaterialTags WHERE tag_id = ? AND material_id = ?',
-    [tag_id, material_id],
+    'DELETE FROM MediaTags WHERE tag_id = ? AND media_id = ?',
+    [tag_id, media_id],
   );
 
   if (result.affectedRows === 0) {
@@ -130,8 +130,8 @@ const deleteTagFromMaterial = async (
 export {
   fetchAllTags,
   postTag,
-  fetchTagsByMaterialId,
+  fetchTagsByMediaId,
   fetchFilesByTagById,
   deleteTag,
-  deleteTagFromMaterial,
+  deleteTagFromMedia,
 };

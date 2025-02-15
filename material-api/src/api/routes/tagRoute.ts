@@ -1,11 +1,11 @@
 import express from 'express';
 import {
   tagListGet,
-  tagListByMaterialIdGet,
+  tagListByMediaIdGet,
   tagPost,
   tagDelete,
   tagFilesByTagGet,
-  tagDeleteFromMaterial
+  tagDeleteFromMedia
 } from '../controllers/tagController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -23,7 +23,7 @@ tagRouter
       .isString()
       .isLength({min: 2, max: 50})
       .escape(),
-    body('material_id').isInt({min: 1}).toInt(),
+    body('media_id').isInt({min: 1}).toInt(),
     validationErrors,
     tagPost,
   );
@@ -33,17 +33,17 @@ tagRouter
   .get(
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
-    tagListByMaterialIdGet,
+    tagListByMediaIdGet,
   );
 
 tagRouter
-  .route('/bymedia/:material/:tag_id')
+  .route('/bymedia/:Media/:tag_id')
   .delete(
     authenticate,
-    param('material_id').isInt({min: 1}).toInt(),
+    param('media_id').isInt({min: 1}).toInt(),
     param('tag_id').isInt({min: 1}).toInt(),
     validationErrors,
-    tagDeleteFromMaterial,
+    tagDeleteFromMedia,
   );
 
 tagRouter

@@ -1,13 +1,13 @@
 import promisePool from "../../lib/db";
 import { RowDataPacket } from "mysql2";
-import { MaterialRating, MaterialComment, UserActivity, UserNotification, LatestNotification, LatestMaterial } from "hybrid-types/DBTypes";
+import { MediaRating, MediaComment, UserActivity, UserNotification, LatestNotification, LatestMedia } from "hybrid-types/DBTypes";
 import CustomError from "../../classes/CustomError";
 import { ERROR_MESSAGES } from '../../utils/errorMessages';
 
-// fetch average rating for all materials
-const fetchMaterialRatings = async (): Promise<MaterialRating[]> => {
-  const [rows] = await promisePool.execute<RowDataPacket[] & MaterialRating[]>(
-    `SELECT * FROM MaterialRatings`
+// fetch average rating for all media
+const fetchMediaRatings = async (): Promise<MediaRating[]> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaRating[]>(
+    `SELECT * FROM MediaRatings`
   );
 
   if (rows.length === 0) {
@@ -18,10 +18,10 @@ const fetchMaterialRatings = async (): Promise<MaterialRating[]> => {
 };
 
 
-// fetch number of comments per material
-const fetchMaterialComments = async (): Promise<MaterialComment[]> => {
-  const [rows] = await promisePool.execute<RowDataPacket[] & MaterialComment[]>(
-    `SELECT * FROM MaterialComments`
+// fetch number of comments per media
+const fetchMediaComments = async (): Promise<MediaComment[]> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaComment[]>(
+    `SELECT * FROM MediaComments`
   );
 
   if (rows.length === 0) {
@@ -32,7 +32,7 @@ const fetchMaterialComments = async (): Promise<MaterialComment[]> => {
 };
 
 
-// fetch user activity (number of materials, comments, ratings)
+// fetch user activity (number of media, comments, ratings)
 const fetchUserActivity = async (user_id: number): Promise<UserActivity[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserActivity[]>(
     `SELECT * FROM UserActivity WHERE user_id = ?`, [user_id]
@@ -74,10 +74,10 @@ const fetchLatestNotifications = async (user_id: number): Promise<LatestNotifica
 };
 
 
-// fetch latest materials uploaded
-const fetchLatestMaterials = async (): Promise<LatestMaterial[]> => {
-  const [rows] = await promisePool.execute<RowDataPacket[] & LatestMaterial[]>(
-    `SELECT * FROM LatestMaterials`
+// fetch latest media uploaded
+const fetchLatestMedia = async (): Promise<LatestMedia[]> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & LatestMedia[]>(
+    `SELECT * FROM LatestMedia`
   );
 
   if (rows.length === 0) {
@@ -88,10 +88,10 @@ const fetchLatestMaterials = async (): Promise<LatestMaterial[]> => {
 }
 
 export {
-  fetchMaterialRatings,
-  fetchMaterialComments,
+  fetchMediaRatings,
+  fetchMediaComments,
   fetchUserActivity,
   fetchUserNotifications,
-  fetchLatestMaterials,
+  fetchLatestMedia,
   fetchLatestNotifications
 };

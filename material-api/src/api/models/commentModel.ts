@@ -16,10 +16,10 @@ const fetchAllComments = async (): Promise<Comment[]> => {
   return rows;
 };
 
-// Request a list of comments by study material ID
-const fetchCommentsByMaterialId = async (id: number): Promise<Comment[]> => {
+// Request a list of comments by study media ID
+const fetchCommentsByMediaId = async (id: number): Promise<Comment[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Comment[]>(
-    'SELECT * FROM Comments WHERE material_id = ?',
+    'SELECT * FROM Comments WHERE media_id = ?',
     [id],
   );
   if (rows.length === 0) {
@@ -28,12 +28,12 @@ const fetchCommentsByMaterialId = async (id: number): Promise<Comment[]> => {
   return rows;
 };
 
-// Request a count of comments by study material ID
-const fetchCommentsCountByMaterialId = async (id: number): Promise<number> => {
+// Request a count of comments by study media ID
+const fetchCommentsCountByMediaId = async (id: number): Promise<number> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & { commentsCount: number }[]
   >(
-    'SELECT COUNT(*) AS commentsCount FROM Comments WHERE material_id = ?',
+    'SELECT COUNT(*) AS commentsCount FROM Comments WHERE media_id = ?',
     [id]
   );
   return rows[0].commentsCount;
@@ -65,13 +65,13 @@ const fetchCommentById = async (id: number): Promise<Comment> => {
 
 // Create a new comment
 const postComment = async (
-  material_id: number,
+  media_id: number,
   user_id: number,
   comment_text: string,
 ): Promise<MessageResponse> => {
   const [result] = await promisePool.execute<ResultSetHeader>(
-    'INSERT INTO Comments (material_id, user_id, comment_text) VALUES (?, ?, ?)',
-    [material_id, user_id, comment_text],
+    'INSERT INTO Comments (media_id, user_id, comment_text) VALUES (?, ?, ?)',
+    [media_id, user_id, comment_text],
   );
   if (result.affectedRows === 0) {
     throw new CustomError(ERROR_MESSAGES.COMMENT.NOT_CREATED, 500);
@@ -130,8 +130,8 @@ const deleteComment = async (
 
 export {
   fetchAllComments,
-  fetchCommentsByMaterialId,
-  fetchCommentsCountByMaterialId,
+  fetchCommentsByMediaId,
+  fetchCommentsCountByMediaId,
   fetchCommentsByUserId,
   fetchCommentById,
   postComment,

@@ -22,7 +22,7 @@ const fetchFavoritesByUserId = async (user_id: number): Promise<Favorite[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Favorite[]>(`
     SELECT f.*, m.title, m.description, m.created_at
     FROM Favorites f
-    JOIN StudyMaterials m ON f.material_id = m.material_id
+    JOIN MediaItems m ON f.media_id = m.media_id
     WHERE f.user_id = ?`,
     [user_id],
   );
@@ -33,11 +33,11 @@ const fetchFavoritesByUserId = async (user_id: number): Promise<Favorite[]> => {
 };
 
 // Add a favorite
-const addFavorite = async (user_id: number, material_id: number): Promise<MessageResponse> => {
+const addFavorite = async (user_id: number, media_id: number): Promise<MessageResponse> => {
   // Check if the favorite already exists
   const [existing] = await promisePool.execute<RowDataPacket[]>(
-    'SELECT * FROM Favorites WHERE user_id = ? AND material_id = ?',
-    [user_id, material_id]
+    'SELECT * FROM Favorites WHERE user_id = ? AND media_id = ?',
+    [user_id, media_id]
   );
 
   if (existing.length > 0) {
@@ -45,8 +45,8 @@ const addFavorite = async (user_id: number, material_id: number): Promise<Messag
   }
 
   const [result] = await promisePool.execute<ResultSetHeader>(
-    'INSERT INTO Favorites (user_id, material_id) VALUES (?, ?)',
-    [user_id, material_id],
+    'INSERT INTO Favorites (user_id, media_id) VALUES (?, ?)',
+    [user_id, media_id],
   );
 
   if (result.affectedRows === 0) {
@@ -56,20 +56,20 @@ const addFavorite = async (user_id: number, material_id: number): Promise<Messag
   return { message: 'Favorite added' };
 };
 
-const countFavorites = async (material_id: number): Promise<number> => {
+const countFavorites = async (media_id: number): Promise<number> => {
   const [rows] = await promisePool.execute<RowDataPacket[]>(
-    'SELECT COUNT(*) as count FROM Favorites WHERE material_id = ?',
-    [material_id],
+    'SELECT COUNT(*) as count FROM Favorites WHERE media_id = ?',
+    [media_id],
   );
   return rows[0].count;
 }
 
 // Remove a favorite
-const removeFavorite = async (user_id: number, material_id: number): Promise<MessageResponse> => {
+const removeFavorite = async (user_id: number, media_id: number): Promise<MessageResponse> => {
   // Check if the favorite exists and belongs to the user
   const [rows] = await promisePool.execute<RowDataPacket[]>(
-    'SELECT * FROM Favorites WHERE user_id = ? AND material_id = ?',
-    [user_id, material_id],
+    'SELECT * FROM Favorites WHERE user_id = ? AND media_id = ?',
+    [user_id, media_id],
   );
   if (rows.length === 0) {
     throw new CustomError(ERROR_MESSAGES.FAVORITE.UNAUTHORIZED , 404);
@@ -77,8 +77,8 @@ const removeFavorite = async (user_id: number, material_id: number): Promise<Mes
 
   // Proceed to remove the favorite
   const [result] = await promisePool.execute<ResultSetHeader>(
-    'DELETE FROM Favorites WHERE user_id = ? AND material_id = ?',
-    [user_id, material_id],
+    'DELETE FROM Favorites WHERE user_id = ? AND media_id = ?',
+    [user_id, media_id],
   );
   if (result.affectedRows === 0) {
     throw new CustomError(ERROR_MESSAGES.FAVORITE.NOT_DELETED, 500);
