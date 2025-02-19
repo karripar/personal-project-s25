@@ -1,10 +1,14 @@
 import {ResultSetHeader, RowDataPacket} from 'mysql2';
 import {promisePool} from '../../lib/db';
-import {UserWithLevel, User, UserWithNoPassword, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
+import {
+  UserWithLevel,
+  User,
+  UserWithNoPassword,
+  UserWithUnhashedPassword,
+} from 'hybrid-types/DBTypes';
 import {UserDeleteResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
-import { customLog } from '../../lib/functions';
-
+import {customLog} from '../../lib/functions';
 
 const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   const [rows] = await promisePool.execute<
@@ -23,7 +27,6 @@ const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   return rows[0];
 };
 
-
 const getAllUsers = async (): Promise<UserWithNoPassword[]> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
@@ -34,7 +37,6 @@ const getAllUsers = async (): Promise<UserWithNoPassword[]> => {
   );
   return rows; // Return empty array if no users found
 };
-
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
@@ -51,7 +53,6 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   return rows[0];
 };
 
-
 const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
     `SELECT Users.user_id, Users.username, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
@@ -66,7 +67,6 @@ const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
   }
   return rows[0];
 };
-
 
 const createUser = async (
   user: Pick<UserWithUnhashedPassword, 'username' | 'password' | 'email'>,
@@ -90,7 +90,6 @@ const createUser = async (
   return await getUserById(result.insertId);
 };
 
-
 const modifyUser = async (
   user: Partial<User>,
   id: number,
@@ -99,7 +98,12 @@ const modifyUser = async (
   try {
     await connection.beginTransaction();
 
-    const allowedFields = ['username', 'email', 'password_hash', 'user_level_id'];
+    const allowedFields = [
+      'username',
+      'email',
+      'password_hash',
+      'user_level_id',
+    ];
     const updates = Object.entries(user)
       .filter(([key]) => allowedFields.includes(key))
       .map(([key]) => `${key} = ?`);
@@ -129,7 +133,6 @@ const modifyUser = async (
     connection.release();
   }
 };
-
 
 const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
   const connection = await promisePool.getConnection();
@@ -173,8 +176,6 @@ const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
     connection.release();
   }
 };
-
-
 
 export {
   getUserById,

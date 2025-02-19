@@ -196,7 +196,7 @@ CREATE UNIQUE INDEX idx_unique_follow ON Follows(follower_id, followed_id);
 
 -- Sample Data
 
-INSERT INTO UserLevels (level_name) VALUES ('User'), ('Admin');
+INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
 
 INSERT INTO Coordinates (latitude, longitude, location_name) VALUES (40.7128, -74.0060, 'New York City'),
 (34.0522, -118.2437, 'Los Angeles'), (41.8781, -87.6298, 'Chicago'),
