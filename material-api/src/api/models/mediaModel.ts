@@ -53,6 +53,7 @@ const fetchAllMedia = async (
   const sql = `${BASE_MEDIA_QUERY}
     ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
   const params = [uploadPath, limit, offset];
+  console.log('Uploads fetch: ', uploadPath);
   const stmt = promisePool.format(sql, params);
   console.log(stmt);
 

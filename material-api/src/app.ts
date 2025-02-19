@@ -16,10 +16,12 @@ app.use(
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-eval'"],
+      imgSrc: ["'self'", 'data:', 'http://localhost:5173'],
     },
   }),
 );
 app.use(cors());
+
 app.use(express.json());
 
 // serve public folder for apidoc
