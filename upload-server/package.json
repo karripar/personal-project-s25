@@ -14,15 +14,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ilkkamtk/hybrid-upload-server.git"
+    "url": "git+https://github.com/karripar/personal-project-s25"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ilkkamtk/hybrid-upload-server/issues"
-  },
-  "homepage": "https://github.com/ilkkamtk/hybrid-upload-server#readme",
+  "homepage": "https://github.com/karripar/personal-project-s25#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

@@ -67,9 +67,11 @@ CREATE TABLE Comments (
     media_id INT NOT NULL,
     user_id INT NOT NULL,
     comment TEXT NOT NULL,
+    reference_comment_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (media_id) REFERENCES MediaItems(media_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reference_comment_id) REFERENCES Comments(comment_id) ON DELETE CASCADE
 );
 
 -- likes (for media and comments)
@@ -212,25 +214,8 @@ INSERT INTO Users (username, password_hash, email, bio, user_level_id) VALUES ('
 ('user4', 'password', 'user4@example.com', 'I am user 4', 1),
 ('user5', 'password', 'user5@example.com', 'I am user 5', 1);
 
-INSERT INTO MediaItems (user_id, filename, thumbnail, filesize, coordinates_id, media_type, title, description) VALUES 
-(1, 'media1.pdf', 'media1_thumb.jpg', 1024, 1, 'pdf', 'Media 1', 'This is the first media item'),
-(2, 'media2.pdf', 'media2_thumb.jpg', 2048, 2, 'pdf', 'Media 2', 'This is the second media item'),
-(3, 'media3.pdf', 'media3_thumb.jpg', 3072, 3, 'pdf', 'Media 3', 'This is the third media item'),
-(4, 'media4.pdf', 'media4_thumb.jpg', 4096, 4, 'pdf', 'Media 4', 'This is the fourth media item'),
-(5, 'media5.pdf', 'media5_thumb.jpg', 5120, 5, 'pdf', 'Media 5', 'This is the fifth media item');
 
 INSERT INTO Tags (tag_name) VALUES ('tag1'), ('tag2'), ('tag3'), ('tag4'), ('tag5');
-
-INSERT INTO MediaTags (media_id, tag_id) VALUES (1, 1), (1, 2), (2, 2), (2, 3), (3, 3), (3, 4), (4, 4), (4, 5), (5, 5), (5, 1);
-
-INSERT INTO Comments (media_id, user_id, comment) VALUES (1, 2, 'This is a comment on media 1 by user 2'),
-(1, 3, 'This is a comment on media 1 by user 3'), (2, 3, 'This is a comment on media 2 by user 3'),
-(3, 4, 'This is a comment on media 3 by user 4'), (4, 5, 'This is a comment on media 4 by user 5'),
-(5, 2, 'This is a comment on media 5 by user 2');
-
-INSERT INTO Likes (media_id, user_id) VALUES (1, 3), (1, 4), (2, 4), (3, 5), (4, 2), (5, 3);
-
-INSERT INTO Ratings (media_id, user_id, rating_value) VALUES (1, 3, 5), (1, 4, 4), (2, 4, 3), (3, 5, 2), (4, 2, 1), (5, 3, 5);
 
 INSERT INTO Follows (follower_id, followed_id) VALUES (2, 1), (3, 1), (4, 1), (5, 1);
 
@@ -241,7 +226,6 @@ INSERT INTO Notifications (user_id, notification_text, notification_type_id) VAL
 (1, 'User 4 commented on your media item', 2), (1, 'User 2 followed you', 3), (1, 'User 3 followed you', 3),
 (1, 'User 4 followed you', 3), (1, 'User 5 followed you', 3);
 
-INSERT INTO Favorites (user_id, media_id) VALUES (2, 1), (2, 2), (2, 3), (2, 4), (2, 5);
 
 
 
