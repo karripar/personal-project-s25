@@ -86,7 +86,7 @@ const makeThumbnail = async (req: Request, res: Response, next: NextFunction) =>
           return next(new CustomError('Thumbnail not created by sharp', 500));
         });
 
-      res.locals.thumbnail = thumbnailPath; // ✅ Store correctly formatted thumbnail path
+      res.locals.thumbnail = thumbnailPath; // Store correctly formatted thumbnail path
       console.log('Thumbnail saved as:', thumbnailPath);
       return next();
     }

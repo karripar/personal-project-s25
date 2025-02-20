@@ -66,7 +66,7 @@ CREATE TABLE Comments (
     comment_id INT PRIMARY KEY AUTO_INCREMENT,
     media_id INT NOT NULL,
     user_id INT NOT NULL,
-    comment TEXT NOT NULL,
+    comment_text TEXT NOT NULL,
     reference_comment_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (media_id) REFERENCES MediaItems(media_id) ON DELETE CASCADE,
