@@ -26,6 +26,7 @@ commentRouter
       .isLength({min: 1})
       .escape(),
     body('media_id').notEmpty().isInt({min: 1}).toInt(),
+    body('reference_comment_id').optional().isInt({min: 1}).toInt(),
     validationErrors,
     commentPost,
   );

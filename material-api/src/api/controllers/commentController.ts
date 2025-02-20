@@ -86,7 +86,7 @@ const commentGet = async (
 
 // Post a new comment
 const commentPost = async (
-  req: Request<{}, {}, {comment_text: string; media_id: string}>,
+  req: Request<{}, {}, {comment_text: string; media_id: string, reference_comment_id?: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
@@ -95,6 +95,7 @@ const commentPost = async (
       Number(req.body.media_id),
       res.locals.user.user_id,
       req.body.comment_text,
+      req.body.reference_comment_id ? Number(req.body.reference_comment_id) : null,
     );
     res.json(result);
   } catch (error) {

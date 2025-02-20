@@ -68,10 +68,11 @@ const postComment = async (
   media_id: number,
   user_id: number,
   comment_text: string,
+  reference_comment_id?: number | null,
 ): Promise<MessageResponse> => {
   const [result] = await promisePool.execute<ResultSetHeader>(
-    'INSERT INTO Comments (media_id, user_id, comment_text) VALUES (?, ?, ?)',
-    [media_id, user_id, comment_text],
+    'INSERT INTO Comments (media_id, user_id, comment_text, reference_comment_id) VALUES (?, ?, ?, ?)',
+    [media_id, user_id, comment_text, reference_comment_id],
   );
   if (result.affectedRows === 0) {
     throw new CustomError(ERROR_MESSAGES.COMMENT.NOT_CREATED, 500);
