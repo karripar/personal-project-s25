@@ -27,7 +27,7 @@ const fetchFollowedUsersByUserId = async (user_id: number): Promise<Follow[]> =>
 
 
 // Add a follow
-const addFollow = async (follower_id: number, followed_id: number): Promise<MessageResponse> => {
+const addFollow = async (follower_id: number, followed_id: number): Promise<Follow> => {
   if (follower_id === followed_id) {
     throw new CustomError(ERROR_MESSAGES.FOLLOW.SELF_FOLLOW, 400);
   }
@@ -44,7 +44,12 @@ const addFollow = async (follower_id: number, followed_id: number): Promise<Mess
   );
 
   if (result[0].affectedRows === 1) {
-    return { message: 'Follow added' };
+    return {
+      follow_id: result[0].insertId,
+      follower_id,
+      followed_id,
+      created_at: new Date()
+    };
   } else {
     throw new CustomError(ERROR_MESSAGES.FOLLOW.NOT_CREATED, 500);
   }

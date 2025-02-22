@@ -96,18 +96,31 @@ const mediaPut = async (
   }
 };
 
-const mediaByUserGet = async (
-  req: Request<{id: string}>,
+const mediaByTokenGet = async (
+  req: Request,
   res: Response<MediaItem[], {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
-    const id = Number(req.params.id) || res.locals.user.user_id;
-    if (isNaN(id)) {
+    const Media = await fetchMediaByUserId(res.locals.user.user_id);
+    res.json(Media);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const mediaByUserGet = async (
+  req: Request<{user_id: string}>,
+  res: Response<MediaItem[], {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = res.locals.user.user_id || Number(req.params.user_id);
+    if (isNaN(user_id)) {
       throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);
     }
 
-    const Media = await fetchMediaByUserId(id);
+    const Media = await fetchMediaByUserId(user_id);
     res.json(Media);
   } catch (error) {
     next(error);
@@ -182,4 +195,5 @@ export {
   mediaListMostLikedGet,
   mediaListFollowedGet,
   mediaWithSearchGet,
+  mediaByTokenGet,
 };

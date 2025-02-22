@@ -14,7 +14,7 @@ followRouter
   .route('/')
   .post(
     authenticate,
-    body('followed_user_id').isInt({min: 1}).toInt(),
+    body('user_id').isInt({min: 1}).toInt(),
     validationErrors,
     postFollow,
   );

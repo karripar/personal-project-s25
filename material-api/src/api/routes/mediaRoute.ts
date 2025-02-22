@@ -8,7 +8,8 @@ import {
   mediaPut,
   mediaDelete,
   mediaByUserGet,
-  mediaWithSearchGet
+  mediaWithSearchGet,
+  mediaByTokenGet,
 } from '../controllers/mediaController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param, query} from 'express-validator';
@@ -59,10 +60,9 @@ mediaRouter.route('/search').get(
   mediaWithSearchGet
 );
 
-mediaRouter.route('/followed/:follower_id')
+mediaRouter.route('/followed')
 .get(
   authenticate,
-  param('follower_id').isInt({min: 1}).toInt(),
   validationErrors,
   mediaListFollowedGet
 );
@@ -95,8 +95,8 @@ mediaRouter
     mediaDelete,
   );
 
-mediaRouter.route('/byuser/:id').get(mediaByUserGet);
+mediaRouter.route('/byuser/:user_id').get(mediaByUserGet);
 
-mediaRouter.route('/bytoken').get(authenticate, mediaByUserGet);
+mediaRouter.route('/bytoken').get(authenticate, mediaByTokenGet);
 
 export default mediaRouter;

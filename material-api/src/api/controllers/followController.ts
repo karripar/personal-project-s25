@@ -8,7 +8,6 @@ import {
   removeFollow,
 } from '../models/followModel';
 
-
 // Request a list of followers by user ID
 const getFollowersByUserId = async (
   req: Request,
@@ -41,21 +40,20 @@ const getFollowedUsersByUserId = async (
 
 // Add a follow
 const postFollow = async (
-  req: Request<{}, {}, {followed_id: string}>,
-  res: Response<MessageResponse, {user: TokenContent}>,
+  req: Request<{user_id: string}, {}>,
+  res: Response<Follow, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
     const result = await addFollow(
       res.locals.user.user_id,
-      Number(req.body.followed_id),
+      Number(req.body.user_id),
     );
     res.json(result);
   } catch (error) {
     next(error);
   }
 };
-
 
 // Remove a follow
 const deleteFollow = async (
@@ -75,5 +73,9 @@ const deleteFollow = async (
   }
 };
 
-
-export {getFollowersByUserId, getFollowedUsersByUserId, postFollow, deleteFollow};
+export {
+  getFollowersByUserId,
+  getFollowedUsersByUserId,
+  postFollow,
+  deleteFollow,
+};
