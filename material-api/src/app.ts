@@ -20,7 +20,12 @@ app.use(
     },
   }),
 );
-app.use(cors());
+app.use(cors({
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+  origin: '*',
+}));
 
 app.use(express.json());
 

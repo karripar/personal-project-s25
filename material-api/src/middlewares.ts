@@ -31,6 +31,7 @@ const authenticate = async (
   next: NextFunction,
 ) => {
   try {
+    console.log('req.headers', req.headers);
     const bearer = req.headers.authorization;
     if (!bearer) {
       next(new CustomError('No token provided', 401));
@@ -51,15 +52,15 @@ const authenticate = async (
 
     console.log('userFromToken', userFromToken);
 
-    if (!userFromToken) {
-      next(new CustomError('Token not valid', 403));
+    if (!userFromToken || !userFromToken.user_id) {
+      next(new CustomError('Token not valid, or missing user_id', 403));
       return;
     }
 
     res.locals.user = userFromToken;
     // token added for deleting media
     res.locals.token = token;
-
+    console.log('res.locals.user', res.locals.user);
     next();
   } catch (error) {
     next(new CustomError((error as Error).message, 400));

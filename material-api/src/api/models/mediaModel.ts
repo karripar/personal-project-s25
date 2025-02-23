@@ -194,10 +194,14 @@ const deleteMedia = async (
 };
 
 const fetchMediaByUserId = async (user_id: number): Promise<MediaItem[]> => {
+  console.log('user_id', user_id);
+  if (!user_id) {
+    throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_FOUND, 404);
+  }
   const sql = `${BASE_MEDIA_QUERY} WHERE user_id = ?`;
   const params = [uploadPath, user_id];
   const stmt = promisePool.format(sql, params);
-  console.log(stmt);
+  //console.log(stmt);
 
   const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   return rows;
