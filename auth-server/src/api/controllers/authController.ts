@@ -15,7 +15,7 @@ const login = async (
     const {email, password} = req.body;
     const user = await getUserByEmail(email);
 
-    if (!bcrypt.compare(password, user.password_hash)) {
+    if (!bcrypt.compareSync(password, user.password_hash)) {
       next(new CustomError('Incorrect username/password', 403));
       return;
     }
