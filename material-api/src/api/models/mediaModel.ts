@@ -155,7 +155,7 @@ const deleteMedia = async (
   const sql =
     level_name === 'Admin'
       ? connection.format('DELETE FROM MediaItems WHERE media_id = ?', [
-        media_id,
+          media_id,
         ])
       : connection.format(
           'DELETE FROM MediaItems WHERE media_id = ? AND user_id = ?',
@@ -230,7 +230,6 @@ const fetchMostLikedMedia = async (): Promise<MediaItem> => {
   return rows[0];
 };
 
-
 const fetchFollowedMedia = async (user_id: number): Promise<MediaItem[]> => {
   const sql = `SELECT * FROM FollowedMedias WHERE follower_id = ?`;
   const params = [user_id];
@@ -243,7 +242,6 @@ const fetchFollowedMedia = async (user_id: number): Promise<MediaItem[]> => {
   }
   return rows;
 };
-
 
 const fetchSearchedMedia = async (
   search: string,
@@ -260,7 +258,7 @@ const fetchSearchedMedia = async (
 
   const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   return rows;
-}
+};
 
 export {
   fetchAllMedia,
