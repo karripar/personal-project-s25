@@ -1,4 +1,3 @@
-import { Follow } from 'hybrid-types/DBTypes';
 import express from 'express';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -38,18 +37,11 @@ followRouter
     getFollowersByUserId,
   );
 
+followRouter
+  .route('/bytoken/followed')
+  .get(authenticate, getFollowedUsersByToken);
 
-followRouter.route('/bytoken/followed')
-  .get(
-    authenticate,
-    getFollowedUsersByToken,
-  );
-
-followRouter.route('/bytoken/followers')
-  .get(
-    authenticate,
-    getFollowersByToken,
-  );
+followRouter.route('/bytoken/followers').get(authenticate, getFollowersByToken);
 
 followRouter
   .route('/:user_id')
