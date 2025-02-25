@@ -68,7 +68,7 @@ mediaRouter.route('/followed')
 );
 
 mediaRouter
-  .route('/:id')
+  .route('/byid/:id')
   .get(param('id').isInt({min: 1}).toInt(), validationErrors, mediaGet)
   .put(
     authenticate,

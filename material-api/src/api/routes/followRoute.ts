@@ -1,9 +1,12 @@
+import { Follow } from 'hybrid-types/DBTypes';
 import express from 'express';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
 import {
   getFollowersByUserId,
   getFollowedUsersByUserId,
+  getFollowedUsersByToken,
+  getFollowersByToken,
   postFollow,
   deleteFollow,
 } from '../controllers/followController';
@@ -20,7 +23,7 @@ followRouter
   );
 
 followRouter
-  .route('/byuser/:user_id')
+  .route('/byuser/followed/:user_id')
   .get(
     param('user_id').isInt({min: 1}).toInt(),
     validationErrors,
@@ -33,6 +36,19 @@ followRouter
     param('user_id').isInt({min: 1}).toInt(),
     validationErrors,
     getFollowersByUserId,
+  );
+
+
+followRouter.route('/bytoken/followed')
+  .get(
+    authenticate,
+    getFollowedUsersByToken,
+  );
+
+followRouter.route('/bytoken/followers')
+  .get(
+    authenticate,
+    getFollowersByToken,
   );
 
 followRouter

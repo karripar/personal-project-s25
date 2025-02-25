@@ -61,42 +61,60 @@ const authenticate = async (
 
 const makeThumbnail = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log('🔹 Received file:', req.file);
+    console.log('🔹 Request body:', req.body);
+
+    // Check if file was uploaded
     if (!req.file) {
-      return next(new CustomError('File not uploaded', 500));
+      console.error('No file uploaded');
+      return next(new CustomError('File not uploaded', 400));
     }
 
-    console.log('Original file path:', req.file.path);
+    const { path: filePath, mimetype, filename, originalname } = req.file;
+    console.log('Original file path:', filePath);
+    console.log('Original file name:', originalname);
+    console.log('MIME type:', mimetype);
 
-    // Extract the filename without extension
-    console.log('Original file name:', req.file.originalname);
-    const ext = path.extname(req.file.originalname); // e.g., ".jpg"
-    const baseName = req.file.filename.replace(ext, ''); // Removes extension correctly
+    // Extract filename without extension
+    const ext = path.extname(originalname); // e.g., ".png"
+    const baseName = path.basename(filename, ext); // Safely remove the extension
 
-    // Construct the correct thumbnail path
-    const thumbnailPath = path.join(path.dirname(req.file.path), `${baseName}-thumb.png`);
-    console.log('Thumbnail path:', thumbnailPath);
+    // Define thumbnail path
+    const thumbnailPath = path.join(path.dirname(filePath), `${baseName}-thumb.png`);
+    console.log('📌 Thumbnail path:', thumbnailPath);
 
-    if (!req.file.mimetype.includes('video')) {
-      await sharp(req.file.path)
-        .resize(320, 320)
-        .png()
-        .toFile(thumbnailPath)
-        .catch((error) => {
-          console.error('Sharp error:', error);
-          return next(new CustomError('Thumbnail not created by sharp', 500));
-        });
-
-      res.locals.thumbnail = thumbnailPath; // Store correctly formatted thumbnail path
-      console.log('Thumbnail saved as:', thumbnailPath);
-      return next();
+    if (mimetype.startsWith('image')) {
+      console.log('Processing image thumbnail...');
+      try {
+        await sharp(filePath)
+          .resize(320, 320)
+          .png()
+          .toFile(thumbnailPath);
+        console.log('Thumbnail saved at:', thumbnailPath);
+        res.locals.thumbnail = thumbnailPath;
+      } catch (error) {
+        console.error('Sharp processing error:', error);
+        return next(new CustomError('Thumbnail not created by sharp', 500));
+      }
+    } else if (mimetype.startsWith('video')) {
+      console.log('🎥 Processing video thumbnails...');
+      try {
+        const screenshots: string[] = await getVideoThumbnail(filePath);
+        console.log('Generated video screenshots:', screenshots);
+        res.locals.screenshots = screenshots;
+      } catch (error) {
+        console.error('Video thumbnail generation error:', error);
+        return next(new CustomError('Video thumbnails not created', 500));
+      }
+    } else {
+      console.warn('Unsupported file type:', mimetype);
+      return next(new CustomError('Unsupported file type', 400));
     }
 
-    // Handle video thumbnails
-    const screenshots: string[] = await getVideoThumbnail(req.file.path);
-    res.locals.screenshots = screenshots;
-    next();
+    return next();
   } catch (error) {
-    next(new CustomError('Thumbnail not created', 500));
+    console.error('❌ Unexpected error in makeThumbnail:', error);
+    return next(new CustomError('Thumbnail processing failed', 500));
   }
 };
 

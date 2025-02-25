@@ -3,6 +3,7 @@ import CustomError from '../../classes/CustomError';
 import fs from 'fs';
 import {TokenContent} from 'hybrid-types/DBTypes';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
+import path from 'path';
 
 const UPLOAD_DIR = './uploads';
 
@@ -17,76 +18,78 @@ type UploadResponse = MessageResponse & {
 
 const uploadFile = async (
   req: Request,
-  res: Response<UploadResponse, {user: TokenContent; screenshots: string[]}>,
+  res: Response<UploadResponse, { user: TokenContent; screenshots: string[] }>,
   next: NextFunction
 ) => {
   const tempFiles: string[] = [];
+
   try {
+    console.log('🔹 Upload request received:', req.file);
+
+    // Validate file upload
     if (!req.file) {
-      throw new CustomError('file not valid', 400);
+      throw new CustomError('File not valid', 400);
     }
 
-    const extension = req.file.originalname.split('.').pop();
+    const { path: tempPath, mimetype, size, originalname, filename } = req.file;
+    console.log('📁 Temp file path:', tempPath);
+
+    const extension = path.extname(originalname); // Extracts ".png", ".mp4", etc.
     if (!extension) {
       throw new CustomError('Invalid file extension', 400);
     }
 
-    // Append user_id to the random filename
-    const filename = `${req.file.filename}_${res.locals.user.user_id}.${extension}`;
-    const targetPath = `${UPLOAD_DIR}/${filename}`;
-    tempFiles.push(req.file.path);
+    // Append user_id to filename while preserving extension
+    const newFilename = `${path.basename(filename, extension)}_${res.locals.user.user_id}${extension}`;
+    const targetPath = path.join(UPLOAD_DIR, newFilename);
+
+    tempFiles.push(tempPath);
 
     try {
-      fs.renameSync(req.file.path, targetPath);
+      // Move uploaded file
+      fs.renameSync(tempPath, targetPath);
+      console.log('✅ File moved to:', targetPath);
 
-      const thumbPath = `${req.file.path}-thumb.png`;
+      // Handle image thumbnails
+      const thumbPath = `${tempPath}-thumb.png`;
       if (fs.existsSync(thumbPath)) {
-        const targetThumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
+        const targetThumbPath = path.join(UPLOAD_DIR, `${newFilename}-thumb.png`);
         fs.renameSync(thumbPath, targetThumbPath);
+        console.log('✅ Thumbnail moved to:', targetThumbPath);
       }
 
+      // Handle video screenshots
       if (res.locals.screenshots?.length > 0) {
         res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
-          const screenshotName = screenshot.split('-').pop();
-          if (!screenshotName) {
-            throw new CustomError('Invalid screenshot name', 400);
-          }
-
-          const targetScreenshotPath = `${UPLOAD_DIR}/${filename}-thumb-${screenshotName}`;
+          const screenshotName = path.basename(screenshot);
+          const targetScreenshotPath = path.join(UPLOAD_DIR, `${newFilename}-thumb-${screenshotName}`);
           fs.renameSync(screenshot, targetScreenshotPath);
-          return `${filename}-thumb-${screenshotName}`;
+          console.log('📸 Video screenshot moved to:', targetScreenshotPath);
+          return `${newFilename}-thumb-${screenshotName}`;
         });
       }
-    } catch {
-      // Cleanup any created files on error
+    } catch (error) {
+      console.error('❌ Error moving files:', error);
       cleanup(tempFiles);
       throw new CustomError('Error processing files', 500);
     }
 
+    // Build response
     const response: UploadResponse = {
-      message: 'file uploaded',
+      message: 'File uploaded successfully',
       data: {
-        filename,
-        media_type: req.file.mimetype,
-        filesize: req.file.size,
+        filename: newFilename,
+        media_type: mimetype,
+        filesize: size,
+        ...(mimetype.includes('video') && { screenshots: res.locals.screenshots }),
       },
     };
 
-    // if file is video, get thumbnails
-    if (req.file.mimetype.includes('video')) {
-      // get thumbnails
-      const filenames = res.locals.screenshots;
-      response.data.screenshots = filenames;
-    }
-
     res.json(response);
   } catch (error) {
+    console.error('❌ Upload error:', error);
     cleanup(tempFiles);
-    next(
-      error instanceof CustomError
-        ? error
-        : new CustomError((error as Error).message, 400)
-    );
+    next(error instanceof CustomError ? error : new CustomError((error as Error).message, 400));
   }
 };
 

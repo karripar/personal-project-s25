@@ -8,7 +8,6 @@ import {
   removeFollow,
 } from '../models/followModel';
 
-// Request a list of followers by user ID
 const getFollowersByUserId = async (
   req: Request,
   res: Response<Follow[]>,
@@ -16,6 +15,28 @@ const getFollowersByUserId = async (
 ) => {
   try {
     const user_id = Number(req.params.user_id);
+    if (!user_id) {
+      throw new Error('No user_id provided');
+    }
+    const followedUsers = await fetchFollowersByUserId(user_id);
+    res.json(followedUsers);
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+// Request a list of followers by user ID
+const getFollowersByToken = async (
+  req: Request,
+  res: Response<Follow[]>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = res.locals.user.user_id;
+    if (!user_id) {
+      throw new Error('No user_id provided');
+    }
     const followers = await fetchFollowersByUserId(user_id);
     res.json(followers);
   } catch (error) {
@@ -23,7 +44,6 @@ const getFollowersByUserId = async (
   }
 };
 
-// Request a list of followed users by user ID
 const getFollowedUsersByUserId = async (
   req: Request,
   res: Response<Follow[]>,
@@ -31,6 +51,28 @@ const getFollowedUsersByUserId = async (
 ) => {
   try {
     const user_id = Number(req.params.user_id);
+    if (!user_id) {
+      throw new Error('No user_id provided');
+    }
+    const followedUsers = await fetchFollowedUsersByUserId(user_id);
+    res.json(followedUsers);
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+// Request a list of followed users by user ID
+const getFollowedUsersByToken = async (
+  req: Request,
+  res: Response<Follow[]>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(req.params.user_id) || res.locals.user.user_id;
+    if (!user_id) {
+      throw new Error('No user_id provided');
+    }
     const followedUsers = await fetchFollowedUsersByUserId(user_id);
     res.json(followedUsers);
   } catch (error) {
@@ -78,4 +120,6 @@ export {
   getFollowedUsersByUserId,
   postFollow,
   deleteFollow,
+  getFollowersByToken,
+  getFollowedUsersByToken,
 };
