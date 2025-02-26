@@ -7,6 +7,9 @@ export const ERROR_MESSAGES = {
     NOT_UPDATED: 'Media not updated',
     NOT_DELETED: 'Media not deleted',
     NO_ID: 'No id provided',
+    INVALID_PAGINATION: 'Invalid pagination parameters',
+    INVALID_SEARCH: 'Invalid search parameters',
+    INVALID_SEARCH_FIELD: 'Invalid search field',
   },
   LIKE: {
     NOT_FOUND: 'No likes found',

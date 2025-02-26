@@ -15,25 +15,25 @@ const uploadPath = process.env.UPLOAD_URL;
 // ....execute(BASE_MEDIA_QUERY, [uploadPath, otherParams]);
 const BASE_MEDIA_QUERY = `
   SELECT
-    media_id,
-    user_id,
-    filename,
-    filesize,
-    media_type,
-    title,
-    description,
-    created_at,
-    CONCAT(?, filename) AS filename,
+    m.media_id,
+    m.user_id,
+    m.filename,
+    m.filesize,
+    m.media_type,
+    m.title,
+    m.description,
+    m.created_at,
+    CONCAT(?, m.filename) AS filename,
     CASE
-      WHEN media_type LIKE '%image%'
-      THEN CONCAT(filename, '-thumb.png')
+      WHEN m.media_type LIKE '%image%'
+      THEN CONCAT(m.filename, '-thumb.png')
       ELSE NULL
     END AS thumbnail,
     CASE
-      WHEN media_type NOT LIKE '%image%'
+      WHEN m.media_type NOT LIKE '%image%'
       THEN (
         SELECT JSON_ARRAYAGG(
-          CONCAT(filename, '-thumb-', numbers.n, '.png')
+          CONCAT(m.filename, '-thumb-', numbers.n, '.png')
         )
         FROM (
           SELECT 1 AS n UNION SELECT 2 UNION SELECT 3
@@ -42,7 +42,7 @@ const BASE_MEDIA_QUERY = `
       )
       ELSE NULL
     END AS screenshots
-  FROM MediaItems
+  FROM MediaItems m
 `;
 
 const fetchAllMedia = async (
@@ -252,20 +252,57 @@ const fetchFollowedMedia = async (user_id: number): Promise<MediaItem[]> => {
 
 const fetchSearchedMedia = async (
   search: string,
-  page: number | undefined = undefined,
-  limit: number | undefined = undefined,
+  searchBy: string,
+  page: number = 1,
+  limit: number = 10
 ): Promise<MediaItem[]> => {
-  const offset = ((page || 1) - 1) * (limit || 10);
-  const sql = `${BASE_MEDIA_QUERY}
-    WHERE title LIKE ?
-    ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
-  const params = [uploadPath, `%${search}%`, limit, offset];
+  const offset = (page - 1) * limit;
+
+  // Allowed search fields
+  const allowedFields: Record<string, string> = {
+    title: "m.title",
+    description: "m.description",
+    tags: "t.tag_name",
+  };
+
+  if (!allowedFields[searchBy]) {
+    throw new Error("Invalid searchBy value. Allowed values: title, description, tags.");
+  }
+
+  let sql: string;
+  // Default to empty string if uploadPath is undefined
+  const uploadPathFallback = uploadPath || "";
+
+  const params: (string | number)[] = [uploadPathFallback]; // Fallback value
+
+  if (searchBy === "tags") {
+    // Using your existing `fetchFilesByTagById` function for tag searches
+    sql = `${BASE_MEDIA_QUERY}
+      JOIN MediaTags mt ON m.media_id = mt.media_id
+      JOIN Tags t ON mt.tag_id = t.tag_id
+      WHERE t.tag_name LIKE ?
+      ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
+    params.push(`%${search}%`);
+  } else {
+    // Standard search on title or description
+    sql = `${BASE_MEDIA_QUERY}
+      WHERE ${allowedFields[searchBy]} LIKE ?
+      ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
+    params.push(`%${search}%`);
+  }
+
+  if (limit) {
+    params.push(limit, offset);
+  }
+
   const stmt = promisePool.format(sql, params);
-  console.log(stmt);
+  console.log(stmt); // Debugging
 
   const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
   return rows;
 };
+
+
 
 export {
   fetchAllMedia,
