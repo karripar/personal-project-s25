@@ -167,32 +167,54 @@ const mediaListFollowedGet = async (
 }
 
 const mediaWithSearchGet = async (
-  req: Request<{}, {}, { page: string; limit: string; search: string }>,
+  req: Request<{}, {}, {}, { page?: string; limit?: string; search?: string; searchBy?: string }>,
   res: Response<MediaItem[]>,
   next: NextFunction
 ) => {
   try {
-    // Destructure query parameters with proper conversion
-    const { page, limit} = req.query;
-    const { search } = req.query;
+    // Extract and validate query parameters with default values
+    console.log("query", req.query);
+    const page = req.query.page || '1';
+    const limit = req.query.limit || '10';
+    const search = req.query.search || '';
+    const searchBy = req.query.searchBy || 'title';
 
-    // Validate parameters (ensure page, limit are integers and search is a string)
-    const pageNum = page ? Number(page) : 1;
-    const limitNum = limit ? Number(limit) : 10;
+    console.log('search after unpacking', search);
+    // Parse page and limit as integers
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
 
-    // Check if search string is empty
-    if (!search) {
-      const Media = await fetchAllMedia(pageNum, limitNum);
-      res.json(Media);
+    // Check if pagination values are valid
+    if (isNaN(pageNum) || isNaN(limitNum) || pageNum < 1 || limitNum < 1) {
+      throw new CustomError(ERROR_MESSAGES.MEDIA.INVALID_PAGINATION, 400);
     }
 
-    // Fetch the data from the database
-    const Media = await fetchSearchedMedia(search as string, pageNum, limitNum);
-    res.json(Media);
+    // Define allowed search fields for validation
+    const allowedFields = ["title", "description", "tags"];
+    if (!allowedFields.includes(searchBy)) {
+      throw new CustomError(ERROR_MESSAGES.MEDIA.INVALID_SEARCH_FIELD, 400);
+    }
+
+    let media: MediaItem[];
+    console.log('Search terms', {search, searchBy, page, limit});
+
+    // If a search term is provided, fetch filtered media
+    if (search.trim()) {
+      media = await fetchSearchedMedia(search, searchBy, pageNum, limitNum);
+    } else {
+      // Otherwise, fetch all media without filtering
+      media = await fetchAllMedia(pageNum, limitNum);
+    }
+
+    // Respond with the media items (either filtered or all)
+    res.json(media);
   } catch (error) {
-    next(error); // Pass any error to the error handler middleware
+    // Pass errors to the error handling middleware
+    next(error);
   }
-}
+};
+
+
 
 export {
   mediaListGet,

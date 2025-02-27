@@ -52,20 +52,23 @@ mediaRouter
 
 mediaRouter.route('/mostliked').get(mediaListMostLikedGet);
 
-mediaRouter.route('/search').get(
-  query('page').optional().isInt({min: 1}).toInt(),
-  query('limit').optional().isInt({min: 1}).toInt(),
-  param('search').optional().isString().trim().escape(),
-  validationErrors,
-  mediaWithSearchGet
-);
+mediaRouter
+  .route('/search')
+  .get(
+    query('search').optional().isString().trim().escape(),
+    query('searchBy')
+      .optional()
+      .isIn(['title', 'description', 'tags'])
+      .withMessage('Invalid searchBy value'),
+    query('page').optional().isInt({min: 1}).toInt(),
+    query('limit').optional().isInt({min: 1}).toInt(),
+    validationErrors,
+    mediaWithSearchGet,
+  );
 
-mediaRouter.route('/followed')
-.get(
-  authenticate,
-  validationErrors,
-  mediaListFollowedGet
-);
+mediaRouter
+  .route('/followed')
+  .get(authenticate, validationErrors, mediaListFollowedGet);
 
 mediaRouter
   .route('/byid/:id')
