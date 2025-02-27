@@ -101,6 +101,7 @@ const mediaByTokenGet = async (
   res: Response<MediaItem[]>,
   next: NextFunction,
 ) => {
+  console.log('res.locals.user', res.locals.user);
   try {
     if (!res.locals.user || !res.locals.user.user_id) {
       throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);

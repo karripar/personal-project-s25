@@ -30,6 +30,7 @@ const authenticate = async (
   res: Response,
   next: NextFunction,
 ) => {
+  console.log('req.headers', req.headers);
   try {
     console.log('req.headers', req.headers);
     const bearer = req.headers.authorization;

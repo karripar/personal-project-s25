@@ -44,10 +44,10 @@ followRouter
 followRouter.route('/bytoken/followers').get(authenticate, getFollowersByToken);
 
 followRouter
-  .route('/:user_id')
+  .route('/:follow_id')
   .delete(
     authenticate,
-    param('user_id').isInt({min: 1}).toInt(),
+    param('follow_id').isInt({min: 1}).toInt(),
     validationErrors,
     deleteFollow,
   );
