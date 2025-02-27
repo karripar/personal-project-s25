@@ -10,6 +10,7 @@ import {
   mediaByUserGet,
   mediaWithSearchGet,
   mediaByTokenGet,
+  mediaByUsernameGet,
 } from '../controllers/mediaController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param, query} from 'express-validator';
@@ -98,7 +99,17 @@ mediaRouter
     mediaDelete,
   );
 
-mediaRouter.route('/byuser/:user_id').get(mediaByUserGet);
+mediaRouter.route('/byusername/:username').get(
+  param('username')
+    .trim()
+    .isString()
+    .isLength({min: 3, max: 50})
+    .withMessage('Invalid username format'),
+  mediaByUsernameGet);
+
+mediaRouter.route('/byuser/:user_id').get(
+  param('user_id').isInt({min: 1}).toInt(),
+  mediaByUserGet);
 
 mediaRouter.route('/bytoken').get(authenticate, mediaByTokenGet);
 

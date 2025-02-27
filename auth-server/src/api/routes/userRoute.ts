@@ -10,6 +10,7 @@ import {
   userPost,
   userPut,
   userPutAsAdmin,
+  userByUsernameGet,
 } from '../controllers/userController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -17,6 +18,8 @@ import {body, param} from 'express-validator';
 const router = express.Router();
 
 router.get('/', userListGet);
+
+router.get('/byUsername/:username', userByUsernameGet);
 
 router.post(
   '/',

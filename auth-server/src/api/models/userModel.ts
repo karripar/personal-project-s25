@@ -27,6 +27,25 @@ const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   return rows[0];
 };
 
+const getUserByUsernameWithoutPassword = async (
+  username: string,
+): Promise<UserWithNoPassword> => {
+  const [rows] = await promisePool.execute<
+    RowDataPacket[] & UserWithNoPassword[]
+  >(
+    `SELECT Users.user_id, Users.username, Users.email, Users.bio, Users.created_at, UserLevels.level_name
+     FROM Users
+     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     WHERE Users.username = ?`,
+    [username],
+  );
+  if (rows.length === 0) {
+    customLog('getUserByUsernameWithoutPassword: User not found');
+    throw new CustomError('User not found', 404);
+  }
+  return rows[0];
+};
+
 const getAllUsers = async (): Promise<UserWithNoPassword[]> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
@@ -185,4 +204,5 @@ export {
   createUser,
   modifyUser,
   deleteUser,
+  getUserByUsernameWithoutPassword,
 };

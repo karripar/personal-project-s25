@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
     INVALID_PAGINATION: 'Invalid pagination parameters',
     INVALID_SEARCH: 'Invalid search parameters',
     INVALID_SEARCH_FIELD: 'Invalid search field',
+    NO_USERNAME: 'No username provided',
   },
   LIKE: {
     NOT_FOUND: 'No likes found',

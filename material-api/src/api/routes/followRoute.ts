@@ -8,6 +8,8 @@ import {
   getFollowersByToken,
   postFollow,
   deleteFollow,
+  getFollowedUsersByUsename,
+  getFollowersByUsername,
 } from '../controllers/followController';
 
 const followRouter = express.Router();
@@ -36,6 +38,18 @@ followRouter
     validationErrors,
     getFollowersByUserId,
   );
+
+followRouter
+  .route('/byusername/followed/:username')
+  .get(
+    param('username').isString().trim().escape(),
+    getFollowedUsersByUsename);
+
+followRouter
+  .route('/byusername/followers/:username')
+  .get(
+    param('username').isString().trim().escape(),
+    getFollowersByUsername);
 
 followRouter
   .route('/bytoken/followed')

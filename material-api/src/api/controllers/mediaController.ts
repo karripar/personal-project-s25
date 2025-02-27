@@ -8,7 +8,8 @@ import {
   fetchMediaByUserId,
   fetchMostLikedMedia,
   fetchFollowedMedia,
-  fetchSearchedMedia
+  fetchSearchedMedia,
+  fetchMediaByUsername
 } from '../models/mediaModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {MediaItem, TokenContent} from 'hybrid-types/DBTypes';
@@ -112,6 +113,24 @@ const mediaByTokenGet = async (
       throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);
     }
     const media = await fetchMediaByUserId(user_id);
+    res.json(media);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const mediaByUsernameGet = async (
+  req: Request<{username: string}>,
+  res: Response<MediaItem[]>,
+  next: NextFunction,
+) => {
+  try {
+    const username = req.params.username;
+    if (!username) {
+      throw new CustomError(ERROR_MESSAGES.MEDIA.NO_USERNAME, 400);
+    }
+
+    const media = await fetchMediaByUsername(username);
     res.json(media);
   } catch (error) {
     next(error);
@@ -227,4 +246,5 @@ export {
   mediaListFollowedGet,
   mediaWithSearchGet,
   mediaByTokenGet,
+  mediaByUsernameGet,
 };

@@ -214,6 +214,20 @@ const fetchMediaByUserId = async (user_id: number): Promise<MediaItem[]> => {
 };
 
 
+const fetchMediaByUsername = async (username: string): Promise<MediaItem[]> => {
+  const sql = `${BASE_MEDIA_QUERY} WHERE user_id = (SELECT user_id FROM Users WHERE username = ?)`;
+  const params = [uploadPath, username];
+  const stmt = promisePool.format(sql, params);
+  console.log(stmt);
+
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
+  if (!rows.length) {
+    throw new CustomError(ERROR_MESSAGES.MEDIA.NOT_FOUND, 404);
+  }
+  return rows;
+};
+
+
 const fetchMostLikedMedia = async (): Promise<MediaItem> => {
   // you could also use a view for this
   const sql = `${BASE_MEDIA_QUERY}
@@ -314,4 +328,5 @@ export {
   putMedia,
   fetchFollowedMedia,
   fetchSearchedMedia,
+  fetchMediaByUsername,
 };

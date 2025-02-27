@@ -6,6 +6,8 @@ import {
   fetchFollowedUsersByUserId,
   addFollow,
   removeFollow,
+  fetchFollowedUsersByUsername,
+  fetchFollowersByUsername,
 } from '../models/followModel';
 
 const getFollowersByUserId = async (
@@ -20,6 +22,42 @@ const getFollowersByUserId = async (
     }
     const followedUsers = await fetchFollowersByUserId(user_id);
     res.json(followedUsers);
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+const getFollowedUsersByUsename = async (
+  req: Request,
+  res: Response<Follow[]>,
+  next: NextFunction,
+) => {
+  try {
+    const username = req.params.username;
+    if (!username) {
+      throw new Error('No username provided');
+    }
+    const followedUsers = await fetchFollowedUsersByUsername(username);
+    res.json(followedUsers);
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+const getFollowersByUsername = async (
+  req: Request,
+  res: Response<Follow[]>,
+  next: NextFunction,
+) => {
+  try {
+    const username = req.params.username;
+    if (!username) {
+      throw new Error('No username provided');
+    }
+    const followers = await fetchFollowersByUsername(username);
+    res.json(followers);
   }
   catch (error) {
     next(error);
@@ -122,4 +160,6 @@ export {
   deleteFollow,
   getFollowersByToken,
   getFollowedUsersByToken,
+  getFollowedUsersByUsename,
+  getFollowersByUsername,
 };

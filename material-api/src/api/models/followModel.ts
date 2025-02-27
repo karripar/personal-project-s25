@@ -15,6 +15,27 @@ const fetchFollowersByUserId = async (user_id: number): Promise<Follow[]> => {
 };
 
 
+const fetchFollowedUsersByUsername = async (username: string): Promise<Follow[]> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & Follow[]>(
+    `SELECT f.follow_id, f.follower_id, f.followed_id, f.created_at
+     FROM Follows f
+     JOIN Users u ON f.follower_id = u.user_id
+     WHERE u.username = ?`, [username]
+  );
+  return rows;
+};
+
+const fetchFollowersByUsername = async (username: string): Promise<Follow[]> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & Follow[]>(
+    `SELECT f.follow_id, f.follower_id, f.followed_id, f.created_at
+     FROM Follows f
+     JOIN Users u ON f.followed_id = u.user_id
+     WHERE u.username = ?`, [username]
+  );
+  return rows;
+};
+
+
 // Request a list of followed users by user ID
 const fetchFollowedUsersByUserId = async (user_id: number): Promise<Follow[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Follow[]>(
@@ -80,5 +101,7 @@ export {
   fetchFollowersByUserId,
   fetchFollowedUsersByUserId,
   addFollow,
-  removeFollow
+  removeFollow,
+  fetchFollowedUsersByUsername,
+  fetchFollowersByUsername
 };

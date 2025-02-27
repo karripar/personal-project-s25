@@ -12,10 +12,24 @@ import {
   getUserById,
   getUserByUsername,
   modifyUser,
+  getUserByUsernameWithoutPassword,
 } from '../models/userModel';
 import {TokenContent, User, UserWithNoPassword, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
 
 const salt = bcrypt.genSaltSync(12);
+
+const userByUsernameGet = async (
+  req: Request<{username: string}>,
+  res: Response<UserWithNoPassword>,
+  next: NextFunction,
+) => {
+  try {
+    const user = await getUserByUsernameWithoutPassword(req.params.username);
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
 
 const userListGet = async (
   req: Request,
@@ -247,4 +261,5 @@ export {
   checkToken,
   checkEmailExists,
   checkUsernameExists,
+  userByUsernameGet,
 };
