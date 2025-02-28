@@ -45,15 +45,19 @@ const mediaGet = async (
 };
 
 const mediaPost = async (
-  req: Request<{}, {}, Omit<MediaItem, 'Media_id' | 'created_at'>>,
-  res: Response<MessageResponse, {user: TokenContent}>,
-  next: NextFunction,
+  req: Request<{}, {}, Omit<MediaItem, 'media_id' | 'created_at'>>,
+  res: Response<{ message: string; media_id: number }, { user: TokenContent }>,
+  next: NextFunction
 ) => {
   try {
     // add user_id to Media object from token
     req.body.user_id = res.locals.user.user_id;
-    await postMedia(req.body);
-    res.json({message: 'Media created'});
+
+    const response = await postMedia(req.body); // assuming postMedia returns the media item with media_id
+    res.json({
+      message: 'Media created',
+      media_id: response.media_id,
+    });
   } catch (error) {
     next(error);
   }
