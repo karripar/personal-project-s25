@@ -1,14 +1,14 @@
 import {Request, Response, NextFunction} from 'express';
 import {
   fetchAllTags,
-  postTag,
+  postTags,
   fetchTagsByMediaId,
   fetchFilesByTagById,
   deleteTag,
   deleteTagFromMedia,
 } from '../models/tagModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
-import {MediaItem, Tag, TagResult, TokenContent} from 'hybrid-types/DBTypes';
+import {MediaItem, Tag, TagResponse, TokenContent} from 'hybrid-types/DBTypes';
 import CustomError from '../../classes/CustomError';
 
 const tagListGet = async (
@@ -26,7 +26,7 @@ const tagListGet = async (
 
 const tagListByMediaIdGet = async (
   req: Request<{id: string}>,
-  res: Response<TagResult[]>,
+  res: Response<Tag[]>,
   next: NextFunction,
 ) => {
   try {
@@ -38,13 +38,21 @@ const tagListByMediaIdGet = async (
 };
 
 const tagPost = async (
-  req: Request<{}, {}, {tag_name: string; media_id: string}>,
-  res: Response<MessageResponse>,
+  req: Request<{}, {}, {tags: string[]; media_id: string}>,
+  res: Response<TagResponse>,
   next: NextFunction,
 ) => {
   try {
-    const result = await postTag(req.body.tag_name, Number(req.body.media_id));
-    res.json(result);
+    const tags = req.body.tags;
+    const media_id = Number(req.body.media_id);
+
+    if (!Array.isArray(tags) || tags.length === 0) {
+      throw new CustomError('Tags must be an array with at least one tag', 400);
+    }
+
+    const insertedTags = await postTags(tags, media_id);
+    res.json({ message: 'Tags added successfully', tags: insertedTags });
+
   } catch (error) {
     next(error);
   }

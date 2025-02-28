@@ -180,6 +180,26 @@ SELECT
 FROM MediaItems mi
 JOIN Follows f ON mi.user_id = f.followed_id;
 
+
+CREATE VIEW MediaWithTags AS
+SELECT 
+    MediaItems.media_id,
+    MediaItems.user_id,
+    MediaItems.filename,
+    MediaItems.thumbnail,
+    MediaItems.filesize,
+    MediaItems.coordinates_id,
+    MediaItems.media_type,
+    MediaItems.title,
+    MediaItems.description,
+    MediaItems.created_at,
+    GROUP_CONCAT(Tags.tag_name ORDER BY Tags.tag_name SEPARATOR ', ') AS tags
+FROM MediaItems
+LEFT JOIN MediaTags ON MediaItems.media_id = MediaTags.media_id
+LEFT JOIN Tags ON MediaTags.tag_id = Tags.tag_id
+GROUP BY MediaItems.media_id;
+
+
 -- Scheduled Event for Notifications
 CREATE EVENT ArchiveOldNotifications
 ON SCHEDULE EVERY 1 DAY

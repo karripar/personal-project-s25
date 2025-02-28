@@ -17,12 +17,15 @@ tagRouter
   .get(tagListGet)
   .post(
     authenticate,
-    body('tag_name')
-      .trim()
-      .notEmpty()
-      .isString()
-      .isLength({min: 2, max: 50})
-      .escape(),
+    body('tags')
+      .isArray({min: 1})
+      .withMessage('Tags must be an array with at least one tag')
+      .custom((value: string[]) => {
+        if (value.some((tag) => tag.length > 50)) {
+          throw new Error('Tag names must be less than 50 characters');
+        }
+        return true;
+      }),
     body('media_id').isInt({min: 1}).toInt(),
     validationErrors,
     tagPost,

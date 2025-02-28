@@ -24,46 +24,51 @@ const fetchFilesByTagById = async (tag_id: number): Promise<MediaItem[]> => {
 };
 
 // Post a new tag
-const postTag = async (
-  tag_name: string,
-  media_id: number,
-): Promise<MessageResponse> => {
-  let tag_id = 0;
-  // check if tag exists (case insensitive)
-  const [tagResult] = await promisePool.query<RowDataPacket[] & Tag[]>(
-    'SELECT tag_id FROM Tags WHERE tag_name = ?',
-    [tag_name],
-  );
+const postTags = async (tags: string[], media_id: number): Promise<Tag[]> => {
+  const insertedTags: Tag[] = [];
 
-  if (tagResult.length === 0) {
-    // if tag does not exist create it
-    const [insertResult] = await promisePool.execute<ResultSetHeader>(
-      'INSERT INTO Tags (tag_name) VALUES (?)',
-      [tag_name],
+  for (const tag of tags) {
+    let tag_id = 0;
+
+    // Check if tag exists (case insensitive)
+    const [tagResult] = await promisePool.query<RowDataPacket[] & Tag[]>(
+      'SELECT tag_id FROM Tags WHERE LOWER(tag_name) = LOWER(?)',
+      [tag],
     );
-    tag_id = insertResult.insertId;
-  } else {
-    tag_id = tagResult[0].tag_id;
+
+    if (tagResult.length === 0) {
+      // If tag does not exist, create it
+      const [insertResult] = await promisePool.execute<ResultSetHeader>(
+        'INSERT INTO Tags (tag_name) VALUES (?)',
+        [tag],
+      );
+      tag_id = insertResult.insertId;
+    } else {
+      tag_id = tagResult[0].tag_id;
+    }
+
+    // Insert tag-media relationship
+    const [result] = await promisePool.execute<ResultSetHeader>(
+      'INSERT INTO MediaTags (tag_id, media_id) VALUES (?, ?)',
+      [tag_id, media_id],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new CustomError(ERROR_MESSAGES.TAG.NOT_CREATED, 500);
+    }
+
+    insertedTags.push({tag_id, tag_name: tag});
   }
 
-  const [result] = await promisePool.execute<ResultSetHeader>(
-    'INSERT INTO MediaItemTags (tag_id, media_id) VALUES (?, ?)',
-    [tag_id, media_id],
-  );
-
-  if (result.affectedRows === 0) {
-    throw new CustomError(ERROR_MESSAGES.TAG.NOT_CREATED, 500);
-  }
-
-  return {message: 'Tag added'};
+  return insertedTags;
 };
 
 // Request a list of tags by media item id
-const fetchTagsByMediaId = async (id: number): Promise<TagResult[]> => {
+const fetchTagsByMediaId = async (id: number): Promise<Tag[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & TagResult[]>(
-    `SELECT Tags.tag_id, Tags.tag_name, MediaTags.media_id
+    `SELECT Tags.tag_id, Tags.tag_name
      FROM Tags
-     JOIN MediaTags ON Tags.tag_id = MediaItems.tag_id
+     JOIN MediaTags ON Tags.tag_id = MediaTags.tag_id
      WHERE MediaTags.media_id = ?`,
     [id],
   );
@@ -129,7 +134,7 @@ const deleteTagFromMedia = async (
 
 export {
   fetchAllTags,
-  postTag,
+  postTags,
   fetchTagsByMediaId,
   fetchFilesByTagById,
   deleteTag,
