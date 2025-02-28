@@ -11,6 +11,7 @@ export const ERROR_MESSAGES = {
     INVALID_SEARCH: 'Invalid search parameters',
     INVALID_SEARCH_FIELD: 'Invalid search field',
     NO_USERNAME: 'No username provided',
+    NO_TAG: 'No tag provided',
   },
   LIKE: {
     NOT_FOUND: 'No likes found',

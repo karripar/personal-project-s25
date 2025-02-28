@@ -9,7 +9,8 @@ import {
   fetchMostLikedMedia,
   fetchFollowedMedia,
   fetchSearchedMedia,
-  fetchMediaByUsername
+  fetchMediaByUsername,
+  fetchMediaByTagname,
 } from '../models/mediaModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {MediaItem, TokenContent} from 'hybrid-types/DBTypes';
@@ -141,6 +142,25 @@ const mediaByUsernameGet = async (
   }
 };
 
+const mediaByTagnameGet = async (
+  req: Request<{tagname: string}>,
+  res: Response<MediaItem[]>,
+  next: NextFunction,
+) => {
+  try {
+    const tagname = req.params.tagname;
+    if (!tagname) {
+      throw new CustomError(ERROR_MESSAGES.MEDIA.NO_TAG, 400);
+    }
+
+    const media = await fetchMediaByTagname(tagname);
+    res.json(media);
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
 const mediaByUserGet = async (
   req: Request<{user_id: string}>,
   res: Response<MediaItem[], {user: TokenContent}>,
@@ -251,4 +271,5 @@ export {
   mediaWithSearchGet,
   mediaByTokenGet,
   mediaByUsernameGet,
+  mediaByTagnameGet,
 };

@@ -209,10 +209,12 @@ const fetchMediaByUserId = async (user_id: number): Promise<MediaItem[]> => {
 
   console.log('Executing SQL:', promisePool.format(sql, params)); // Debugging
 
-  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(sql, params);
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(
+    sql,
+    params,
+  );
   return rows;
 };
-
 
 const fetchMediaByUsername = async (username: string): Promise<MediaItem[]> => {
   const sql = `${BASE_MEDIA_QUERY} WHERE user_id = (SELECT user_id FROM Users WHERE username = ?)`;
@@ -226,7 +228,6 @@ const fetchMediaByUsername = async (username: string): Promise<MediaItem[]> => {
   }
   return rows;
 };
-
 
 const fetchMostLikedMedia = async (): Promise<MediaItem> => {
   // you could also use a view for this
@@ -268,39 +269,39 @@ const fetchSearchedMedia = async (
   search: string,
   searchBy: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<MediaItem[]> => {
   const offset = (page - 1) * limit;
 
   // Allowed search fields
   const allowedFields: Record<string, string> = {
-    title: "m.title",
-    description: "m.description",
-    tags: "t.tag_name",
+    title: 'm.title',
+    description: 'm.description',
+    tags: 't.tag_name',
   };
 
   if (!allowedFields[searchBy]) {
-    throw new Error("Invalid searchBy value. Allowed values: title, description, tags.");
+    throw new Error(
+      'Invalid searchBy value. Allowed values: title, description, tags.',
+    );
   }
 
   let sql: string;
   // Default to empty string if uploadPath is undefined
-  const uploadPathFallback = uploadPath || "";
+  const uploadPathFallback = uploadPath || '';
 
   const params: (string | number)[] = [uploadPathFallback]; // Fallback value
 
-  if (searchBy === "tags") {
-    // Using your existing `fetchFilesByTagById` function for tag searches
+  if (searchBy === 'tags') {
     sql = `${BASE_MEDIA_QUERY}
       JOIN MediaTags mt ON m.media_id = mt.media_id
       JOIN Tags t ON mt.tag_id = t.tag_id
-      WHERE t.tag_name LIKE ?
+      WHERE LOWER(t.tag_name) = LOWER(?)
       ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
-    params.push(`%${search}%`);
+    params.push(search.toLowerCase()); // Ensure the search term is in lowercase
   } else {
-    // Standard search on title or description
     sql = `${BASE_MEDIA_QUERY}
-      WHERE ${allowedFields[searchBy]} LIKE ?
+      WHERE LOWER(${allowedFields[searchBy]}) LIKE LOWER(?)
       ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
     params.push(`%${search}%`);
   }
@@ -316,7 +317,19 @@ const fetchSearchedMedia = async (
   return rows;
 };
 
+const fetchMediaByTagname = async (tagname: string): Promise<MediaItem[]> => {
+  const sql = `${BASE_MEDIA_QUERY}
+    JOIN MediaTags mt ON m.media_id = mt.media_id
+    JOIN Tags t ON mt.tag_id = t.tag_id
+    WHERE LOWER(t.tag_name) = LOWER(?)`; // Convert both to lowercase
 
+  const params = [uploadPath, tagname.toLowerCase()]; // Ensure lowercase input
+  const stmt = promisePool.format(sql, params);
+  console.log(stmt); // Debugging
+
+  const [rows] = await promisePool.execute<RowDataPacket[] & MediaItem[]>(stmt);
+  return rows;
+};
 
 export {
   fetchAllMedia,
@@ -329,4 +342,5 @@ export {
   fetchFollowedMedia,
   fetchSearchedMedia,
   fetchMediaByUsername,
+  fetchMediaByTagname,
 };

@@ -11,6 +11,7 @@ import {
   mediaWithSearchGet,
   mediaByTokenGet,
   mediaByUsernameGet,
+  mediaByTagnameGet,
 } from '../controllers/mediaController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param, query} from 'express-validator';
@@ -70,6 +71,18 @@ mediaRouter
 mediaRouter
   .route('/followed')
   .get(authenticate, validationErrors, mediaListFollowedGet);
+
+
+mediaRouter
+  .route('/bytagname/:tagname')
+  .get(
+    param('tagname')
+      .trim()
+      .isString()
+      .isLength({min: 1, max: 50})
+      .escape(),
+    mediaByTagnameGet,
+  );
 
 mediaRouter
   .route('/byid/:id')
