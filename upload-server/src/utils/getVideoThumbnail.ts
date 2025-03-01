@@ -1,8 +1,8 @@
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 
-ffmpeg.setFfmpegPath(path.join(__dirname, '/ffmpeg/bin/ffmpeg.exe'));
-ffmpeg.setFfprobePath(path.join(__dirname, '/ffmpeg/bin/ffprobe.exe'));
+ffmpeg.setFfmpegPath('c:/ffmpeg/bin/ffmpeg.exe');
+ffmpeg.setFfprobePath('c:/ffmpeg/bin/ffprobe.exe');
 
 const getVideoThumbnail = (
   videoUrl: string
