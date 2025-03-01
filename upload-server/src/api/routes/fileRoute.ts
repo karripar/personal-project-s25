@@ -1,29 +1,49 @@
-import express, {Request} from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import {deleteFile, uploadFile} from '../controllers/uploadController';
-import multer, {FileFilterCallback} from 'multer';
+import multer from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
+import CustomError from '../../classes/CustomError';
+import {TokenContent} from 'hybrid-types/DBTypes';
+import randomstring from 'randomstring';
 
-const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/webm', 'video/quicktime', 'application/pdf', 'text/plain'];
+const storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: (req, file, cb) => {
+    const userId = (req as Request).res?.locals.user.user_id;
+    const extension = file.originalname.split('.').pop();
+    // generate random filename
+    const randomName = randomstring.generate(20);
+    const newFilename = `${randomName}_${userId}.${extension}`;
+    cb(null, newFilename);
+  },
+});
 
-const fileFilter = (
-  _request: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback
+const upload = multer({storage}).single('file');
+
+const doUpload = (
+  req: Request,
+  res: Response<unknown, {user: TokenContent}>,
+  next: NextFunction,
 ) => {
-  console.log('file', file);
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-    throw new Error('Invalid file type');
-  }
+  upload(req, res, (err) => {
+    if (err) {
+      next(new CustomError(err.message, 400));
+      return;
+    }
+
+    if (
+      req.file &&
+      (req.file.mimetype.includes('image') ||
+        req.file.mimetype.includes('video'))
+    ) {
+      next();
+    }
+  });
 };
-const upload = multer({dest: './uploads/', fileFilter});
+
 const router = express.Router();
 
-router
-  .route('/upload')
-  .post(authenticate, upload.single('file'), makeThumbnail, uploadFile);
+router.route('/upload').post(authenticate, doUpload, makeThumbnail, uploadFile);
 
 router.route('/delete/:filename').delete(authenticate, deleteFile);
 
