@@ -15,34 +15,33 @@ const uploadPath = process.env.UPLOAD_URL;
 // ....execute(BASE_MEDIA_QUERY, [uploadPath, otherParams]);
 const BASE_MEDIA_QUERY = `
   SELECT
-    m.media_id,
-    m.user_id,
-    m.filename,
-    m.filesize,
-    m.media_type,
-    m.title,
-    m.description,
-    m.created_at,
-    CONCAT(?, m.filename) AS filename,
+    mi.media_id,
+    mi.user_id,
+    mi.filename,
+    mi.filesize,
+    mi.media_type,
+    mi.title,
+    mi.description,
+    mi.created_at,
+    CONCAT(v.base_url, mi.filename) AS filename,
     CASE
-      WHEN m.media_type LIKE '%image%'
-      THEN CONCAT(m.filename, '-thumb.png')
-      ELSE NULL
+      WHEN mi.media_type LIKE '%image%'
+      THEN CONCAT(v.base_url, mi.filename, '-thumb.png')
+      ELSE CONCAT(v.base_url, mi.filename, '-animation.gif')
     END AS thumbnail,
     CASE
-      WHEN m.media_type NOT LIKE '%image%'
-      THEN (
-        SELECT JSON_ARRAYAGG(
-          CONCAT(m.filename, '-thumb-', numbers.n, '.png')
+      WHEN mi.media_type NOT LIKE '%image%'
+      THEN JSON_ARRAY(
+          CONCAT(v.base_url, mi.filename, '-thumb-1.png'),
+          CONCAT(v.base_url, mi.filename, '-thumb-2.png'),
+          CONCAT(v.base_url, mi.filename, '-thumb-3.png'),
+          CONCAT(v.base_url, mi.filename, '-thumb-4.png'),
+          CONCAT(v.base_url, mi.filename, '-thumb-5.png')
         )
-        FROM (
-          SELECT 1 AS n UNION SELECT 2 UNION SELECT 3
-          UNION SELECT 4 UNION SELECT 5
-        ) numbers
-      )
       ELSE NULL
     END AS screenshots
-  FROM MediaItems m
+FROM MediaItems mi
+CROSS JOIN (SELECT ? AS base_url) AS v
 `;
 
 const fetchAllMedia = async (
@@ -204,7 +203,7 @@ const fetchMediaByUserId = async (user_id: number): Promise<MediaItem[]> => {
     throw new CustomError('Upload path is missing', 500);
   }
 
-  const sql = `${BASE_MEDIA_QUERY} WHERE user_id = ?`;
+  const sql = `${BASE_MEDIA_QUERY} WHERE mi.user_id = ?`;
   const params = [uploadPath, user_id];
 
   console.log('Executing SQL:', promisePool.format(sql, params)); // Debugging
@@ -275,8 +274,8 @@ const fetchSearchedMedia = async (
 
   // Allowed search fields
   const allowedFields: Record<string, string> = {
-    title: 'm.title',
-    description: 'm.description',
+    title: 'mi.title',
+    description: 'mi.description',
     tags: 't.tag_name',
   };
 
@@ -294,7 +293,7 @@ const fetchSearchedMedia = async (
 
   if (searchBy === 'tags') {
     sql = `${BASE_MEDIA_QUERY}
-      JOIN MediaTags mt ON m.media_id = mt.media_id
+      JOIN MediaTags mt ON mi.media_id = mt.media_id
       JOIN Tags t ON mt.tag_id = t.tag_id
       WHERE LOWER(t.tag_name) = LOWER(?)
       ${limit ? 'LIMIT ? OFFSET ?' : ''}`;
