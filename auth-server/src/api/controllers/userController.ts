@@ -13,8 +13,10 @@ import {
   getUserByUsername,
   modifyUser,
   getUserByUsernameWithoutPassword,
+  getUserBySearch,
+  modifyProfileInfo,
 } from '../models/userModel';
-import {TokenContent, User, UserWithNoPassword, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
+import {TokenContent, User, UserWithNoPassword, UserWithNoSensitiveInfo, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
 
 const salt = bcrypt.genSaltSync(12);
 
@@ -120,6 +122,26 @@ const userPut = async (
       user: result,
     };
     res.json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const profilePut = async (
+  req: Request<object, object, User>,
+  res: Response<UserWithNoPassword>,
+  next: NextFunction,
+) => {
+  try {
+    const userFromToken = res.locals.user;
+
+    const profileInfo = req.body;
+
+    await modifyProfileInfo(profileInfo, userFromToken.user_id);
+
+    const updatedProfile = await getUserById(userFromToken.user_id);
+    res.json(updatedProfile);
   } catch (error) {
     next(error);
   }
@@ -250,6 +272,21 @@ const checkUsernameExists = async (
   }
 };
 
+
+const searchByUsername = async (
+  req: Request<{search: string}>,
+  res: Response<UserWithNoSensitiveInfo[]>,
+  next: NextFunction,
+) => {
+  try {
+    const search = req.query.username as string;
+    const users = await getUserBySearch(search);
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   userListGet,
   userGet,
@@ -262,4 +299,6 @@ export {
   checkEmailExists,
   checkUsernameExists,
   userByUsernameGet,
+  searchByUsername,
+  profilePut,
 };

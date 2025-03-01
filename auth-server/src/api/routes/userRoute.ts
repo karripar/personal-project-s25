@@ -1,4 +1,5 @@
 import express from 'express';
+import { query } from 'express-validator';
 import {
   checkEmailExists,
   checkToken,
@@ -11,6 +12,8 @@ import {
   userPut,
   userPutAsAdmin,
   userByUsernameGet,
+  searchByUsername,
+  profilePut
 } from '../controllers/userController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -73,6 +76,25 @@ router.put(
   userPut,
 );
 
+router.put(
+  '/profileinfo',
+  authenticate,
+  body('username')
+    .optional()
+    .trim()
+    .escape()
+    .isLength({min: 3, max: 50})
+    .withMessage('Username must be between 3-50 characters'),
+  body('bio')
+    .optional()
+    .trim()
+    .escape()
+    .isLength({max: 300})
+    .withMessage('Bio must be less than 255 characters'),
+  validationErrors,
+  profilePut,
+)
+
 router.delete('/', authenticate, userDelete);
 
 router.get('/token', authenticate, checkToken);
@@ -125,6 +147,15 @@ router.get(
     .withMessage('Invalid email format'),
   validationErrors,
   checkEmailExists,
+);
+
+router.get(
+  '/search/byusername',
+  query('username').optional().trim().escape().isString()
+    .isLength({ min: 1, max: 50 })
+    .withMessage('Username must be between 3-50 characters'),
+  validationErrors,
+  searchByUsername
 );
 
 router.get(

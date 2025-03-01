@@ -5,6 +5,7 @@ import {
   User,
   UserWithNoPassword,
   UserWithUnhashedPassword,
+  UserWithNoSensitiveInfo,
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
@@ -14,7 +15,7 @@ const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
   >(
-    `SELECT Users.user_id, Users.username, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.bio, Users.email, Users.created_at, UserLevels.level_name
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      WHERE Users.user_id = ?`,
@@ -26,6 +27,22 @@ const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   }
   return rows[0];
 };
+
+
+const getUserBySearch = async (search: string): Promise<UserWithNoSensitiveInfo[]> => {
+  const [rows] = await promisePool.execute<
+    RowDataPacket[] & UserWithNoSensitiveInfo[]
+  >(
+    `SELECT Users.user_id, Users.username, Users.bio, Users.created_at, UserLevels.level_name
+     FROM Users
+     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     WHERE LOWER(Users.username) LIKE LOWER(?)
+     LIMIT 10`,
+    [`%${search}%`]
+  );
+  return rows;
+};
+
 
 const getUserByUsernameWithoutPassword = async (
   username: string,
@@ -50,7 +67,7 @@ const getAllUsers = async (): Promise<UserWithNoPassword[]> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
   >(
-    `SELECT Users.user_id, Users.username, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.email, Users.bio, Users.created_at, UserLevels.level_name
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id`,
   );
@@ -74,7 +91,7 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
 
 const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.bio, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      WHERE Users.username = ?`,
@@ -153,6 +170,48 @@ const modifyUser = async (
   }
 };
 
+const modifyProfileInfo = async (
+  user: Partial<User>,
+  id: number,
+): Promise<UserWithNoPassword> => {
+  const connection = await promisePool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const allowedFields = [
+      'username',
+      'bio',
+    ];
+    const updates = Object.entries(user)
+      .filter(([key]) => allowedFields.includes(key))
+      .map(([key]) => `${key} = ?`);
+    const values = Object.entries(user)
+      .filter(([key]) => allowedFields.includes(key))
+      .map(([, value]) => value);
+
+    if (updates.length === 0) {
+      customLog('modifyUser: No valid fields to update');
+      throw new CustomError('No valid fields to update', 400);
+    }
+
+    const [result] = await connection.execute<ResultSetHeader>(
+      `UPDATE Users SET ${updates.join(', ')} WHERE user_id = ?`,
+      [...values, id],
+    );
+
+    if (result.affectedRows === 0) {
+      customLog('modifyUser: User not found');
+      throw new CustomError('User not found', 404);
+    }
+
+    const updatedUser = await getUserById(id);
+    await connection.commit();
+    return updatedUser;
+  } finally {
+    connection.release();
+  }
+}
+
 const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
   const connection = await promisePool.getConnection();
   try {
@@ -205,4 +264,6 @@ export {
   modifyUser,
   deleteUser,
   getUserByUsernameWithoutPassword,
+  getUserBySearch,
+  modifyProfileInfo,
 };
