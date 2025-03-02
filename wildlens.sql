@@ -30,6 +30,16 @@ CREATE TABLE Users (
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
 );
 
+CREATE TABLE ProfilePictures (
+    profile_picture_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    media_type VARCHAR(50) NOT NULL,
+    filesize INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
 -- media that users can upload and share (pdf, doc, etc.)
 CREATE TABLE MediaItems (
     media_id INT PRIMARY KEY AUTO_INCREMENT,

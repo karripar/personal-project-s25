@@ -23,7 +23,21 @@ const storage = multer.diskStorage({
   },
 });
 
+const profileStorage = multer.diskStorage({
+  destination: './uploads/profile',
+  filename: (req, file, cb) => {
+    const userId = (req as Request).res?.locals.user.user_id;
+    const extension = file.originalname.split('.').pop();
+    // generate random filename
+    const randomName = randomstring.generate(20); // random string
+    const newFilename = `${randomName}_${userId}.${extension}`;
+    cb(null, newFilename);
+  },
+});
+
 const upload = multer({storage}).single('file');
+
+const profileUpload = multer({storage: profileStorage}).single('file');
 
 const doUpload = (
   req: Request,
@@ -85,6 +99,37 @@ router.route('/upload').post(
    *    }
    */
   authenticate, doUpload, makeThumbnail, uploadFile);
+
+router.route('/profile').post(
+  /**
+   * @api {post} /upload/profile Upload a profile picture
+   * @apiName UploadProfilePicture
+   * @apiGroup FileUploadGroup
+   * @apiPermission user
+   * @apiDescription Upload a profile picture
+   * @apiParam {File} file File to upload
+   * @apiUse token
+   * @apiUse unauthorized
+   * @apiSuccess {String} message File uploaded successfully
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *  "message": "File uploaded successfully",
+   *  "data": {
+   *    "filename": "randomname_1.jpg",
+   *    "filesize": 12345,
+   *    "mimetype": "image/jpeg"
+   *  }
+   * }
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *    HTTP/1.1 400 Bad Request
+   *    {
+   *      "error": "Invalid request"
+   *    }
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   */
+  authenticate, profileUpload, uploadFile);
 
 router.route('/delete/:filename').delete(
   /**

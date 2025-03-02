@@ -12,7 +12,9 @@ import {
   userPut,
   userByUsernameGet,
   searchByUsername,
-  profilePut
+  profilePut,
+  profilePicturePost,
+  profilePictureGet
 } from '../controllers/userController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -314,6 +316,26 @@ router.delete(
    * @apiUse unauthorized
    */
   '/', authenticate, userDelete);
+
+router.route('/profile/picture/:user_id')
+  .post(authenticate,
+    body('filename')
+      .trim()
+      .isString()
+      .withMessage('Invalid filename'),
+    body('filesize')
+      .isNumeric()
+      .withMessage('Invalid filesize'),
+    body('media_type')
+      .isString()
+      .withMessage('Invalid media_type'),
+    param('user_id')
+      .isNumeric()
+      .toInt()
+      .withMessage('Invalid user_id'),
+    validationErrors,
+    profilePicturePost)
+    .get(profilePictureGet);
 
 router.get(
   /**

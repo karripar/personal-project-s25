@@ -15,8 +15,10 @@ import {
   getUserByUsernameWithoutPassword,
   getUserBySearch,
   modifyProfileInfo,
+  postProfilePicture,
+  getProfilePicture,
 } from '../models/userModel';
-import {TokenContent, User, UserWithNoPassword, UserWithNoSensitiveInfo, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
+import {ProfilePicture, TokenContent, User, UserWithNoPassword, UserWithNoSensitiveInfo, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
 
 const salt = bcrypt.genSaltSync(12);
 
@@ -57,6 +59,19 @@ const userListGet = async (
   try {
     const users = await getAllUsers();
     res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const profilePictureGet = async (
+  req: Request<{user_id: string}>,
+  res: Response<ProfilePicture>,
+  next: NextFunction,
+) => {
+  try {
+    const profilePicture = await getProfilePicture(Number(req.params.user_id));
+    res.json(profilePicture);
   } catch (error) {
     next(error);
   }
@@ -368,6 +383,33 @@ const checkUsernameExists = async (
   }
 };
 
+// Post profile picture
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<{message: string; profile_picture_id: number}>}
+ * @description Post profile picture
+ */
+const profilePicturePost = async (
+  req: Request<object, object, Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>>,
+  res: Response<{ message: string; profile_picture_id: number }, { user: TokenContent }>,
+  next: NextFunction,
+) => {
+  try {
+  req.body.user_id = res.locals.user.user_id;
+
+  const response = await postProfilePicture(req.body);
+  res.json({
+    message: 'Profile picture uploaded',
+    profile_picture_id: response.profile_picture_id,
+  });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 // Search for users by username
 /**
@@ -405,4 +447,6 @@ export {
   userByUsernameGet,
   searchByUsername,
   profilePut,
+  profilePicturePost,
+  profilePictureGet,
 };

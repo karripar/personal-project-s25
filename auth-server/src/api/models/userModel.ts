@@ -6,18 +6,23 @@ import {
   UserWithNoPassword,
   UserWithUnhashedPassword,
   UserWithNoSensitiveInfo,
+  ProfilePicture,
+  UserWithProfilePicture,
 } from 'hybrid-types/DBTypes';
 import {UserDeleteResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
 import {customLog} from '../../lib/functions';
 
-const getUserById = async (id: number): Promise<UserWithNoPassword> => {
+const uploadPath = process.env.PROFILE_UPLOAD_URL;
+
+const getUserById = async (id: number): Promise<UserWithProfilePicture> => {
   const [rows] = await promisePool.execute<
-    RowDataPacket[] & UserWithNoPassword[]
+    RowDataPacket[] & UserWithProfilePicture[]
   >(
-    `SELECT Users.user_id, Users.username, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.email, Users.created_at, UserLevels.level_name, ProfilePictures.filename, Users.bio
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+    LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
      WHERE Users.user_id = ?`,
     [id],
   );
@@ -28,21 +33,22 @@ const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   return rows[0];
 };
 
-
-const getUserBySearch = async (search: string): Promise<UserWithNoSensitiveInfo[]> => {
+const getUserBySearch = async (
+  search: string,
+): Promise<UserWithNoSensitiveInfo[]> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoSensitiveInfo[]
   >(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.bio, Users.created_at, UserLevels.level_name, ProfilePictures.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
      WHERE LOWER(Users.username) LIKE LOWER(?)
      LIMIT 10`,
-    [`%${search}%`]
+    [`%${search}%`],
   );
   return rows;
 };
-
 
 const getUserByUsernameWithoutPassword = async (
   username: string,
@@ -50,9 +56,10 @@ const getUserByUsernameWithoutPassword = async (
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
   >(
-    `SELECT Users.user_id, Users.username, Users.email, Users.bio, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.email, Users.bio, Users.created_at, UserLevels.level_name, ProfilePictures.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
      WHERE Users.username = ?`,
     [username],
   );
@@ -63,22 +70,32 @@ const getUserByUsernameWithoutPassword = async (
   return rows[0];
 };
 
-const getAllUsers = async (): Promise<UserWithNoPassword[]> => {
+const getAllUsers = async (): Promise<UserWithProfilePicture[]> => {
   const [rows] = await promisePool.execute<
-    RowDataPacket[] & UserWithNoPassword[]
+    RowDataPacket[] & UserWithProfilePicture[]
   >(
-    `SELECT Users.user_id, Users.username, Users.email, Users.bio, Users.created_at, UserLevels.level_name
-     FROM Users
-     JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id`,
+    `SELECT
+  Users.user_id,
+  Users.username,
+  Users.email,
+  ProfilePictures.filename,
+  Users.bio,
+  Users.created_at,
+  UserLevels.level_name
+FROM Users
+JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id;
+`,
   );
   return rows; // Return empty array if no users found
 };
 
 const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.bio, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name, ProfilePictures.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
      WHERE Users.email = ?`,
     [email],
   );
@@ -91,9 +108,10 @@ const getUserByEmail = async (email: string): Promise<UserWithLevel> => {
 
 const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & UserWithLevel[]>(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.bio, Users.password_hash, Users.email, Users.created_at, UserLevels.level_name, ProfilePictures.filename
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
+     LEFT JOIN ProfilePictures ON Users.user_id = ProfilePictures.user_id
      WHERE Users.username = ?`,
     [username],
   );
@@ -178,10 +196,7 @@ const modifyProfileInfo = async (
   try {
     await connection.beginTransaction();
 
-    const allowedFields = [
-      'username',
-      'bio',
-    ];
+    const allowedFields = ['username', 'bio'];
     const updates = Object.entries(user)
       .filter(([key]) => allowedFields.includes(key))
       .map(([key]) => `${key} = ?`);
@@ -210,7 +225,7 @@ const modifyProfileInfo = async (
   } finally {
     connection.release();
   }
-}
+};
 
 const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
   const connection = await promisePool.getConnection();
@@ -255,6 +270,65 @@ const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
   }
 };
 
+const getProfilePictureById = async (
+  profile_picture_id: number,
+): Promise<ProfilePicture> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
+    `SELECT * FROM ProfilePictures WHERE profile_picture_id = ?`,
+    [profile_picture_id],
+  );
+  if (rows.length === 0) {
+    customLog('getProfilePictureById: Profile picture not found');
+    throw new CustomError('Profile picture not found', 404);
+  }
+  return rows[0];
+};
+
+const postProfilePicture = async (
+  media: Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>,
+): Promise<ProfilePicture> => {
+  const {user_id, filename, filesize, media_type} = media;
+  const sql = `INSERT INTO ProfilePictures (user_id, filename, filesize, media_type)
+       VALUES (?, ?, ?, ?)`;
+  const stmt = promisePool.format(sql, [
+    user_id,
+    filename,
+    filesize,
+    media_type,
+  ]);
+  const [result] = await promisePool.execute<ResultSetHeader>(stmt);
+
+  if (result.affectedRows === 0) {
+    customLog('postProfilePicture: Failed to post profile picture');
+    throw new CustomError('Failed to post profile picture', 500);
+  }
+
+  return await getProfilePictureById(result.insertId);
+};
+
+const getProfilePicture = async (user_id: number): Promise<ProfilePicture> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
+    `
+    SELECT
+      pp.profile_picture_id,
+      pp.user_id,
+      pp.filename,
+      CONCAT(v.base_url, pp.filename) AS filename
+    FROM ProfilePictures pp
+    CROSS JOIN (SELECT ? AS base_url) AS v
+    WHERE pp.user_id = ?
+  `,
+    [uploadPath, user_id],
+  );
+
+  if (rows.length === 0) {
+    customLog('getProfilePicture: Profile picture not found');
+    throw new CustomError('Profile picture not found', 404);
+  }
+
+  return rows[0];
+};
+
 export {
   getUserById,
   getAllUsers,
@@ -266,4 +340,7 @@ export {
   getUserByUsernameWithoutPassword,
   getUserBySearch,
   modifyProfileInfo,
+  getProfilePictureById,
+  postProfilePicture,
+  getProfilePicture,
 };
