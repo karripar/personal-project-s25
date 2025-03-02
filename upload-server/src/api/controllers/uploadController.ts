@@ -14,6 +14,13 @@ type UploadResponse = MessageResponse & {
   };
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UploadResponse>}
+ * @description Upload a file
+ */
 const uploadFile = async (
   req: Request,
   res: Response<UploadResponse>,
@@ -50,6 +57,13 @@ const uploadFile = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a file
+ */
 const deleteFile = async (
   req: Request<{filename: string}>,
   res: Response<MessageResponse>,

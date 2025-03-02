@@ -13,6 +13,13 @@ import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {Comment, TokenContent} from 'hybrid-types/DBTypes';
 
 // list of comments
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Comment[]>}
+ * @description Get all comments
+ */
 const commentListGet = async (
   req: Request,
   res: Response<Comment[]>,
@@ -27,6 +34,13 @@ const commentListGet = async (
 };
 
 // list of comments by media item id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Comment[]>}
+ * @description Get comments by media item id
+ */
 const commentListByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<Comment[]>,
@@ -41,6 +55,13 @@ const commentListByMediaIdGet = async (
 };
 
 // list of comments by user id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Comment[]>}
+ * @description Get comments by user id
+ */
 const commentListByUserGet = async (
   req: Request,
   res: Response<Comment[], {user: TokenContent}>,
@@ -57,6 +78,13 @@ const commentListByUserGet = async (
 };
 
 // list of comments count by media item id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<{count: number}>}
+ * @description Get comments count by media item id
+ */
 const commentCountByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<{count: number}>,
@@ -71,6 +99,13 @@ const commentCountByMediaIdGet = async (
 };
 
 // Get a comment by id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Comment>}
+ * @description Get a comment by id
+ */
 const commentGet = async (
   req: Request<{id: string}>,
   res: Response<Comment>,
@@ -85,6 +120,13 @@ const commentGet = async (
 };
 
 // Post a new comment
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Post a new comment
+ */
 const commentPost = async (
   req: Request<{}, {}, {comment_text: string; media_id: string, reference_comment_id?: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
@@ -104,6 +146,13 @@ const commentPost = async (
 };
 
 // Update a comment
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Update a comment
+ */
 const commentPut = async (
   req: Request<{id: string}, {}, {comment_text: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
@@ -123,6 +172,13 @@ const commentPut = async (
 };
 
 // Delete a comment
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a comment
+ */
 const commentDelete = async (
   req: Request<{id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,

@@ -17,6 +17,13 @@ import {MediaItem, TokenContent} from 'hybrid-types/DBTypes';
 import CustomError from '../../classes/CustomError';
 import {ERROR_MESSAGES} from '../../utils/errorMessages';
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items
+ */
 const mediaListGet = async (
   req: Request<{}, {}, {page: string; limit: string}>,
   res: Response<MediaItem[]>,
@@ -31,6 +38,13 @@ const mediaListGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem>}
+ * @description Get a media item by ID
+ */
 const mediaGet = async (
   req: Request<{id: string}>,
   res: Response<MediaItem>,
@@ -45,6 +59,13 @@ const mediaGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Create a new media item
+ */
 const mediaPost = async (
   req: Request<{}, {}, Omit<MediaItem, 'media_id' | 'created_at'>>,
   res: Response<{ message: string; media_id: number }, { user: TokenContent }>,
@@ -64,6 +85,13 @@ const mediaPost = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a media item by ID
+ */
 const mediaDelete = async (
   req: Request<{id: string}>,
   res: Response<MessageResponse, {user: TokenContent; token: string}>,
@@ -83,6 +111,13 @@ const mediaDelete = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Update a media item by ID
+ */
 const mediaPut = async (
   req: Request<{id: string}, {}, Pick<MediaItem, 'title' | 'description'>>,
   res: Response<MessageResponse, {user: TokenContent}>,
@@ -102,6 +137,13 @@ const mediaPut = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items by user ID from token
+ */
 const mediaByTokenGet = async (
   req: Request<{user_id: string}>,
   res: Response<MediaItem[]>,
@@ -124,6 +166,13 @@ const mediaByTokenGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items by username
+ */
 const mediaByUsernameGet = async (
   req: Request<{username: string}>,
   res: Response<MediaItem[]>,
@@ -142,6 +191,13 @@ const mediaByUsernameGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items by tagname
+ */
 const mediaByTagnameGet = async (
   req: Request<{tagname: string}>,
   res: Response<MediaItem[]>,
@@ -161,6 +217,13 @@ const mediaByTagnameGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items by user ID
+ */
 const mediaByUserGet = async (
   req: Request<{user_id: string}>,
   res: Response<MediaItem[], {user: TokenContent}>,
@@ -179,6 +242,13 @@ const mediaByUserGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items by most liked
+ */
 const mediaListMostLikedGet = async (
   req: Request,
   res: Response<MediaItem[]>,
@@ -192,6 +262,13 @@ const mediaListMostLikedGet = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items by followed users
+ */
 const mediaListFollowedGet = async (
   req: Request,
   res: Response<MediaItem[]>,
@@ -209,6 +286,13 @@ const mediaListFollowedGet = async (
   }
 }
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get all media items with search term and category
+ */
 const mediaWithSearchGet = async (
   req: Request<{}, {}, {}, { page?: string; limit?: string; search?: string; searchBy?: string }>,
   res: Response<MediaItem[]>,

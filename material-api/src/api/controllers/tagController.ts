@@ -11,6 +11,14 @@ import {MessageResponse} from 'hybrid-types/MessageTypes';
 import {MediaItem, Tag, TagResponse, TokenContent} from 'hybrid-types/DBTypes';
 import CustomError from '../../classes/CustomError';
 
+// list of tags
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Tag[]>}
+ * @description Get all tags
+ */
 const tagListGet = async (
   req: Request,
   res: Response<Tag[]>,
@@ -24,6 +32,14 @@ const tagListGet = async (
   }
 };
 
+// list of tags by media item id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Tag[]>}
+ * @description Get tags by media item id
+ */
 const tagListByMediaIdGet = async (
   req: Request<{id: string}>,
   res: Response<Tag[]>,
@@ -37,6 +53,14 @@ const tagListByMediaIdGet = async (
   }
 };
 
+// create a new tag
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<TagResponse>}
+ * @description Post a new tag
+ */
 const tagPost = async (
   req: Request<{}, {}, {tags: string[]; media_id: string}>,
   res: Response<TagResponse>,
@@ -58,6 +82,14 @@ const tagPost = async (
   }
 };
 
+// list of files by tag id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaItem[]>}
+ * @description Get files by tag id
+ */
 const tagFilesByTagGet = async (
   req: Request<{tag_id: string}>,
   res: Response<MediaItem[]>,
@@ -71,6 +103,14 @@ const tagFilesByTagGet = async (
   }
 };
 
+// delete a tag
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a tag
+ */
 const tagDelete = async (
   req: Request<{id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
@@ -87,6 +127,14 @@ const tagDelete = async (
   }
 };
 
+// delete a tag from a media item
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a tag from a media item
+ */
 const tagDeleteFromMedia = async (
   req: Request<{tag_id: string; media_id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,

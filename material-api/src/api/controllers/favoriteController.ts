@@ -1,9 +1,17 @@
 import {Request, Response, NextFunction} from 'express';
 import { fetchAllFavorites, fetchFavoritesByUserId, addFavorite, removeFavorite, countFavorites} from '../models/favoriteModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
+import { Favorite } from 'hybrid-types/DBTypes';
 
 // Get all favorites
-const favoriteListGet = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Favorite[]>}
+ * @description Get all favorites
+ */
+const favoriteListGet = async (req: Request, res: Response<Favorite[]>, next: NextFunction) => {
   try {
     const favorites = await fetchAllFavorites();
     res.json(favorites);
@@ -13,6 +21,13 @@ const favoriteListGet = async (req: Request, res: Response, next: NextFunction) 
 };
 
 // Get favorites by user id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Favorite[]>}
+ * @description Get favorites by user id
+ */
 const favoriteListGetByUserId = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user_id = Number(req.params.user_id);
@@ -24,6 +39,13 @@ const favoriteListGetByUserId = async (req: Request, res: Response, next: NextFu
 };
 
 // Add a favorite
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Add a favorite
+ */
 const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: NextFunction) => {
   try {
     const user_id = res.locals.user.user_id;
@@ -37,6 +59,13 @@ const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: N
 
 
 // Get the number of favorites for a media
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<{count: number}>}
+ * @description Get the number of favorites for a media
+ */
 const favoriteCountGet = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const media_id = Number(req.params.media_id);
@@ -49,6 +78,13 @@ const favoriteCountGet = async (req: Request, res: Response, next: NextFunction)
 
 
 // Remove a favorite
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Remove a favorite
+ */
 const favoriteRemove = async (req: Request, res: Response<MessageResponse>, next: NextFunction) => {
   try {
     const user_id = res.locals.user.user_id;

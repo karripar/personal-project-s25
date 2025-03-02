@@ -3,7 +3,19 @@ import {Request, Response, NextFunction} from 'express';
 import { fetchMediaRatings, fetchLatestMedia, fetchLatestNotifications, fetchMediaComments, fetchUserActivity, fetchUserNotifications } from "../models/analyticsModel";
 
 
-// fetch average rating for all Medias
+/**
+ * JSDoc Documentation
+ */
+
+
+/**
+ *
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaRating[]>}
+ * @description Get media ratings
+ */
 const getMediaRatings = async (
   req: Request,
   res: Response<MediaRating[]>,
@@ -19,6 +31,13 @@ const getMediaRatings = async (
 
 
 // fetch number of comments per Media
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MediaComment[]>}
+ * @description Get media comments
+ */
 const getMediaComments = async (
   req: Request,
   res: Response<MediaComment[]>,
@@ -34,6 +53,13 @@ const getMediaComments = async (
 
 
 // fetch user activity (number of Medias, comments, ratings)
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserActivity[]>}
+ * @description Get user activity: number of Medias, comments, ratings
+ */
 const getUserActivity = async (
   req: Request,
   res: Response<UserActivity[]>,
@@ -49,6 +75,13 @@ const getUserActivity = async (
 
 
 // fetch user notification count and unread count
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserNotification[]>}
+ * @description Get user notifications
+ */
 const getUserNotifications = async (
   req: Request,
   res: Response<UserNotification[]>,
@@ -64,6 +97,13 @@ const getUserNotifications = async (
 
 
 // fetch latest notifications
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<LatestNotification[]>}
+ * @description Get latest notifications
+ */
 const getLatestNotifications = async (
   req: Request,
   res: Response<LatestNotification[]>,
@@ -79,6 +119,13 @@ const getLatestNotifications = async (
 
 
 // fetch latest Medias
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<LatestMedia[]>}
+ * @description Get latest Medias
+ */
 const getLatestMedias = async (
   req: Request,
   res: Response<LatestMedia[]>,

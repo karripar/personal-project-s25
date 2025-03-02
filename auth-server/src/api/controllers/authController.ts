@@ -6,6 +6,13 @@ import {LoginResponse} from 'hybrid-types/MessageTypes';
 import {getUserByEmail} from '../models/userModel';
 import {UserWithLevel, TokenContent} from 'hybrid-types/DBTypes';
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<LoginResponse>}
+ * @description Login user
+ */
 const login = async (
   req: Request<object, object, {email: string; password: string}>,
   res: Response<LoginResponse>,

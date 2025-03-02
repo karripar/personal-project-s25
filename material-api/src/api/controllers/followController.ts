@@ -10,6 +10,13 @@ import {
   fetchFollowersByUsername,
 } from '../models/followModel';
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow[]>}
+ * @description Get followers by user ID
+ */
 const getFollowersByUserId = async (
   req: Request,
   res: Response<Follow[]>,
@@ -28,6 +35,14 @@ const getFollowersByUserId = async (
   }
 };
 
+/**
+ *
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow[]>}
+ * @description Get followed users by username
+ */
 const getFollowedUsersByUsername = async (
   req: Request,
   res: Response<Follow[]>,
@@ -46,6 +61,14 @@ const getFollowedUsersByUsername = async (
   }
 };
 
+/**
+ *
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow[]>}
+ * @description Get followers by username
+ */
 const getFollowersByUsername = async (
   req: Request,
   res: Response<Follow[]>,
@@ -65,6 +88,13 @@ const getFollowersByUsername = async (
 };
 
 // Request a list of followers by user ID
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow[]>}
+ * @description Get followers by token
+ */
 const getFollowersByToken = async (
   req: Request,
   res: Response<Follow[]>,
@@ -82,6 +112,14 @@ const getFollowersByToken = async (
   }
 };
 
+// Request a list of followed users by user ID
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow[]>}
+ * @description Get followed users by user ID
+ */
 const getFollowedUsersByUserId = async (
   req: Request,
   res: Response<Follow[]>,
@@ -101,6 +139,13 @@ const getFollowedUsersByUserId = async (
 };
 
 // Request a list of followed users by user ID
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow[]>}
+ * @description Get followed users by token
+ */
 const getFollowedUsersByToken = async (
   req: Request,
   res: Response<Follow[]>,
@@ -119,6 +164,13 @@ const getFollowedUsersByToken = async (
 };
 
 // Add a follow
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Follow>}
+ * @description Add a follow
+ */
 const postFollow = async (
   req: Request<{user_id: string}, {}>,
   res: Response<Follow, {user: TokenContent}>,
@@ -136,6 +188,13 @@ const postFollow = async (
 };
 
 // Remove a follow
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Remove a follow
+ */
 const deleteFollow = async (
   req: Request<{follow_id: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,

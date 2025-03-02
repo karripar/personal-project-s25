@@ -20,6 +20,14 @@ import {TokenContent, User, UserWithNoPassword, UserWithNoSensitiveInfo, UserWit
 
 const salt = bcrypt.genSaltSync(12);
 
+// Get user by username
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserWithNoPassword>}
+ * @description Get user by username
+ */
 const userByUsernameGet = async (
   req: Request<{username: string}>,
   res: Response<UserWithNoPassword>,
@@ -33,6 +41,14 @@ const userByUsernameGet = async (
   }
 };
 
+// Get all users
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserWithNoPassword[]>}
+ * @description Get all users
+ */
 const userListGet = async (
   req: Request,
   res: Response<UserWithNoPassword[]>,
@@ -46,6 +62,14 @@ const userListGet = async (
   }
 };
 
+// Get user by id
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserWithNoPassword>}
+ * @description Get user by id
+ */
 const userGet = async (
   req: Request<{id: string}>,
   res: Response<UserWithNoPassword>,
@@ -59,6 +83,14 @@ const userGet = async (
   }
 };
 
+// Create a new user
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserResponse>} - message and user
+ * @description Create a new user
+ */
 const userPost = async (
   req: Request<object, object, UserWithUnhashedPassword>,
   res: Response<UserResponse>,
@@ -93,6 +125,14 @@ const userPost = async (
   }
 };
 
+// Update a user
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserResponse>} - message and user
+ * @description Update a user
+ */
 const userPut = async (
   req: Request<object, object, User>,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -128,6 +168,14 @@ const userPut = async (
 };
 
 
+// Update user profile
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserWithNoPassword>} - updated user
+ * @description Update user profile
+ */
 const profilePut = async (
   req: Request<object, object, User>,
   res: Response<UserWithNoPassword>,
@@ -147,6 +195,14 @@ const profilePut = async (
   }
 };
 
+// Delete a user
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserDeleteResponse>} - message and user
+ * @description Delete a user
+ */
 const userDelete = async (
   req: Request,
   res: Response<UserDeleteResponse, {user: TokenContent}>,
@@ -169,6 +225,14 @@ const userDelete = async (
   }
 };
 
+// Update a user as an admin
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserResponse>} - message and user
+ * @description Update a user as an admin
+ */
 const userPutAsAdmin = async (
   req: Request<{id: string}, object, User>,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -201,6 +265,14 @@ const userPutAsAdmin = async (
   }
 };
 
+// Delete a user as an admin
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserDeleteResponse>} - message and user
+ * @description Delete a user as an admin
+ */
 const userDeleteAsAdmin = async (
   req: Request<{id: string}>,
   res: Response<UserDeleteResponse, {user: TokenContent}>,
@@ -225,6 +297,14 @@ const userDeleteAsAdmin = async (
   }
 };
 
+// Check if token is valid
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserResponse>} - message and user
+ * @description Check if token is valid
+ */
 const checkToken = async (
   req: Request,
   res: Response<UserResponse, {user: TokenContent}>,
@@ -245,6 +325,14 @@ const checkToken = async (
   res.json(message);
 };
 
+// Check if email exists
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<{available: boolean}>}
+ * @description Check if email exists
+ */
 const checkEmailExists = async (
   req: Request<{email: string}>,
   res: Response<{available: boolean}>,
@@ -259,6 +347,14 @@ const checkEmailExists = async (
   }
 };
 
+// Check if username exists
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<{available: boolean}>}
+ * @description Check if username exists
+ */
 const checkUsernameExists = async (
   req: Request<{username: string}>,
   res: Response<{available: boolean}>,
@@ -273,6 +369,14 @@ const checkUsernameExists = async (
 };
 
 
+// Search for users by username
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<UserWithNoSensitiveInfo[]>}
+ * @description Search for users by username (case insensitive)
+ */
 const searchByUsername = async (
   req: Request<{search: string}>,
   res: Response<UserWithNoSensitiveInfo[]>,

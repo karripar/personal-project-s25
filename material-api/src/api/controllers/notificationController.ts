@@ -10,6 +10,13 @@ import {Notification, TokenContent} from 'hybrid-types/DBTypes';
 
 
 // list of notifications
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<Notification[]>}
+ * @description Get all notifications
+ */
 const notificationListGet = async (
   req: Request,
   res: Response<Notification[], {user: TokenContent}>,
@@ -26,6 +33,13 @@ const notificationListGet = async (
 };
 
 // create a new notification
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Post a new notification
+ */
 const notificationPost = async (
   req: Request,
   res: Response<MessageResponse, {user: TokenContent}>,
@@ -46,6 +60,13 @@ const notificationPost = async (
 
 
 // mark notification as read
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Mark a notification as read
+ */
 const notificationMarkAsRead = async (
   req: Request<{id: string}>,
   res: Response<MessageResponse>,
@@ -60,6 +81,13 @@ const notificationMarkAsRead = async (
 };
 
 // delete notification
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a notification
+ */
 const notificationDelete = async (
   req: Request<{id: string}>,
   res: Response<MessageResponse>,
