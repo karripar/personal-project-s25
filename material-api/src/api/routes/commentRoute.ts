@@ -14,10 +14,86 @@ import {body, param} from 'express-validator';
 
 const commentRouter = express.Router();
 
+/**
+ * @apiDefine commentGroup Comment API
+ * All the APIs related to comments
+ */
+
+
 commentRouter
   .route('/')
-  .get(commentListGet)
+  .get(
+    /**
+     * @api {get} /comments Get Comments
+     * @apiName GetComments
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get all comments
+     * @apiPermission none
+     *
+     * @apiSuccess {object[]} comments List of comments
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * [
+     *  {
+     *    "id": 1,
+     *    "comment_text": "This is a comment",
+     *    "media_id": 1,
+     *    "user_id": 1,
+     *    "reference_comment_id": null,
+     *    "createdAt": "2021-07-01T00:00:00.000Z",
+     *    "updatedAt": "2021-07-01T00:00:00.000Z"
+     *  }
+     * ]
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     */
+    commentListGet)
   .post(
+    /**
+     * @api {post} /comments Create Comment
+     * @apiName CreateComment
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Create a comment
+     * @apiPermission token
+     *
+     * @apiUse token
+     * @apiUse unauthorized
+     *
+     * @apiParam {String} comment_text Comment text
+     * @apiParam {Number} media_id Media ID
+     * @apiParam {Number} [reference_comment_id] Reference comment ID
+     *
+     * @apiSuccess {Number} id Comment ID
+     * @apiSuccess {String} comment_text Comment text
+     * @apiSuccess {Number} media_id Media ID
+     * @apiSuccess {Number} user_id User ID
+     * @apiSuccess {Number} reference_comment_id Reference comment ID
+     * @apiSuccess {Date} createdAt Comment creation date
+     * @apiSuccess {Date} updatedAt Comment update date
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "id": 1,
+     *  "comment_text": "This is a comment",
+     *  "media_id": 1,
+     *  "user_id": 1,
+     *  "reference_comment_id": null,
+     *  "createdAt": "2021-07-01T00:00:00.000Z",
+     *  "updatedAt": "2021-07-01T00:00:00.000Z"
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     */
     authenticate,
     body('comment_text')
       .trim()
@@ -37,16 +113,103 @@ commentRouter
 commentRouter
   .route('/byMedia/:id')
   .get(
+    /**
+     * @api {get} /comments/byMedia/:id Get Comments by Media ID
+     * @apiName GetCommentsByMediaId
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get comments by media ID
+     * @apiPermission none
+     *
+     * @apiParam {Number} id Media ID
+     *
+     * @apiSuccess {object[]} comments List of comments
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * [
+     *  {
+     *    "id": 1,
+     *    "comment_text": "This is a comment",
+     *    "media_id": 1,
+     *    "user_id": 1,
+     *    "reference_comment_id": null,
+     *    "createdAt": "2021-07-01T00:00:00.000Z",
+     *    "updatedAt": "2021-07-01T00:00:00.000Z"
+     *  }
+     * ]
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     */
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
     commentListByMediaIdGet,
   );
 
-commentRouter.route('/byuser').get(authenticate, commentListByUserGet);
+commentRouter.route('/byuser').get(
+  /**
+   * @api {get} /comments/byuser Get Comments by User
+   * @apiName GetCommentsByUser
+   * @apiGroup commentGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get comments by user
+   * @apiPermission token
+   *
+   * @apiUse token
+   * @apiUse unauthorized
+   *
+   * @apiSuccess {object[]} comments List of comments
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "id": 1,
+   *    "comment_text": "This is a comment",
+   *    "media_id": 1,
+   *    "user_id": 1,
+   *    "reference_comment_id": null,
+   *    "createdAt": "2021-07-01T00:00:00.000Z",
+   *    "updatedAt": "2021-07-01T00:00:00.000Z"
+   *  }
+   * ]
+   *
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   */
+  authenticate, commentListByUserGet);
 
 commentRouter
   .route('/count/:id')
   .get(
+    /**
+     * @api {get} /comments/count/:id Get Comment Count by Media ID
+     * @apiName GetCommentCountByMediaId
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get comment count by media ID
+     * @apiPermission none
+     *
+     * @apiParam {Number} id Media ID
+     *
+     * @apiSuccess {Number} count Comment count
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "count": 1
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     */
     param('id').isInt({min: 1}).toInt(),
     validationErrors,
     commentCountByMediaIdGet,
@@ -54,8 +217,91 @@ commentRouter
 
 commentRouter
   .route('/:id')
-  .get(param('id').isInt({min: 1}).toInt(), validationErrors, commentGet)
+  .get(
+    /**
+     * @api {get} /comments/:id Get Comment
+     * @apiName GetComment
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get a comment
+     * @apiPermission none
+     *
+     * @apiParam {Number} id Comment ID
+     *
+     * @apiSuccess {Number} id Comment ID
+     * @apiSuccess {String} comment_text Comment text
+     * @apiSuccess {Number} media_id Media ID
+     * @apiSuccess {Number} user_id User ID
+     * @apiSuccess {Number} reference_comment_id Reference comment ID
+     * @apiSuccess {Date} createdAt Comment creation date
+     * @apiSuccess {Date} updatedAt Comment update date
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "id": 1,
+     *  "comment_text": "This is a comment",
+     *  "media_id": 1,
+     *  "user_id": 1,
+     *  "reference_comment_id": null,
+     *  "createdAt": "2021-07-01T00:00:00.000Z",
+     *  "updatedAt": "2021-07-01T00:00:00.000Z"
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     */
+    param('id').isInt({min: 1}).toInt(), validationErrors, commentGet)
   .put(
+    /**
+     * @api {put} /comments/:id Update Comment
+     * @apiName UpdateComment
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Update a comment
+     * @apiPermission token
+     *
+     * @apiUse token
+     * @apiUse unauthorized
+     *
+     * @apiParam {Number} id Comment ID
+     * @apiParam {String} comment_text Comment text
+     *
+     * @apiSuccess {Number} id Comment ID
+     * @apiSuccess {String} comment_text Comment text
+     * @apiSuccess {Number} media_id Media ID
+     * @apiSuccess {Number} user_id User ID
+     * @apiSuccess {Number} reference_comment_id Reference comment ID
+     * @apiSuccess {Date} createdAt Comment creation date
+     * @apiSuccess {Date} updatedAt Comment update date
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "id": 1,
+     *  "comment_text": "This is a comment",
+     *  "media_id": 1,
+     *  "user_id": 1,
+     *  "reference_comment_id": null,
+     *  "createdAt": "2021-07-01T00:00:00.000Z",
+     *  "updatedAt": "2021-07-01T00:00:00.000Z"
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     */
     authenticate,
     param('id').isInt({min: 1}).toInt(),
     body('comment_text')
@@ -68,6 +314,35 @@ commentRouter
     commentPut,
   )
   .delete(
+    /**
+     * @api {delete} /comments/:id Delete Comment
+     * @apiName DeleteComment
+     * @apiGroup commentGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Delete a comment
+     * @apiPermission token
+     *
+     * @apiUse token
+     * @apiUse unauthorized
+     *
+     * @apiParam {Number} id Comment ID
+     *
+     * @apiSuccess {String} message Success message
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "message": "Comment deleted successfully"
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     */
     authenticate,
     param('id').isInt({min: 1}).toInt(),
     validationErrors,

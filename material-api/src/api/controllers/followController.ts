@@ -28,7 +28,7 @@ const getFollowersByUserId = async (
   }
 };
 
-const getFollowedUsersByUsename = async (
+const getFollowedUsersByUsername = async (
   req: Request,
   res: Response<Follow[]>,
   next: NextFunction,
@@ -160,6 +160,6 @@ export {
   deleteFollow,
   getFollowersByToken,
   getFollowedUsersByToken,
-  getFollowedUsersByUsename,
+  getFollowedUsersByUsername,
   getFollowersByUsername,
 };

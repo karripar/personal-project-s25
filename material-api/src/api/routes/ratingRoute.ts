@@ -12,6 +12,8 @@ import {body, param} from 'express-validator';
 
 const ratingRouter = express.Router();
 
+
+
 ratingRouter
   .route('/')
   .get(ratingListGet)
