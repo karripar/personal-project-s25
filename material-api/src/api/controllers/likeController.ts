@@ -99,7 +99,7 @@ const likeCountByMediaIdGet = async (
 
 const likeByMediaIdAndUserIdGet = async (
   req: Request<{media_id: string}>,
-  res: Response<Like, {user: TokenContent}>,
+  res: Response<Like | null, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {

@@ -318,7 +318,7 @@ const fetchSearchedMedia = async (
 
 const fetchMediaByTagname = async (tagname: string): Promise<MediaItem[]> => {
   const sql = `${BASE_MEDIA_QUERY}
-    JOIN MediaTags mt ON m.media_id = mt.media_id
+    JOIN MediaTags mt ON mi.media_id = mt.media_id
     JOIN Tags t ON mt.tag_id = t.tag_id
     WHERE LOWER(t.tag_name) = LOWER(?)`; // Convert both to lowercase
 

@@ -22,10 +22,7 @@ const fetchCommentsByMediaId = async (id: number): Promise<Comment[]> => {
     'SELECT * FROM Comments WHERE media_id = ?',
     [id],
   );
-  if (rows.length === 0) {
-    throw new CustomError(ERROR_MESSAGES.COMMENT.NOT_FOUND_MEDIA, 404);
-  }
-  return rows;
+  return rows.length > 0 ? rows : [];
 };
 
 // Request a count of comments by study media ID

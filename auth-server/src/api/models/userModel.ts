@@ -15,7 +15,7 @@ const getUserById = async (id: number): Promise<UserWithNoPassword> => {
   const [rows] = await promisePool.execute<
     RowDataPacket[] & UserWithNoPassword[]
   >(
-    `SELECT Users.user_id, Users.username, Users.bio, Users.email, Users.created_at, UserLevels.level_name
+    `SELECT Users.user_id, Users.username, Users.email, Users.created_at, UserLevels.level_name
      FROM Users
      JOIN UserLevels ON Users.user_level_id = UserLevels.user_level_id
      WHERE Users.user_id = ?`,

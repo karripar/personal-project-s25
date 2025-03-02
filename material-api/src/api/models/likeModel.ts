@@ -20,7 +20,7 @@ const fetchLikesByMediaId = async (id: number): Promise<Like[]> => {
     'SELECT * FROM Likes WHERE media_id = ?',
     [id],
   );
-  return rows;
+  return rows.length > 0 ? rows : [];
 };
 
 // Request a count of likes by media item id
@@ -90,17 +90,16 @@ const deleteLike = async (
 
 const fetchLikeByMediaIdAndUserId = async (
   media_id: number,
-  user_id: number,
-): Promise<Like> => {
+  user_id: number
+): Promise<Like | null> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Like[]>(
-    'SELECT * FROM Likes WHERE media_id = ? AND user_id = ?',
-    [media_id, user_id],
+    "SELECT * FROM Likes WHERE media_id = ? AND user_id = ?",
+    [media_id, user_id]
   );
-  if (rows.length === 0) {
-    throw new CustomError(ERROR_MESSAGES.LIKE.NOT_FOUND, 404);
-  }
-  return rows[0];
+
+  return rows.length > 0 ? rows[0] : null;
 };
+
 
 const getLikesByMediaId = async (media_id: number): Promise<Like[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Like[]>(
