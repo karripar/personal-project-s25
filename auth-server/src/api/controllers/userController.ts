@@ -17,8 +17,17 @@ import {
   modifyProfileInfo,
   postProfilePicture,
   getProfilePicture,
+  putProfilePicture,
+  deleteProfilePicture,
 } from '../models/userModel';
-import {ProfilePicture, TokenContent, User, UserWithNoPassword, UserWithNoSensitiveInfo, UserWithUnhashedPassword} from 'hybrid-types/DBTypes';
+import {
+  ProfilePicture,
+  TokenContent,
+  User,
+  UserWithNoPassword,
+  UserWithNoSensitiveInfo,
+  UserWithUnhashedPassword,
+} from 'hybrid-types/DBTypes';
 
 const salt = bcrypt.genSaltSync(12);
 
@@ -72,6 +81,30 @@ const profilePictureGet = async (
   try {
     const profilePicture = await getProfilePicture(Number(req.params.user_id));
     res.json(profilePicture);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// modify profile picture
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<ProfilePicture>}
+ * @description modify profile picture
+ */
+const profilePicturePut = async (
+  req: Request<{user_id: string}, object, ProfilePicture>,
+  res: Response<ProfilePicture>,
+  next: NextFunction,
+) => {
+  try {
+    const profilePicture = req.body;
+    const user_id = Number(req.params.user_id) || res.locals.user.user_id;
+    const token = res.locals.token;
+    const result = await putProfilePicture(profilePicture, user_id, token);
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -181,7 +214,6 @@ const userPut = async (
     next(error);
   }
 };
-
 
 // Update user profile
 /**
@@ -392,24 +424,44 @@ const checkUsernameExists = async (
  * @description Post profile picture
  */
 const profilePicturePost = async (
-  req: Request<object, object, Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>>,
-  res: Response<{ message: string; profile_picture_id: number }, { user: TokenContent }>,
+  req: Request<
+    object,
+    object,
+    Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>
+  >,
+  res: Response<
+    {message: string; profile_picture_id: number},
+    {user: TokenContent}
+  >,
   next: NextFunction,
 ) => {
   try {
-  req.body.user_id = res.locals.user.user_id;
+    req.body.user_id = res.locals.user.user_id;
 
-  const response = await postProfilePicture(req.body);
-  res.json({
-    message: 'Profile picture uploaded',
-    profile_picture_id: response.profile_picture_id,
-  });
+    const response = await postProfilePicture(req.body);
+    res.json({
+      message: 'Profile picture uploaded',
+      profile_picture_id: response.profile_picture_id,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-
+const profilePictureDelete = async (
+  req: Request<{user_id: string}>,
+  res: Response<{message: string}>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = Number(res.locals.user.user_id);
+    const token = res.locals.token;
+    const result = await deleteProfilePicture(user_id, token);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Search for users by username
 /**
@@ -449,4 +501,6 @@ export {
   profilePut,
   profilePicturePost,
   profilePictureGet,
+  profilePicturePut,
+  profilePictureDelete,
 };

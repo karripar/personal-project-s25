@@ -1,5 +1,5 @@
 import express from 'express';
-import { query } from 'express-validator';
+import {query} from 'express-validator';
 import {
   checkEmailExists,
   checkToken,
@@ -14,7 +14,9 @@ import {
   searchByUsername,
   profilePut,
   profilePicturePost,
-  profilePictureGet
+  profilePictureGet,
+  profilePicturePut,
+  profilePictureDelete,
 } from '../controllers/userController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -77,7 +79,9 @@ router.get(
    *
    * @apiUse unauthorized
    */
-  '/',userListGet);
+  '/',
+  userListGet,
+);
 
 router.get(
   /**
@@ -106,7 +110,9 @@ router.get(
    *
    * @apiUse unauthorized
    */
-  '/byUsername/:username', userByUsernameGet);
+  '/byUsername/:username',
+  userByUsernameGet,
+);
 
 router.post(
   /**
@@ -299,7 +305,7 @@ router.put(
     .withMessage('Bio must be less than 255 characters'),
   validationErrors,
   profilePut,
-)
+);
 
 router.delete(
   /**
@@ -315,27 +321,86 @@ router.delete(
    *
    * @apiUse unauthorized
    */
-  '/', authenticate, userDelete);
+  '/',
+  authenticate,
+  userDelete,
+);
 
-router.route('/profile/picture/:user_id')
-  .post(authenticate,
-    body('filename')
-      .trim()
-      .isString()
-      .withMessage('Invalid filename'),
-    body('filesize')
-      .isNumeric()
-      .withMessage('Invalid filesize'),
-    body('media_type')
-      .isString()
-      .withMessage('Invalid media_type'),
-    param('user_id')
-      .isNumeric()
-      .toInt()
-      .withMessage('Invalid user_id'),
-    validationErrors,
-    profilePicturePost)
-    .get(profilePictureGet);
+router.route('/profile/picture/:user_id').get(profilePictureGet);
+
+router
+  .route('/profile/picture')
+  .post(
+    /**
+     * @api {post} /users/profile/picture Upload profile picture
+     * @apiName UploadProfilePicture
+     * @apiGroup UserGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Upload profile picture
+     * @apiPermission token
+     *
+     * @apiParam {File} file File to upload
+     *
+     * @apiSuccess {String} message Profile picture uploaded
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "message": "Profile picture uploaded"
+     * }
+     *
+     * @apiUse unauthorized
+     */
+    authenticate,
+    profilePicturePost,
+  )
+  .delete(
+    /**
+     * @api {delete} /users/profile/picture Delete profile picture
+     * @apiName DeleteProfilePicture
+     * @apiGroup UserGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Delete profile picture
+     * @apiPermission token
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "message": "Profile picture deleted"
+     * }
+     *
+     * @apiUse unauthorized
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     * @apiErrorExample {json} Unauthorized
+     *    HTTP/1.1 401 Unauthorized
+     *    {
+     *     "error": "Unauthorized"
+     *   }
+     *
+     * @apiError (Error 404) {String} NotFound Profile picture not found
+     * @apiErrorExample {json} NotFound
+     *    HTTP/1.1 404 Not Found
+     *    {
+     *      "error": "Profile picture not found"
+     *    }
+     */
+    authenticate,
+    profilePictureDelete,
+  );
+
+router.route('/update/picture/:user_id').put(
+  authenticate,
+  param('user_id').isNumeric(),
+  validationErrors,
+  profilePicturePut,
+);
 
 router.get(
   /**
@@ -354,38 +419,42 @@ router.get(
    *
    * @apiUse unauthorized
    */
-  '/token', authenticate, checkToken);
+  '/token',
+  authenticate,
+  checkToken,
+);
 
-router.route(
-  /**
-   * @api {get} /users/:id Get user by ID
-   * @apiName GetUser
-   * @apiGroup UserGroup
-   * @apiVersion 1.0.0
-   * @apiDescription Get user by ID
-   * @apiPermission none
-   *
-   * @apiParam {Number} id User ID
-   *
-   * @apiSuccess {Number} id User ID
-   * @apiSuccess {String} username Username
-   * @apiSuccess {String} email Email
-   * @apiSuccess {String} createdAt User creation date
-   *
-   * @apiSuccessExample {json} Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *  "id": 1,
-   *  "username": "user1",
-   *  "email": "
-   *  "createdAt": "2021-01-01T00:00:00.000Z"
-   * }
-   *
-   * @apiUse unauthorized
-   */
-  '/:id').get(param('id').isNumeric(), validationErrors, userGet);
-
-
+router
+  .route(
+    /**
+     * @api {get} /users/:id Get user by ID
+     * @apiName GetUser
+     * @apiGroup UserGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get user by ID
+     * @apiPermission none
+     *
+     * @apiParam {Number} id User ID
+     *
+     * @apiSuccess {Number} id User ID
+     * @apiSuccess {String} username Username
+     * @apiSuccess {String} email Email
+     * @apiSuccess {String} createdAt User creation date
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "id": 1,
+     *  "username": "user1",
+     *  "email": "
+     *  "createdAt": "2021-01-01T00:00:00.000Z"
+     * }
+     *
+     * @apiUse unauthorized
+     */
+    '/:id',
+  )
+  .get(param('id').isNumeric(), validationErrors, userGet);
 
 router
   .route(
@@ -406,7 +475,8 @@ router
      *
      * @apiUse unauthorized
      */
-    '/:id')
+    '/:id',
+  )
   .delete(
     authenticate,
     param('id').isNumeric(),
@@ -482,11 +552,15 @@ router.get(
    * @apiUse unauthorized
    */
   '/search/byusername',
-  query('username').optional().trim().escape().isString()
-    .isLength({ min: 1, max: 50 })
+  query('username')
+    .optional()
+    .trim()
+    .escape()
+    .isString()
+    .isLength({min: 1, max: 50})
     .withMessage('Username must be between 3-50 characters'),
   validationErrors,
-  searchByUsername
+  searchByUsername,
 );
 
 router.get(

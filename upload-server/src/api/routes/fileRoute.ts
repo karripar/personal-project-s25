@@ -1,5 +1,5 @@
 import express, {NextFunction, Request, Response} from 'express';
-import {deleteFile, uploadFile} from '../controllers/uploadController';
+import {deleteFile, uploadFile, deleteProfileFile} from '../controllers/uploadController';
 import multer from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
 import CustomError from '../../classes/CustomError';
@@ -156,5 +156,31 @@ router.route('/delete/:filename').delete(
    * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
    */
   authenticate, deleteFile);
+
+router.route('/profile/picture/:filename').delete(
+  /**
+   * @api {delete} /upload/profile/picture Delete a profile picture
+   * @apiName DeleteProfilePicture
+   * @apiGroup FileUploadGroup
+   * @apiPermission user
+   * @apiDescription Delete a profile picture
+   *
+   * @apiUse token
+   * @apiUse unauthorized
+   * @apiSuccess {String} message File deleted successfully
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *  "message": "File deleted successfully"
+   * }
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *   HTTP/1.1 400 Bad Request
+   *  {
+   *   "error": "Invalid request"
+   * }
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   */
+  authenticate, deleteProfileFile);
 
 export default router;

@@ -4,6 +4,7 @@ import fs from 'fs';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 
 const UPLOAD_DIR = './uploads';
+const PROFILE_DIR = './uploads/profile';
 
 type UploadResponse = MessageResponse & {
   data: {
@@ -109,6 +110,59 @@ const deleteFile = async (
   }
 };
 
+/**
+ * @param req - Express Request object
+ * @param res - Express Response object
+ * @param next - Express NextFunction
+ * @returns {Promise<MessageResponse>}
+ * @description Delete a profile file
+ */
+const deleteProfileFile = async (
+  req: Request<{filename: string}>,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
+  try {
+    const {filename} = req.params;
+    if (!filename) {
+      throw new CustomError('filename not valid', 400);
+    }
+
+    // Check ownership by extracting user_id from filename
+    if (res.locals.user.level_name !== 'Admin') {
+      const fileUserId = filename.split('_').pop()?.split('.')[0];
+      if (!fileUserId || fileUserId !== res.locals.user.user_id.toString()) {
+        throw new CustomError('user not authorized', 401);
+      }
+    } else {
+      const fileUserId = filename.split('_').pop()?.split('.')[0];
+      if (!fileUserId) {
+        throw new CustomError('user not authorized', 401);
+      }
+    }
+
+    const filePath = `${PROFILE_DIR}/${filename}`;
+    if (!fs.existsSync(filePath)) {
+      throw new CustomError('file not found', 404);
+    }
+
+    try {
+      fs.unlinkSync(filePath
+      );
+    } catch {
+      throw new CustomError('Error deleting file', 500);
+    }
+
+    res.json({message: 'File deleted'});
+  } catch (error) {
+    next(
+      error instanceof CustomError
+        ? error
+        : new CustomError((error as Error).message, 400),
+    );
+  }
+};
+
 // Helper function to clean up temporary files
 const cleanup = (files: string[]) => {
   files.forEach((file) => {
@@ -122,4 +176,4 @@ const cleanup = (files: string[]) => {
   });
 };
 
-export {uploadFile, deleteFile};
+export {uploadFile, deleteFile, deleteProfileFile};

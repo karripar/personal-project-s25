@@ -9,9 +9,9 @@ import {
   ProfilePicture,
   UserWithProfilePicture,
 } from 'hybrid-types/DBTypes';
-import {UserDeleteResponse} from 'hybrid-types/MessageTypes';
+import {UserDeleteResponse, MessageResponse} from 'hybrid-types/MessageTypes';
 import CustomError from '../../classes/CustomError';
-import {customLog} from '../../lib/functions';
+import {customLog, fetchData} from '../../lib/functions';
 
 const uploadPath = process.env.PROFILE_UPLOAD_URL;
 
@@ -270,20 +270,6 @@ const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
   }
 };
 
-const getProfilePictureById = async (
-  profile_picture_id: number,
-): Promise<ProfilePicture> => {
-  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
-    `SELECT * FROM ProfilePictures WHERE profile_picture_id = ?`,
-    [profile_picture_id],
-  );
-  if (rows.length === 0) {
-    customLog('getProfilePictureById: Profile picture not found');
-    throw new CustomError('Profile picture not found', 404);
-  }
-  return rows[0];
-};
-
 const postProfilePicture = async (
   media: Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>,
 ): Promise<ProfilePicture> => {
@@ -304,6 +290,76 @@ const postProfilePicture = async (
   }
 
   return await getProfilePictureById(result.insertId);
+};
+
+const getProfilePictureById = async (
+  profile_picture_id: number,
+): Promise<ProfilePicture> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
+    `SELECT * FROM ProfilePictures WHERE profile_picture_id = ?`,
+    [profile_picture_id],
+  );
+  if (rows.length === 0) {
+    customLog('getProfilePictureById: Profile picture not found');
+    throw new CustomError('Profile picture not found', 404);
+  }
+  return rows[0];
+};
+
+const putProfilePicture = async (
+  media: ProfilePicture,
+  user_id: number,
+  token: string,
+): Promise<ProfilePicture> => {
+  const {filename, filesize, media_type} = media;
+
+  // First, check if the user already has a profile picture
+  const existingProfilePicture = await checkProfilePicture(user_id);
+
+  let sql;
+  let stmt;
+
+  if (existingProfilePicture) {
+    // If a profile picture already exists, update it
+    sql = `UPDATE ProfilePictures
+           SET filename = ?, filesize = ?, media_type = ?
+           WHERE user_id = ?`;
+    stmt = promisePool.format(sql, [filename, filesize, media_type, user_id]);
+  } else {
+    // If no profile picture exists, insert a new one
+    sql = `INSERT INTO ProfilePictures (user_id, filename, filesize, media_type)
+           VALUES (?, ?, ?, ?)`;
+    stmt = promisePool.format(sql, [user_id, filename, filesize, media_type]);
+  }
+
+  const [result] = await promisePool.execute<ResultSetHeader>(stmt);
+
+  // Check if the update or insert was successful
+  if (result.affectedRows === 0) {
+    customLog('putProfilePicture: Failed to update or insert profile picture');
+    throw new CustomError('Failed to update or insert profile picture', 500);
+  }
+
+  // If there was an old profile picture, delete it
+  if (existingProfilePicture?.filename) {
+    try {
+      const deleteResult = await fetchData<MessageResponse>(
+        `${process.env.UPLOAD_SERVER_URL}/profile/picture/${existingProfilePicture.filename}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log('Old profile picture deleted:', deleteResult);
+    } catch (error) {
+      console.log('Error deleting old profile picture:', error);
+    }
+  }
+
+  // Return the updated or newly inserted profile picture
+  return await getProfilePicture(user_id);
 };
 
 const getProfilePicture = async (user_id: number): Promise<ProfilePicture> => {
@@ -329,6 +385,72 @@ const getProfilePicture = async (user_id: number): Promise<ProfilePicture> => {
   return rows[0];
 };
 
+const checkProfilePicture = async (
+  user_id: number,
+): Promise<ProfilePicture | null> => {
+  const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
+    `
+    SELECT
+      pp.profile_picture_id,
+      pp.user_id,
+      pp.filename,
+      CONCAT(v.base_url, pp.filename) AS filename
+    FROM ProfilePictures pp
+    CROSS JOIN (SELECT ? AS base_url) AS v
+    WHERE pp.user_id = ?
+  `,
+    [uploadPath, user_id],
+  );
+
+  if (rows.length === 0) {
+    customLog('getProfilePicture: Profile picture not found');
+    return null;
+  }
+
+  return rows[0];
+};
+
+const deleteProfilePicture = async (
+  user_id: number,
+  token: string,
+): Promise<MessageResponse> => {
+  // First, get the existing profile picture
+  const existingProfilePicture = await checkProfilePicture(user_id);
+
+  //Update the database record
+  const sql = `DELETE FROM ProfilePictures WHERE user_id = ?`;
+  const stmt = promisePool.format(sql, [user_id]);
+
+  const [result] = await promisePool.execute<ResultSetHeader>(stmt);
+
+  // Check if the update was successful before proceeding
+  if (result.affectedRows === 0) {
+    customLog('deleteProfilePicture: Failed to delete profile picture');
+    throw new CustomError('Failed to delete profile picture', 500);
+  }
+
+  // If update was successful, delete the old profile picture
+  if (existingProfilePicture?.filename) {
+    try {
+      const deleteResult = await fetchData<MessageResponse>(
+        `${process.env.UPLOAD_SERVER_URL}/profile/picture/${existingProfilePicture.filename}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log('deleteResult', deleteResult);
+    } catch (error) {
+      console.log('Error deleting old profile picture:', error);
+    }
+  }
+
+  // Return the updated profile picture
+  return {message: 'Profile picture deleted'};
+};
+
 export {
   getUserById,
   getAllUsers,
@@ -343,4 +465,6 @@ export {
   getProfilePictureById,
   postProfilePicture,
   getProfilePicture,
+  putProfilePicture,
+  deleteProfilePicture,
 };
