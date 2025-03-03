@@ -309,12 +309,12 @@ const getProfilePictureById = async (
 const putProfilePicture = async (
   media: ProfilePicture,
   user_id: number,
-  token: string,
 ): Promise<ProfilePicture> => {
   const {filename, filesize, media_type} = media;
 
   // First, check if the user already has a profile picture
   const existingProfilePicture = await checkProfilePicture(user_id);
+  console.log('existingProfilePicture', existingProfilePicture);
 
   let sql;
   let stmt;
@@ -341,15 +341,17 @@ const putProfilePicture = async (
   }
 
   // If there was an old profile picture, delete it
-  if (existingProfilePicture?.filename) {
+  if (existingProfilePicture?.filename && existingProfilePicture.user_id === user_id) {
     try {
+      const absoluteFilename = existingProfilePicture.filename.split('/').pop();
       const deleteResult = await fetchData<MessageResponse>(
-        `${process.env.UPLOAD_SERVER_URL}/profile/picture/${existingProfilePicture.filename}`,
+        `${process.env.UPLOAD_SERVER}/profile/picture/${absoluteFilename}`,
         {
           method: 'DELETE',
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({user_id}),
         },
       );
       console.log('Old profile picture deleted:', deleteResult);
@@ -414,6 +416,10 @@ const deleteProfilePicture = async (
   user_id: number,
   token: string,
 ): Promise<MessageResponse> => {
+  if (!token) {
+    customLog('deleteProfilePicture: No token provided');
+    throw new CustomError('No token provided', 401);
+  }
   // First, get the existing profile picture
   const existingProfilePicture = await checkProfilePicture(user_id);
 
@@ -432,11 +438,13 @@ const deleteProfilePicture = async (
   // If update was successful, delete the old profile picture
   if (existingProfilePicture?.filename) {
     try {
+      const absoluteFilename = existingProfilePicture.filename.split('/').pop();
       const deleteResult = await fetchData<MessageResponse>(
-        `${process.env.UPLOAD_SERVER_URL}/profile/picture/${existingProfilePicture.filename}`,
+        `${process.env.UPLOAD_SERVER_URL}/profile/picture/${absoluteFilename}`,
         {
           method: 'DELETE',
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         },

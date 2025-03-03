@@ -3,6 +3,7 @@ import CustomError from '../../classes/CustomError';
 import fs from 'fs';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 
+
 const UPLOAD_DIR = './uploads';
 const PROFILE_DIR = './uploads/profile';
 
@@ -118,50 +119,37 @@ const deleteFile = async (
  * @description Delete a profile file
  */
 const deleteProfileFile = async (
-  req: Request<{filename: string}>,
+  req: Request<{ filename: string }, object, { user_id: number }>,
   res: Response<MessageResponse>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
-    const {filename} = req.params;
-    if (!filename) {
-      throw new CustomError('filename not valid', 400);
+    const { filename } = req.params;
+    const { user_id } = req.body; 
+
+    if (!filename || !user_id) {
+      throw new CustomError("Invalid request", 400);
     }
 
-    // Check ownership by extracting user_id from filename
-    if (res.locals.user.level_name !== 'Admin') {
-      const fileUserId = filename.split('_').pop()?.split('.')[0];
-      if (!fileUserId || fileUserId !== res.locals.user.user_id.toString()) {
-        throw new CustomError('user not authorized', 401);
-      }
-    } else {
-      const fileUserId = filename.split('_').pop()?.split('.')[0];
-      if (!fileUserId) {
-        throw new CustomError('user not authorized', 401);
-      }
+    const fileUserId = filename.split("_").pop()?.split(".")[0];
+
+    if (!fileUserId || fileUserId !== user_id.toString()) {
+      throw new CustomError("Unauthorized", 401);
     }
 
     const filePath = `${PROFILE_DIR}/${filename}`;
     if (!fs.existsSync(filePath)) {
-      throw new CustomError('file not found', 404);
+      throw new CustomError("file not found", 404);
     }
 
-    try {
-      fs.unlinkSync(filePath
-      );
-    } catch {
-      throw new CustomError('Error deleting file', 500);
-    }
-
-    res.json({message: 'File deleted'});
+    fs.unlinkSync(filePath);
+    res.json({ message: "File deleted" });
   } catch (error) {
-    next(
-      error instanceof CustomError
-        ? error
-        : new CustomError((error as Error).message, 400),
-    );
+    next(error instanceof CustomError ? error : new CustomError((error as Error).message, 400));
   }
 };
+
+
 
 // Helper function to clean up temporary files
 const cleanup = (files: string[]) => {

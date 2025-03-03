@@ -96,14 +96,18 @@ const profilePictureGet = async (
  */
 const profilePicturePut = async (
   req: Request<{user_id: string}, object, ProfilePicture>,
-  res: Response<ProfilePicture>,
+  res: Response<ProfilePicture, {user: TokenContent; token: string}>,
   next: NextFunction,
 ) => {
   try {
     const profilePicture = req.body;
-    const user_id = Number(req.params.user_id) || res.locals.user.user_id;
-    const token = res.locals.token;
-    const result = await putProfilePicture(profilePicture, user_id, token);
+    const user_id = Number(res.locals.user.user_id);
+    if (!user_id) {
+      next(new CustomError('Token not found', 404));
+      return;
+    }
+
+    const result = await putProfilePicture(profilePicture, user_id);
     res.json(result);
   } catch (error) {
     next(error);

@@ -5,6 +5,7 @@ import {authenticate, makeThumbnail} from '../../middlewares';
 import CustomError from '../../classes/CustomError';
 import {TokenContent} from 'hybrid-types/DBTypes';
 import randomstring from 'randomstring';
+import { param } from 'express-validator';
 
 /**
  * @apiDefine FileUploadGroup File Upload
@@ -181,6 +182,7 @@ router.route('/profile/picture/:filename').delete(
    * }
    * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
    */
-  authenticate, deleteProfileFile);
+  param('filename').isString(),
+  deleteProfileFile);
 
 export default router;
