@@ -309,7 +309,7 @@ const getProfilePictureById = async (
 const putProfilePicture = async (
   media: ProfilePicture,
   user_id: number,
-): Promise<ProfilePicture> => {
+): Promise<ProfilePicture | null> => {
   const {filename, filesize, media_type} = media;
 
   // First, check if the user already has a profile picture
@@ -364,7 +364,7 @@ const putProfilePicture = async (
   return await getProfilePicture(user_id);
 };
 
-const getProfilePicture = async (user_id: number): Promise<ProfilePicture> => {
+const getProfilePicture = async (user_id: number): Promise<ProfilePicture | null> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & ProfilePicture[]>(
     `
     SELECT
@@ -381,7 +381,7 @@ const getProfilePicture = async (user_id: number): Promise<ProfilePicture> => {
 
   if (rows.length === 0) {
     customLog('getProfilePicture: Profile picture not found');
-    throw new CustomError('Profile picture not found', 404);
+    return null;
   }
 
   return rows[0];

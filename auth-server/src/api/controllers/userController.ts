@@ -75,7 +75,7 @@ const userListGet = async (
 
 const profilePictureGet = async (
   req: Request<{user_id: string}>,
-  res: Response<ProfilePicture>,
+  res: Response<ProfilePicture | null>,
   next: NextFunction,
 ) => {
   try {
@@ -96,7 +96,7 @@ const profilePictureGet = async (
  */
 const profilePicturePut = async (
   req: Request<{user_id: string}, object, ProfilePicture>,
-  res: Response<ProfilePicture, {user: TokenContent; token: string}>,
+  res: Response<ProfilePicture | null, {user: TokenContent; token: string}>,
   next: NextFunction,
 ) => {
   try {
