@@ -363,7 +363,9 @@ const checkToken = async (
 ) => {
   const userFromToken = res.locals.user;
   // check if user exists in database
+  console.log('userFromToken', userFromToken);
   const user = await getUserById(userFromToken.user_id);
+  console.log('user', user);
   if (!user) {
     next(new CustomError('User not found', 404));
     return;
