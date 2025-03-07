@@ -1,7 +1,29 @@
 import {Request, Response, NextFunction} from 'express';
-import { fetchAllFavorites, fetchFavoritesByUserId, addFavorite, removeFavorite, countFavorites} from '../models/favoriteModel';
+import {
+  fetchAllFavorites,
+  fetchFavoritesByUserId,
+  addFavorite,
+  removeFavorite,
+  countFavorites,
+  fetchFavoriteStatus,
+} from '../models/favoriteModel';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
-import { Favorite } from 'hybrid-types/DBTypes';
+import {Favorite, MediaItem, TokenContent} from 'hybrid-types/DBTypes';
+
+const favoriteStatusGet = async (
+  req: Request<{media_id: string}>,
+  res: Response<{favorite: boolean}, {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  try {
+    const user_id = res.locals.user.user_id;
+    const media_id = Number(req.params.media_id);
+    const status = await fetchFavoriteStatus(user_id, media_id);
+    res.json({favorite: status});
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Get all favorites
 /**
@@ -11,7 +33,11 @@ import { Favorite } from 'hybrid-types/DBTypes';
  * @returns {Promise<Favorite[]>}
  * @description Get all favorites
  */
-const favoriteListGet = async (req: Request, res: Response<Favorite[]>, next: NextFunction) => {
+const favoriteListGet = async (
+  req: Request,
+  res: Response<Favorite[]>,
+  next: NextFunction,
+) => {
   try {
     const favorites = await fetchAllFavorites();
     res.json(favorites);
@@ -25,13 +51,21 @@ const favoriteListGet = async (req: Request, res: Response<Favorite[]>, next: Ne
  * @param req - Express Request object
  * @param res - Express Response object
  * @param next - Express NextFunction
- * @returns {Promise<Favorite[]>}
+ * @returns {Promise<MediaItem[]>}
  * @description Get favorites by user id
  */
-const favoriteListGetByUserId = async (req: Request, res: Response, next: NextFunction) => {
+const favoriteListGetByUserId = async (
+  req: Request<{user_id: string}>,
+  res: Response<MediaItem[], {user: TokenContent}>,
+  next: NextFunction,
+) => {
   try {
-    const user_id = Number(req.params.user_id);
+    const user_id = res.locals.user.user_id;
+    if (!user_id) {
+      throw new Error('No user_id provided');
+    }
     const favorites = await fetchFavoritesByUserId(user_id);
+    console.log('favorites by user_id', favorites);
     res.json(favorites);
   } catch (err) {
     next(err);
@@ -46,7 +80,11 @@ const favoriteListGetByUserId = async (req: Request, res: Response, next: NextFu
  * @returns {Promise<MessageResponse>}
  * @description Add a favorite
  */
-const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: NextFunction) => {
+const favoriteAdd = async (
+  req: Request,
+  res: Response<MessageResponse>,
+  next: NextFunction,
+) => {
   try {
     const user_id = res.locals.user.user_id;
     const media_id = Number(req.body.media_id);
@@ -57,7 +95,6 @@ const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: N
   }
 };
 
-
 // Get the number of favorites for a media
 /**
  * @param req - Express Request object
@@ -66,16 +103,19 @@ const favoriteAdd = async (req: Request, res: Response<MessageResponse>, next: N
  * @returns {Promise<{count: number}>}
  * @description Get the number of favorites for a media
  */
-const favoriteCountGet = async (req: Request, res: Response, next: NextFunction) => {
+const favoriteCountGet = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const media_id = Number(req.params.media_id);
     const count = await countFavorites(media_id);
-    res.json({ count });
+    res.json({count});
   } catch (err) {
     next(err);
   }
 };
-
 
 // Remove a favorite
 /**
@@ -85,10 +125,16 @@ const favoriteCountGet = async (req: Request, res: Response, next: NextFunction)
  * @returns {Promise<MessageResponse>}
  * @description Remove a favorite
  */
-const favoriteRemove = async (req: Request, res: Response<MessageResponse>, next: NextFunction) => {
+const favoriteRemove = async (
+  req: Request<{user_id: string; media_id: string}>,
+  res: Response<MessageResponse, {user: TokenContent}>,
+  next: NextFunction,
+) => {
   try {
     const user_id = res.locals.user.user_id;
-    const media_id = Number(req.body.media_id);
+    const media_id = Number(req.params.media_id);
+    console.log('user_id', user_id);
+    console.log('media_id', media_id);
     const result = await removeFavorite(user_id, media_id);
     res.json(result);
   } catch (err) {
@@ -96,4 +142,11 @@ const favoriteRemove = async (req: Request, res: Response<MessageResponse>, next
   }
 };
 
-export { favoriteListGet, favoriteListGetByUserId, favoriteAdd, favoriteRemove, favoriteCountGet };
+export {
+  favoriteListGet,
+  favoriteListGetByUserId,
+  favoriteAdd,
+  favoriteRemove,
+  favoriteCountGet,
+  favoriteStatusGet,
+};
