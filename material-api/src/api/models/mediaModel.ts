@@ -7,12 +7,6 @@ import CustomError from '../../classes/CustomError';
 import {fetchData} from '../../lib/functions';
 const uploadPath = process.env.UPLOAD_URL;
 
-// Common SQL fragments
-// if mediaItem is an image add '-thumb.png' to filename
-// if mediaItem is not image add screenshots property with 5 thumbnails
-// uploadPath needs to be passed to the query
-// Example usage:
-// ....execute(BASE_MEDIA_QUERY, [uploadPath, otherParams]);
 const BASE_MEDIA_QUERY = `
   SELECT
     mi.media_id,
@@ -140,10 +134,6 @@ const deleteMedia = async (
   await connection.execute('DELETE FROM Likes WHERE media_id = ?;', [media_id]);
 
   await connection.execute('DELETE FROM Comments WHERE media_id = ?;', [
-    media_id,
-  ]);
-
-  await connection.execute('DELETE FROM Ratings WHERE media_id = ?;', [
     media_id,
   ]);
 
