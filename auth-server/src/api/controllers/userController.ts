@@ -29,6 +29,7 @@ import {
   UserWithUnhashedPassword,
 } from 'hybrid-types/DBTypes';
 
+
 const salt = bcrypt.genSaltSync(12);
 
 // Get user by username
@@ -256,14 +257,19 @@ const profilePut = async (
  */
 const userDelete = async (
   req: Request,
-  res: Response<UserDeleteResponse, {user: TokenContent}>,
+  res: Response<UserDeleteResponse, {user: TokenContent; token: string}>,
   next: NextFunction,
 ) => {
   try {
     const userFromToken = res.locals.user;
     console.log('user from token', userFromToken);
 
-    const result = await deleteUser(userFromToken.user_id);
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      next(new CustomError('Token not found in delete user', 404));
+      return;
+    }
+    const result = await deleteUser(userFromToken.user_id, token);
 
     if (!result) {
       next(new CustomError('User not found', 404));
@@ -326,7 +332,7 @@ const userPutAsAdmin = async (
  */
 const userDeleteAsAdmin = async (
   req: Request<{id: string}>,
-  res: Response<UserDeleteResponse, {user: TokenContent}>,
+  res: Response<UserDeleteResponse, {user: TokenContent; token: string}>,
   next: NextFunction,
 ) => {
   try {
@@ -335,7 +341,7 @@ const userDeleteAsAdmin = async (
       return;
     }
 
-    const result = await deleteUser(Number(req.params.id));
+    const result = await deleteUser(Number(req.params.id), res.locals.token);
 
     if (!result) {
       next(new CustomError('User not found', 404));
@@ -461,7 +467,11 @@ const profilePictureDelete = async (
 ) => {
   try {
     const user_id = Number(res.locals.user.user_id);
-    const token = res.locals.token;
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      next(new CustomError('Token not found', 404));
+      return;
+    }
     const result = await deleteProfilePicture(user_id, token);
     res.json(result);
   } catch (error) {

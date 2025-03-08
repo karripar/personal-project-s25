@@ -227,33 +227,74 @@ const modifyProfileInfo = async (
   }
 };
 
-const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
+const deleteUser = async (id: number, token: string): Promise<UserDeleteResponse> => {
   const connection = await promisePool.getConnection();
+
+  console.log('token in deleteUser', token);
   try {
     await connection.beginTransaction();
+
+    // Fetch all media filenames before deleting database records
+    const [mediaFiles] = await connection.execute<RowDataPacket[]>(
+      'SELECT filename FROM MediaItems WHERE user_id = ?;',
+      [id]
+    );
+
+    // Remove files from upload directory
+    for (const media of mediaFiles) {
+      const filename = media.filename.replace(process.env.UPLOAD_URL as string, '');
+      console.log('filename', filename);
+      const options = {
+        method: 'DELETE',
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      };
+
+      try {
+        const response = await fetchData<MessageResponse>(`${process.env.UPLOAD_SERVER}/delete/${filename}`, options);
+        console.log(response);
+      } catch (e) {
+        console.error(`Failed to delete media file ${filename}:`, (e as Error).message);
+      }
+    }
+
+    const options = {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify({user_id: id}),
+    };
+
+    try {
+      const response = await fetchData<MessageResponse>(`${process.env.AUTH_SERVER}/users/profile/picture`, options);
+      console.log(response);
+    } catch (e) {
+      console.error(`Failed to delete profile picture for user ${id}:`, (e as Error).message);
+    }
+
+    // Delete related data from database
     await connection.execute('DELETE FROM Comments WHERE user_id = ?;', [id]);
     await connection.execute('DELETE FROM Likes WHERE user_id = ?;', [id]);
-    await connection.execute('DELETE FROM Ratings WHERE user_id = ?;', [id]);
     await connection.execute(
       'DELETE FROM Comments WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
-      [id],
+      [id]
     );
     await connection.execute(
       'DELETE FROM Likes WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
-      [id],
-    );
-    await connection.execute(
-      'DELETE FROM Ratings WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
-      [id],
+      [id]
     );
     await connection.execute(
       'DELETE FROM MediaTags WHERE media_id IN (SELECT media_id FROM MediaItems WHERE user_id = ?);',
-      [id],
+      [id]
     );
     await connection.execute('DELETE FROM MediaItems WHERE user_id = ?;', [id]);
+
+    // Delete user record
     const [result] = await connection.execute<ResultSetHeader>(
       'DELETE FROM Users WHERE user_id = ?;',
-      [id],
+      [id]
     );
 
     await connection.commit();
@@ -263,12 +304,16 @@ const deleteUser = async (id: number): Promise<UserDeleteResponse> => {
       throw new CustomError('User not found', 404);
     }
 
-    console.log('result', result);
-    return {message: 'User deleted', user: {user_id: id}};
+    return { message: 'User deleted', user: { user_id: id } };
+
+  } catch (error) {
+    await connection.rollback();
+    throw error;
   } finally {
     connection.release();
   }
 };
+
 
 const postProfilePicture = async (
   media: Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>,
@@ -440,13 +485,14 @@ const deleteProfilePicture = async (
     try {
       const absoluteFilename = existingProfilePicture.filename.split('/').pop();
       const deleteResult = await fetchData<MessageResponse>(
-        `${process.env.UPLOAD_SERVER_URL}/profile/picture/${absoluteFilename}`,
+        `${process.env.UPLOAD_SERVER}/profile/picture/${absoluteFilename}`,
         {
           method: 'DELETE',
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify({user_id}),
         },
       );
       console.log('deleteResult', deleteResult);

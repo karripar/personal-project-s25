@@ -1,9 +1,9 @@
-# Sovelluksen nimi: **WildLens**
+# Sovelluksen nimi: **MyLens**
 
 ---
 
 ## Kuvaus:
-**WildLens** on etenkin retkeilijöiden ja luonnossa liikkuvien yhteisöllinen alusta, jossa käyttäjät voivat jakaa kuvia, videoita, huomioita ja muuta olennaista. Sovelluksen avulla voidaan löytää alueella havaittuja eläimiä, vedenlaatuongelmia, sinilevähuomioita, marjasadon tilanteita ja muuta aiheeseen liittyvää.
+**MyLens** on etenkin retkeilijöiden ja luonnossa liikkuvien yhteisöllinen alusta, jossa käyttäjät voivat jakaa kuvia, videoita, huomioita ja muuta olennaista. Sovelluksen avulla voidaan löytää alueella havaittuja eläimiä, vedenlaatuongelmia, sinilevähuomioita, marjasadon tilanteita ja muuta aiheeseen liittyvää.
 
 ---
 

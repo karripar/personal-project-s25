@@ -67,49 +67,62 @@ const uploadFile = async (
  * @description Delete a file
  */
 const deleteFile = async (
-  req: Request<{filename: string}>,
+  req: Request<{ filename: string }>,
   res: Response<MessageResponse>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
-    const {filename} = req.params;
+    const { filename } = req.params;
     if (!filename) {
-      throw new CustomError('filename not valid', 400);
+      throw new CustomError("filename not valid", 400);
     }
 
     // Check ownership by extracting user_id from filename
-    if (res.locals.user.level_name !== 'Admin') {
-      const fileUserId = filename.split('_').pop()?.split('.')[0];
+    if (res.locals.user.level_name !== "Admin") {
+      const fileUserId = filename.split("_").pop()?.split(".")[0];
       if (!fileUserId || fileUserId !== res.locals.user.user_id.toString()) {
-        throw new CustomError('user not authorized', 401);
+        throw new CustomError("user not authorized", 401);
       }
     }
+
+    // Get the base name (without extension) of the file
+    const baseFileName = filename.split('.')[0];
 
     const filePath = `${UPLOAD_DIR}/${filename}`;
-    const thumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
 
     if (!fs.existsSync(filePath)) {
-      throw new CustomError('file not found', 404);
+      throw new CustomError("file not found", 404);
     }
 
+    // Delete the original file and any file with the same base name and any suffix
     try {
-      if (fs.existsSync(thumbPath)) {
-        fs.unlinkSync(thumbPath);
-      }
-      fs.unlinkSync(filePath);
+      // Get all files in the directory
+      const filesToDelete = fs.readdirSync(UPLOAD_DIR).filter((file) => {
+        // Match files with the same base name and any suffix (e.g., file-thumb1, file-thumb2, etc.)
+        return file.startsWith(baseFileName);
+      });
+
+      // Delete each matching file
+      filesToDelete.forEach((file) => {
+        const filePathToDelete = `${UPLOAD_DIR}/${file}`;
+        if (fs.existsSync(filePathToDelete)) {
+          fs.unlinkSync(filePathToDelete);
+        }
+      });
     } catch {
-      throw new CustomError('Error deleting files', 500);
+      throw new CustomError("Error deleting files", 500);
     }
 
-    res.json({message: 'File deleted'});
+    res.json({ message: "File and related files deleted" });
   } catch (error) {
     next(
       error instanceof CustomError
         ? error
-        : new CustomError((error as Error).message, 400),
+        : new CustomError((error as Error).message, 400)
     );
   }
 };
+
 
 /**
  * @param req - Express Request object
@@ -125,7 +138,7 @@ const deleteProfileFile = async (
 ) => {
   try {
     const { filename } = req.params;
-    const { user_id } = req.body; 
+    const { user_id } = req.body;
 
     if (!filename || !user_id) {
       throw new CustomError("Invalid request", 400);

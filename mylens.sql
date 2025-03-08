@@ -1,26 +1,17 @@
+-- source c:/users/karri/WebDev/personal-project-s25/mylens.sql
+DROP DATABASE IF EXISTS mylens;
+CREATE DATABASE mylens;
+USE mylens;
 
--- source c:/users/karri/WebDev/personal-project-s25/wildlens.sql
-DROP DATABASE IF EXISTS wildlens;
-CREATE DATABASE wildlens;
-USE wildlens;
-
--- user levels to differentiate between regular users and admins, etc.
+-- Create UserLevels table
 CREATE TABLE UserLevels (
     user_level_id INT PRIMARY KEY AUTO_INCREMENT,
     level_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- coordinates for media to store location information
-CREATE TABLE Coordinates (
-    coordinates_id INT PRIMARY KEY AUTO_INCREMENT,
-    latitude DECIMAL(10, 8),
-    longitude DECIMAL(11, 8),
-    location_name VARCHAR(255)
-);
-
--- users of the application
+-- Create Users table
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT PRIMARY KEY UNIQUE AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     email VARCHAR(50) NOT NULL UNIQUE,
@@ -30,6 +21,8 @@ CREATE TABLE Users (
     FOREIGN KEY (user_level_id) REFERENCES UserLevels(user_level_id)
 );
 
+
+-- Create ProfilePictures table
 CREATE TABLE ProfilePictures (
     profile_picture_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -40,29 +33,27 @@ CREATE TABLE ProfilePictures (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
--- media that users can upload and share (pdf, doc, etc.)
+-- Create MediaItems table
 CREATE TABLE MediaItems (
     media_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     filename VARCHAR(255) NOT NULL,
     thumbnail VARCHAR(255),
     filesize INT NOT NULL,
-    coordinates_id INT,
     media_type VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (coordinates_id) REFERENCES Coordinates(coordinates_id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
--- tags for media
+-- Create Tags table
 CREATE TABLE Tags (
     tag_id INT PRIMARY KEY AUTO_INCREMENT,
     tag_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- media-tag relations
+-- Create MediaTags table
 CREATE TABLE MediaTags (
     media_tag_id INT PRIMARY KEY AUTO_INCREMENT,
     media_id INT NOT NULL,
@@ -71,7 +62,7 @@ CREATE TABLE MediaTags (
     FOREIGN KEY (tag_id) REFERENCES Tags(tag_id) ON DELETE CASCADE
 );
 
--- comments on media
+-- Create Comments table
 CREATE TABLE Comments (
     comment_id INT PRIMARY KEY AUTO_INCREMENT,
     media_id INT NOT NULL,
@@ -84,7 +75,7 @@ CREATE TABLE Comments (
     FOREIGN KEY (reference_comment_id) REFERENCES Comments(comment_id) ON DELETE CASCADE
 );
 
--- likes (for media and comments)
+-- Create Likes table
 CREATE TABLE Likes (
     like_id INT PRIMARY KEY AUTO_INCREMENT,
     media_id INT,
@@ -96,18 +87,7 @@ CREATE TABLE Likes (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
--- users rating media between 1 and 5 stars
-CREATE TABLE Ratings (
-    rating_id INT PRIMARY KEY AUTO_INCREMENT,
-    media_id INT NOT NULL,
-    user_id INT NOT NULL,
-    rating_value INT NOT NULL CHECK (rating_value BETWEEN 1 AND 5),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (media_id) REFERENCES MediaItems(media_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-);
-
--- user follow system
+-- Create Follows table
 CREATE TABLE Follows (
     follow_id INT PRIMARY KEY AUTO_INCREMENT,
     follower_id INT NOT NULL,
@@ -117,12 +97,13 @@ CREATE TABLE Follows (
     FOREIGN KEY (followed_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+-- Create NotificationTypes table
 CREATE TABLE NotificationTypes (
     notification_type_id INT PRIMARY KEY AUTO_INCREMENT,
     notification_type_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- user notifications
+-- Create Notifications table
 CREATE TABLE Notifications (
     notification_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -135,6 +116,7 @@ CREATE TABLE Notifications (
     FOREIGN KEY (notification_type_id) REFERENCES NotificationTypes(notification_type_id)
 );
 
+-- Create Favorites table
 CREATE TABLE Favorites (
     favorite_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -144,16 +126,7 @@ CREATE TABLE Favorites (
     FOREIGN KEY (media_id) REFERENCES MediaItems(media_id) ON DELETE CASCADE
 );
 
--- Views
-CREATE VIEW MediaRatings AS
-SELECT 
-    MediaItems.media_id,
-    MediaItems.title,
-    AVG(Ratings.rating_value) AS avg_rating
-FROM MediaItems
-LEFT JOIN Ratings ON MediaItems.media_id = Ratings.media_id
-GROUP BY MediaItems.media_id;
-
+-- Create Views for reporting and aggregation
 CREATE VIEW MediaComments AS
 SELECT 
     MediaItems.media_id,
@@ -168,12 +141,10 @@ SELECT
     Users.user_id,
     Users.username,
     COUNT(DISTINCT MediaItems.media_id) AS media_count,
-    COUNT(DISTINCT Comments.comment_id) AS comment_count,
-    COUNT(DISTINCT Ratings.rating_id) AS rating_count
+    COUNT(DISTINCT Comments.comment_id) AS comment_count
 FROM Users
 LEFT JOIN MediaItems ON Users.user_id = MediaItems.user_id
 LEFT JOIN Comments ON Users.user_id = Comments.user_id
-LEFT JOIN Ratings ON Users.user_id = Ratings.user_id
 GROUP BY Users.user_id;
 
 CREATE VIEW FollowedMedia AS 
@@ -190,7 +161,6 @@ SELECT
 FROM MediaItems mi
 JOIN Follows f ON mi.user_id = f.followed_id;
 
-
 CREATE VIEW MediaWithTags AS
 SELECT 
     MediaItems.media_id,
@@ -198,7 +168,6 @@ SELECT
     MediaItems.filename,
     MediaItems.thumbnail,
     MediaItems.filesize,
-    MediaItems.coordinates_id,
     MediaItems.media_type,
     MediaItems.title,
     MediaItems.description,
@@ -209,7 +178,6 @@ LEFT JOIN MediaTags ON MediaItems.media_id = MediaTags.media_id
 LEFT JOIN Tags ON MediaTags.tag_id = Tags.tag_id
 GROUP BY MediaItems.media_id;
 
-
 -- Scheduled Event for Notifications
 CREATE EVENT ArchiveOldNotifications
 ON SCHEDULE EVERY 1 DAY
@@ -218,44 +186,13 @@ UPDATE Notifications
 SET is_archived = TRUE 
 WHERE is_read = TRUE AND created_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
 
--- Indexes
-CREATE INDEX idx_media_id ON Ratings(media_id);
-CREATE INDEX idx_ratings_user_id ON Ratings(user_id);
+-- Create Indexes
 CREATE INDEX idx_notifications_user_id ON Notifications(user_id);
 CREATE INDEX idx_is_read ON Notifications(is_read);
 CREATE FULLTEXT INDEX idx_ft_title ON MediaItems(title, description);
 CREATE UNIQUE INDEX idx_unique_follow ON Follows(follower_id, followed_id);
 
--- Sample Data
-
+-- Sample Data Insertion
 INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
-
-INSERT INTO Coordinates (latitude, longitude, location_name) VALUES (40.7128, -74.0060, 'New York City'),
-(34.0522, -118.2437, 'Los Angeles'), (41.8781, -87.6298, 'Chicago'),
-(29.7604, -95.3698, 'Houston'), (33.4484, -112.0740, 'Phoenix'),
-(39.7392, -104.9903, 'Denver'), (42.3601, -71.0589, 'Boston'),
-(37.7749, -122.4194, 'San Francisco'), (47.6062, -122.3321, 'Seattle'),
-(35.2271, -80.8431, 'Charlotte');
-
-INSERT INTO Users (username, password_hash, email, bio, user_level_id) VALUES ('admin', 'password', 'admin@example.com', 'I am the admin', 2),
-('user1', 'password', 'user1@example.com', 'I am user 1', 1),
-('user2', 'password', 'user2@example.com', 'I am user 2', 1),
-('user3', 'password', 'user3@example.com', 'I am user 3', 1),
-('user4', 'password', 'user4@example.com', 'I am user 4', 1),
-('user5', 'password', 'user5@example.com', 'I am user 5', 1);
-
-
 INSERT INTO Tags (tag_name) VALUES ('tag1'), ('tag2'), ('tag3'), ('tag4'), ('tag5');
-
-INSERT INTO Follows (follower_id, followed_id) VALUES (2, 1), (3, 1), (4, 1), (5, 1);
-
 INSERT INTO NotificationTypes (notification_type_name) VALUES ('Like'), ('Comment'), ('Follow');
-
-INSERT INTO Notifications (user_id, notification_text, notification_type_id) VALUES (1, 'User 3 liked your media item', 1),
-(1, 'User 4 liked your media item', 1), (1, 'User 3 commented on your media item', 2),
-(1, 'User 4 commented on your media item', 2), (1, 'User 2 followed you', 3), (1, 'User 3 followed you', 3),
-(1, 'User 4 followed you', 3), (1, 'User 5 followed you', 3);
-
-
-
-
