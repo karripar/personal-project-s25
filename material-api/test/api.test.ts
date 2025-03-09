@@ -16,6 +16,7 @@ import {
   getMediaByToken,
   deleteMediaItem,
 } from './testMediaItem';
+import { postFollow, getFollowersWithInvalidUserId, getFollowersWithToken, getFollowingWithToken, deleteFollow } from './testFollow';
 import { getFavoritesByUserId, postFavorite, deleteFavorite, getNegativeFavoriteStatus } from './testFavorite';
 import randomstring from 'randomstring';
 import {UploadResponse} from 'hybrid-types/MessageTypes';
@@ -193,6 +194,30 @@ describe('Media API Success Cases', () => {
 
   it('Should get negative favorite status', async () => {
     await getNegativeFavoriteStatus(app, 99999, token);
+  });
+
+  // test follow operations
+  const testTargetUserId = 5;
+  let followId = 0;
+  it('Should add a follow', async () => {
+    const response = await postFollow(app, testTargetUserId, token);
+    followId = response.follow_id;
+  });
+
+  it('Should get followers by token', async () => {
+    await getFollowersWithToken(app, token);
+  });
+
+  it('Should get followers with invalid user id', async () => {
+    await getFollowersWithInvalidUserId(app, 99999);
+  });
+
+  it('Should get following by token', async () => {
+    await getFollowingWithToken(app, token);
+  });
+
+  it('Should delete a follow', async () => {
+    await deleteFollow(app, followId, token);
   });
 
   it('Should delete a tag from media item', async () => {
