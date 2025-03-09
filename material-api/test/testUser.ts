@@ -1,7 +1,7 @@
 
 import dotenv from 'dotenv';
 dotenv.config();
-import {User} from 'hybrid-types/DBTypes';
+import {User, UserWithNoSensitiveInfo} from 'hybrid-types/DBTypes';
 import request from 'supertest';
 import {Application} from 'express';
 import {LoginResponse, UserDeleteResponse, UserResponse} from 'hybrid-types/MessageTypes';
@@ -82,4 +82,33 @@ const deleteUser = (
       });
   });
 };
-export {registerUser, loginUser, deleteUser};
+
+
+const getUsersWithSearch = (
+  url: string | Application,
+  username: string,
+): Promise<UserWithNoSensitiveInfo[]> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/users/search/byusername?username=${username}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const users: UserWithNoSensitiveInfo[] = response.body;
+          expect(Array.isArray(users)).toBe(true);
+          users.forEach((user) => {
+            expect(user.user_id).toBeGreaterThan(0);
+            expect(user.username).not.toBe('');
+            expect(user.created_at).not.toBe('');
+            expect(['User', 'Admin', 'Guest']).toEqual(
+              expect.arrayContaining([user.level_name]),
+            );
+          });
+          resolve(users);
+        }
+      });
+  });
+};
+
+export {registerUser, loginUser, deleteUser, getUsersWithSearch};

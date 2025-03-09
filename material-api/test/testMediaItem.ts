@@ -383,6 +383,113 @@ const getMediaItemById = (
   });
 };
 
+const getMediaWithSearch = (
+  url: string | Application,
+  search: string,
+  searchBy: string,
+): Promise<MediaItem[]> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/api/v1/media/search?search=${search}&searchBy=${searchBy}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const mediaItems: MediaItem[] = response.body;
+          expect(mediaItems.length).toBeGreaterThan(0);
+          resolve(mediaItems);
+        }
+      });
+  });
+};
+
+const mediaByTagnameGet = (
+  url: string | Application,
+  tagname: string,
+): Promise<MediaItem[]> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/api/v1/media/bytagname/${tagname}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const mediaItems: MediaItem[] = response.body;
+          expect(Array.isArray(mediaItems)).toBe(true);
+          mediaItems.forEach((mediaItem) => {
+            expect(mediaItem.media_id).toBeGreaterThan(0);
+            expect(mediaItem.title).not.toBe('');
+            expect(mediaItem.media_type).not.toBe('');
+            expect(mediaItem.filename).not.toBe('');
+            expect(mediaItem.thumbnail).not.toBe('');
+            expect(mediaItem.created_at).not.toBe('');
+            expect(mediaItem.filesize).toBeGreaterThan(0);
+            expect(mediaItem.user_id).toBeGreaterThan(0);
+          });
+          resolve(mediaItems);
+        }
+      });
+  });
+};
+
+const mediaByUsernameGet = (
+  url: string | Application,
+  username: string,
+): Promise<MediaItem[]> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/api/v1/media/byusername/${username}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const mediaItems: MediaItem[] = response.body;
+          expect(Array.isArray(mediaItems)).toBe(true);
+          mediaItems.forEach((mediaItem) => {
+            expect(mediaItem.media_id).toBeGreaterThan(0);
+            expect(mediaItem.title).not.toBe('');
+            expect(mediaItem.media_type).not.toBe('');
+            expect(mediaItem.filename).not.toBe('');
+            expect(mediaItem.thumbnail).not.toBe('');
+            expect(mediaItem.created_at).not.toBe('');
+            expect(mediaItem.filesize).toBeGreaterThan(0);
+            expect(mediaItem.user_id).toBeGreaterThan(0);
+          });
+          resolve(mediaItems);
+        }
+      });
+  });
+};
+
+const getMediaListByTagId = (
+  url: string | Application,
+  tagId: number,
+): Promise<MediaItem[]> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/api/v1/tags/bytag/${tagId}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const mediaItems: MediaItem[] = response.body;
+          expect(Array.isArray(mediaItems)).toBe(true);
+          mediaItems.forEach((mediaItem) => {
+            expect(mediaItem.media_id).toBeGreaterThan(0);
+            expect(mediaItem.title).not.toBe('');
+            expect(mediaItem.media_type).not.toBe('');
+            expect(mediaItem.filename).not.toBe('');
+            expect(mediaItem.thumbnail).not.toBe('');
+            expect(mediaItem.created_at).not.toBe('');
+            expect(mediaItem.filesize).toBeGreaterThan(0);
+            expect(mediaItem.user_id).toBeGreaterThan(0);
+          });
+          resolve(mediaItems);
+        }
+      });
+  });
+};
+
 export {
   uploadMediaFile,
   getMediaItems,
@@ -402,4 +509,8 @@ export {
   getMediaByUser,
   getMediaByToken,
   getMediaItemById,
+  getMediaWithSearch,
+  mediaByTagnameGet,
+  mediaByUsernameGet,
+  getMediaListByTagId,
 };
