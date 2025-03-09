@@ -15,11 +15,17 @@ import {
   getMediaByUser,
   getMediaByToken,
   deleteMediaItem,
+  getMediaWithSearch,
+  mediaByTagnameGet,
+  mediaByUsernameGet,
+  getMediaListByTagId
 } from './testMediaItem';
+import { postProfilePicture, putProfilePicture, uploadProfilePictureFile, getProfilePicture } from './testProfilepicture';
+import { postFollow, getFollowersWithInvalidUserId, getFollowersWithToken, getFollowingWithToken, deleteFollow } from './testFollow';
 import { getFavoritesByUserId, postFavorite, deleteFavorite, getNegativeFavoriteStatus } from './testFavorite';
 import randomstring from 'randomstring';
 import {UploadResponse} from 'hybrid-types/MessageTypes';
-import {loginUser, registerUser, deleteUser} from './testUser';
+import {loginUser, registerUser, deleteUser, getUsersWithSearch} from './testUser';
 import app from '../src/app';
 // const app = 'http://localhost:3000';
 import {postTag, getTags, deleteTag} from './testTag';
@@ -98,6 +104,51 @@ describe('Media API Success Cases', () => {
     }
   });
 
+  // test profile picture
+  let profileResponse: UploadResponse;
+  it('should upload a profile picture', async () => {
+    const mediaFile = './test/testfiles/testPic.jpeg';
+    profileResponse = await uploadProfilePictureFile(uploadApi, '/profile', mediaFile, token);
+  });
+
+  it('should post a profile picture', async () => {
+    if (uploadResponse.data) {
+    const mediaItem: Partial<MediaItem> = {
+      filename: profileResponse.data.filename,
+      media_type: profileResponse.data.media_type,
+      filesize: profileResponse.data.filesize,
+    };
+
+    await postProfilePicture(authApi, '/users/profile/picture', token, mediaItem);
+  }
+  });
+
+  it('should put a profile picture', async () => {
+    const mediaItem: Partial<MediaItem> = {
+      filename: profileResponse.data.filename,
+      media_type: profileResponse.data.media_type,
+      filesize: profileResponse.data.filesize,
+    };
+
+    await putProfilePicture(authApi, `/users/update/picture/${user.user_id}`, token, mediaItem);
+  });
+
+  it('should get a profile picture', async () => {
+    await getProfilePicture(authApi, `/users/profile/picture/`, user.user_id);
+  });
+
+  it('should get users with search', async () => {
+    await getUsersWithSearch(authApi, 'Test_User');
+  });
+
+  it('should get media items with search', async () => {
+    await getMediaWithSearch(app, 'Test Pic', 'title');
+  });
+
+  it('should get media items by username', async () => {
+    await mediaByUsernameGet(app, user.username);
+  });
+
   // test succesful media routes
   it('Should get array of media items', async () => {
     const mediaItems = await getMediaItems(app);
@@ -139,9 +190,17 @@ describe('Media API Success Cases', () => {
     tag_id = response.tags[0].tag_id;
   });
 
+  it('Should get media list by tag id', async () => {
+    await getMediaListByTagId(app, tag_id);
+  });
+
   it('Should get tags by media id', async () => {
     const tags = await getTags(app, testMediaItem.media_id);
     expect(Array.isArray(tags)).toBe(true);
+  });
+
+  it('Should get media by tag name', async () => {
+    await mediaByTagnameGet(app, 'test-tag');
   });
 
   // test like operations
@@ -193,6 +252,30 @@ describe('Media API Success Cases', () => {
 
   it('Should get negative favorite status', async () => {
     await getNegativeFavoriteStatus(app, 99999, token);
+  });
+
+  // test follow operations
+  const testTargetUserId = 5;
+  let followId = 0;
+  it('Should add a follow', async () => {
+    const response = await postFollow(app, testTargetUserId, token);
+    followId = response.follow_id;
+  });
+
+  it('Should get followers by token', async () => {
+    await getFollowersWithToken(app, token);
+  });
+
+  it('Should get followers with invalid user id', async () => {
+    await getFollowersWithInvalidUserId(app, 99999);
+  });
+
+  it('Should get following by token', async () => {
+    await getFollowingWithToken(app, token);
+  });
+
+  it('Should delete a follow', async () => {
+    await deleteFollow(app, followId, token);
   });
 
   it('Should delete a tag from media item', async () => {

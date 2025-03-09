@@ -124,7 +124,7 @@ const getUserByUsername = async (username: string): Promise<UserWithLevel> => {
 
 const createUser = async (
   user: Pick<UserWithUnhashedPassword, 'username' | 'password' | 'email'>,
-  userLevelId = 2,
+  userLevelId = 2, // Default to user level
 ): Promise<UserWithNoPassword> => {
   const sql = `INSERT INTO Users (username, password_hash, email, user_level_id)
        VALUES (?, ?, ?, ?)`;
