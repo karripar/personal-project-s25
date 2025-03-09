@@ -118,7 +118,7 @@ tagRouter
   );
 
 tagRouter
-  .route('/bymedia/:Media/:tag_id')
+  .route('/bymedia/:media_id/:tag_id')
   .delete(
     /**
      * @api {delete} /tags/bymedia/:media_id/:tag_id Delete Tag from Media

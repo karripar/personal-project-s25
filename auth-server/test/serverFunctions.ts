@@ -1,4 +1,4 @@
-/* eslint-disable node/no-unpublished-import */
+
 import request from 'supertest';
 import {Express} from 'express';
 

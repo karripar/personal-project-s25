@@ -517,6 +517,7 @@ mediaRouter.route('/byuser/:user_id').get(
    *    }
    */
   param('user_id').isInt({min: 1}).toInt(),
+  validationErrors,
   mediaByUserGet);
 
 mediaRouter.route('/bytoken').get(

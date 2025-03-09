@@ -1,4 +1,4 @@
-/* eslint-disable node/no-unpublished-import */
+// Test for mediaItem routes
 import {MediaItem} from 'hybrid-types/DBTypes';
 import {MessageResponse, UploadResponse} from 'hybrid-types/MessageTypes';
 import request from 'supertest';
@@ -33,7 +33,7 @@ const uploadMediaFile = (
 const getMediaItems = (url: string | Application): Promise<MediaItem[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get('/api/v1/media')
+      .get('/api/v1/media') // Updated path
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -61,7 +61,7 @@ const getMediaItem = (
 ): Promise<MediaItem> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/media/${id}`)
+      .get(`/api/v1/media/byid/${id}`) // Updated path
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -86,19 +86,18 @@ const postMediaItem = (
   path: string,
   token: string,
   mediaItem: Partial<MediaItem>,
-): Promise<MessageResponse> => {
+): Promise<MessageResponse & { media_id: number }> => {
   return new Promise((resolve, reject) => {
     request(url)
       .post(path)
       .set('Authorization', `Bearer ${token}`)
       .send(mediaItem)
-      .expect(200, (err, response) => {
+      .expect(200)
+      .end((err, response) => { // Use `.end()` instead of `.expect()`
         if (err) {
-          reject(err);
+          reject(err); // Reject the promise if there's an error
         } else {
-          const message: MessageResponse = response.body;
-          expect(message.message).toBe('Media created');
-          resolve(message);
+          resolve(response.body); // Resolve the promise with response body
         }
       });
   });
@@ -107,11 +106,13 @@ const postMediaItem = (
 const putMediaItem = (
   url: string | Application,
   id: number,
+  token: string,
   mediaItem: Omit<MediaItem, 'media_id' | 'thumbnail' | 'created_at'>,
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .put(`/api/v1/media/${id}`)
+      .put(`/api/v1/media/${id}`) // Updated path
+      .set('Authorization', `Bearer ${token}`)
       .send(mediaItem)
       .expect(200, (err, response) => {
         if (err) {
@@ -132,14 +133,14 @@ const deleteMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .delete(`/api/v1/media/${id}`)
+      .delete(`/api/v1/media/byid/${id}`) // Updated path
       .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
         } else {
           const message: MessageResponse = response.body;
-          expect(message.message).toBe('media item deleted');
+          expect(message.message).toBe('Media deleted');
           resolve(message);
         }
       });
@@ -153,7 +154,7 @@ const getNotFoundMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/media/${id}`)
+      .get(`/api/v1/media/${id}`) // Updated path
       .expect(404, (err, response) => {
         if (err) {
           reject(err);
@@ -173,7 +174,7 @@ const putNotFoundMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .put(`/api/v1/media/${id}`)
+      .put(`/api/v1/media/${id}`) // Updated path
       .send({media_name})
       .expect(404, (err, response) => {
         if (err) {
@@ -193,7 +194,7 @@ const deleteNotFoundMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .delete(`/api/v1/media/${id}`)
+      .delete(`/api/v1/media/${id}`) // Updated path
       .expect(404, (err, response) => {
         if (err) {
           reject(err);
@@ -213,7 +214,7 @@ const postInvalidMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .post('/api/v1/media')
+      .post('/api/v1/media') // Updated path
       .send({media_name})
       .expect(400, (err, response) => {
         if (err) {
@@ -234,7 +235,7 @@ const putInvalidMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .put(`/api/v1/media/${id}`)
+      .put(`/api/v1/media/${id}`) // Updated path
       .send({media_name})
       .expect(400, (err, response) => {
         if (err) {
@@ -254,7 +255,7 @@ const deleteInvalidMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .delete(`/api/v1/media/${id}`)
+      .delete(`/api/v1/media/${id}`) // Updated path
       .expect(400, (err, response) => {
         if (err) {
           reject(err);
@@ -273,7 +274,7 @@ const getInvalidMediaItem = (
 ): Promise<MessageResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/media/${id}`)
+      .get(`/api/v1/media/${id}`) // Updated path
       .expect(400, (err, response) => {
         if (err) {
           reject(err);
@@ -293,7 +294,7 @@ const getMediaItemsWithPagination = (
 ): Promise<MediaItem[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/media?page=${page}&limit=${limit}`)
+      .get(`/api/v1/media?page=${page}&limit=${limit}`) // Updated path
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -309,7 +310,7 @@ const getMediaItemsWithPagination = (
 const getMostLikedMedia = (url: string | Application): Promise<MediaItem> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get('/api/v1/media/mostliked')
+      .get('/api/v1/media/mostliked') // Updated path
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -328,7 +329,7 @@ const getMediaByUser = (
 ): Promise<MediaItem[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get(`/api/v1/media/byuser/${userId}`)
+      .get(`/api/v1/media/byuser/${userId}`) // Updated path
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
@@ -349,7 +350,7 @@ const getMediaByToken = (
 ): Promise<MediaItem[]> => {
   return new Promise((resolve, reject) => {
     request(url)
-      .get('/api/v1/media/bytoken')
+      .get('/api/v1/media/bytoken') // Updated path
       .set('Authorization', `Bearer ${token}`)
       .expect(200, (err, response) => {
         if (err) {
@@ -359,6 +360,26 @@ const getMediaByToken = (
           resolve(mediaItems);
         }
       });
+  });
+};
+
+const getMediaItemById = (
+  url: string | Application,
+  id: number,
+): Promise<MediaItem> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .get(`/api/v1/media/${id}`) // Updated path
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const mediaItem: MediaItem = response.body;
+          expect(mediaItem.media_id).toBe(id);
+          resolve(mediaItem);
+        }
+      }
+      );
   });
 };
 
@@ -380,4 +401,5 @@ export {
   getMostLikedMedia,
   getMediaByUser,
   getMediaByToken,
+  getMediaItemById,
 };

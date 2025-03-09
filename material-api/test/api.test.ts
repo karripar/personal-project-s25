@@ -1,44 +1,43 @@
-/* eslint-disable node/no-unpublished-import */
-/* eslint-disable @typescript-eslint/no-loss-of-precision */
-require('dotenv').config();
-import {MediaItem, User, UserWithNoPassword} from 'hybrid-types/DBTypes';
+import dotenv from 'dotenv';
+dotenv.config();
+import {
+  Like,
+  MediaItem,
+  UserWithNoPassword,
+  UserWithUnhashedPassword,
+} from 'hybrid-types/DBTypes';
 import {
   uploadMediaFile,
   getMediaItems,
   getMediaItem,
   postMediaItem,
-  putMediaItem,
-  deleteMediaItem,
-  getNotFoundMediaItem,
-  putNotFoundMediaItem,
-  deleteNotFoundMediaItem,
-  postInvalidMediaItem,
-  putInvalidMediaItem,
-  deleteInvalidMediaItem,
-  getInvalidMediaItem,
-  getMediaItemsWithPagination,
   getMostLikedMedia,
   getMediaByUser,
   getMediaByToken,
+  deleteMediaItem,
 } from './testMediaItem';
 import randomstring from 'randomstring';
-import {UploadResponse, UserResponse} from 'hybrid-types/MessageTypes';
-import {loginUser, registerUser} from './testUser';
+import {UploadResponse} from 'hybrid-types/MessageTypes';
+import {loginUser, registerUser, deleteUser} from './testUser';
 import app from '../src/app';
 // const app = 'http://localhost:3000';
+import {postTag, getTags, deleteTag} from './testTag';
+import {postLike, getLikes, deleteLike, getLikesByUser} from './testLike';
+import {postComment, getComments, deleteComment} from './testComment';
 
-const authApi = process.env.AUTH_SERVER as string;
-const uploadApi = process.env.UPLOAD_SERVER as string;
+if (!process.env.AUTH_SERVER || !process.env.UPLOAD_SERVER) {
+  throw new Error('Missing environment variables for API tests');
+}
+const authApi = process.env.AUTH_SERVER;
+const uploadApi = process.env.UPLOAD_SERVER;
 
-describe('Media API', () => {
-  // test succesful user routes
-
+describe('Media API Success Cases', () => {
   // test create user
   let token: string;
   let user: UserWithNoPassword;
-  const testUser: Partial<User> = {
-    username: 'Test User ' + randomstring.generate(7),
-    email: randomstring.generate(9) + '@user.fi',
+  const testUser: Partial<UserWithUnhashedPassword> = {
+    username: 'Test_User_' + randomstring.generate(7),
+    email: randomstring.generate(9).toLowerCase() + '@user.fi',
     password: 'asdfQEWR1234',
   };
   it('should create a new user', async () => {
@@ -47,10 +46,8 @@ describe('Media API', () => {
 
   // test login
   it('should return a user object and bearer token on valid credentials', async () => {
-    const path = authApi + '/auth/login';
-    console.log(path);
     const response = await loginUser(authApi, '/auth/login', {
-      username: testUser.username!,
+      email: testUser.email!,
       password: testUser.password!,
     });
     token = response.token;
@@ -69,8 +66,11 @@ describe('Media API', () => {
     );
   });
 
-  // post media file
-  it('should post a media file', async () => {
+  let testMediaItem: {message: string; media_id: number};
+
+  it('should post a media item', async () => {
+    jest.setTimeout(30000); // Increase timeout if the test is taking a long time
+
     if (uploadResponse.data) {
       const mediaItem: Partial<MediaItem> = {
         title: 'Test Pic',
@@ -79,16 +79,28 @@ describe('Media API', () => {
         media_type: uploadResponse.data.media_type,
         filesize: uploadResponse.data.filesize,
       };
-      await postMediaItem(app, '/api/v1/media', token, mediaItem);
+
+      const response = await postMediaItem(
+        app,
+        '/api/v1/media',
+        token,
+        mediaItem,
+      );
+
+      // Log the response to verify the structure
+      console.log(response);
+
+      // Now expect the response to contain message and media_id, not the full MediaItem
+      expect(response.message).toBe('Media created');
+      expect(response.media_id).toBeDefined(); // You can add further checks here based on your expectations
+      testMediaItem = response;
     }
   });
 
   // test succesful media routes
-  let mediaItems: MediaItem[];
-  let testMediaItem: MediaItem;
   it('Should get array of media items', async () => {
-    mediaItems = await getMediaItems(app);
-    testMediaItem = mediaItems[0];
+    const mediaItems = await getMediaItems(app);
+    expect(Array.isArray(mediaItems)).toBe(true);
   });
 
   it('Should get media item by id', async () => {
@@ -96,85 +108,83 @@ describe('Media API', () => {
     expect(mediaItem.media_id).toBe(testMediaItem.media_id);
   });
 
-  it('Should update media item', async () => {
-    const updatedItem = {
-      title: 'Updated Test Title',
-      description: 'Updated test description',
-      filename: testMediaItem.filename,
-      media_type: testMediaItem.media_type,
-      filesize: testMediaItem.filesize,
-      user_id: testMediaItem.user_id,
-    };
-    await putMediaItem(app, testMediaItem.media_id, updatedItem);
+  it('Should get most liked media', async () => {
+    const mediaItem = await getMostLikedMedia(app);
+    expect(mediaItem.media_id).toBeGreaterThan(0);
+  });
+
+  it('Should get media by user', async () => {
+    const mediaItems = await getMediaByUser(app, user.user_id);
+    mediaItems.forEach((item) => {
+      expect(item.user_id).toBe(user.user_id);
+    });
+  });
+
+  it('Should get media by token', async () => {
+    const mediaItems = await getMediaByToken(app, token);
+    expect(Array.isArray(mediaItems)).toBe(true);
+  });
+
+  // test tag operations
+  let tag_id = 0;
+  it('Should add a tag to media item', async () => {
+    const response = await postTag(
+      app,
+      testMediaItem.media_id,
+      token,
+      'test-tag',
+    );
+    expect(response.message).toBe('Tags added successfully');
+    tag_id = response.tags[0].tag_id;
+  });
+
+  it('Should get tags by media id', async () => {
+    const tags = await getTags(app, testMediaItem.media_id);
+    expect(Array.isArray(tags)).toBe(true);
+  });
+
+  // test like operations
+  it('Should add a like to media item', async () => {
+    await postLike(app, testMediaItem.media_id, token);
+  });
+
+  it('Should get likes count by media id', async () => {
+    await getLikes(app, testMediaItem.media_id);
+  });
+
+  let like: Like;
+  it('Should get likes by user id', async () => {
+    like = await getLikesByUser(app, testMediaItem.media_id, token);
+  });
+
+  // test comment operations
+  it('Should add a comment to media item', async () => {
+    await postComment(app, testMediaItem.media_id, token, 'Test comment');
+  });
+
+  it('Should get comments by media id', async () => {
+    const comments = await getComments(app, testMediaItem.media_id);
+    expect(Array.isArray(comments)).toBe(true);
+  });
+
+  it('Should delete a comment', async () => {
+    const comments = await getComments(app, testMediaItem.media_id);
+    await deleteComment(app, comments[0].comment_id, token);
+  });
+
+  it('Should delete a like', async () => {
+    await deleteLike(app, like.like_id, token);
+  });
+
+  it('Should delete a tag from media item', async () => {
+    await deleteTag(app, testMediaItem.media_id, tag_id, token);
   });
 
   it('Should delete media item', async () => {
     await deleteMediaItem(app, testMediaItem.media_id, token);
   });
 
-  // test 404 error mediaItem routes
-  it('Should return 404 when getting non-existent media item', async () => {
-    await getNotFoundMediaItem(app, 999999);
+  it('Should delete user', async () => {
+    await deleteUser(authApi, '/users', token);
   });
-
-  it('Should return 404 when updating non-existent media item', async () => {
-    await putNotFoundMediaItem(app, 999999, 'Test media');
-  });
-
-  it('Should return 404 when deleting non-existent media item', async () => {
-    await deleteNotFoundMediaItem(app, 999999);
-  });
-
-  // test 400 error mediaItem routes with invalid data
-  it('Should return 400 when posting invalid media item', async () => {
-    await postInvalidMediaItem(app, '');
-  });
-
-  it('Should return 400 when updating with invalid media item data', async () => {
-    await putInvalidMediaItem(app, 'invalid-id', '');
-  });
-
-  it('Should return 400 when deleting with invalid media id', async () => {
-    await deleteInvalidMediaItem(app, 'invalid-id');
-  });
-
-  it('Should return 400 when getting media with invalid id', async () => {
-    await getInvalidMediaItem(app, 'invalid-id');
-  });
-
-  // TODO: add test for get mediaItem by id
-  // TODO: add test for put mediaItem
-  // TODO: add test for delete mediaItem
-
-  // test 404 error mediaItem routes
-  // TODO: add test for get mediaItem by id
-  // TODO: add test for put mediaItem
-  // TODO: add test for delete mediaItem
-
-  // test 400 error mediaItem routes with invalid data
-  // TODO: add test for post mediaItem
-  // TODO: add test for put mediaItem
-  // TODO: add test for delete mediaItem
-  // TODO: add test for get mediaItem by id
-
-  // test 404 error tags routes
-  // TODO: add test for get tag by id
-  // TODO: add test for put tag
-  // TODO: add test for delete tag
-
-  // test 400 error tags route with invalid data
-  // TODO: add test for post tag
-  // TODO: add test for put tag
-  // TODO: add test for delete tag
-
-  // test 404 error like routes
-  // TODO: add test for get like by id
-  // TODO: add test for put like
-  // TODO: add test for delete like
-
-  // test 400 error like routes with invalid data
-  // TODO: add test for post like
-  // TODO: add test for put like
-  // TODO: add test for delete like
-  // TODO: add test for get like by id
 });

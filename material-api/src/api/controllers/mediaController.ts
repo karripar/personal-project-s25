@@ -230,10 +230,12 @@ const mediaByUserGet = async (
   next: NextFunction,
 ) => {
   try {
-    const user_id = res.locals.user.user_id || Number(req.params.user_id);
+    const user_id = Number(req.params.user_id) || null;
+
     if (!user_id) {
       throw new CustomError(ERROR_MESSAGES.MEDIA.NO_ID, 400);
     }
+
 
     const media = await fetchMediaByUserId(user_id);
     res.json(media);
@@ -246,17 +248,17 @@ const mediaByUserGet = async (
  * @param req - Express Request object
  * @param res - Express Response object
  * @param next - Express NextFunction
- * @returns {Promise<MediaItem[]>}
+ * @returns {Promise<MediaItem>}
  * @description Get all media items by most liked
  */
 const mediaListMostLikedGet = async (
   req: Request,
-  res: Response<MediaItem[]>,
+  res: Response<MediaItem>,
   next: NextFunction,
 ) => {
   try {
     const Media = await fetchMostLikedMedia();
-    res.json([Media]);
+    res.json(Media);
   } catch (error) {
     next(error);
   }

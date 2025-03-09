@@ -1,4 +1,4 @@
-/* eslint-disable node/no-unpublished-import */
+
 import {Express} from 'express';
 import request from 'supertest';
 import {UserWithLevel} from 'hybrid-types/DBTypes';
@@ -11,7 +11,7 @@ import {
 const createUser = (
   url: string | Express,
   path: string,
-  user: Pick<UserWithLevel, 'username' | 'email' | 'password'>,
+  user: Pick<UserWithLevel, 'username' | 'email' | 'password_hash'>,
 ): Promise<UserWithLevel> => {
   return new Promise((resolve, reject) => {
     request(url)
@@ -112,7 +112,7 @@ const getSingleUserError = (
 const login = (
   url: string | Express,
   path: string,
-  user: Pick<UserWithLevel, 'username' | 'password'>,
+  user: Pick<UserWithLevel, 'username' | 'password_hash'>,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     request(url)

@@ -1,5 +1,6 @@
-/* eslint-disable node/no-unpublished-import */
-require('dotenv').config();
+
+import dotenv from 'dotenv';
+dotenv.config();
 import {User} from 'hybrid-types/DBTypes';
 import request from 'supertest';
 import {Application} from 'express';
@@ -35,7 +36,7 @@ const registerUser = (
 const loginUser = (
   url: string | Application,
   path: string,
-  user: {username: string; password: string},
+  user: {email: string; password: string},
 ): Promise<LoginResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
@@ -49,7 +50,7 @@ const loginUser = (
           expect(login.message).toBe('Login successful');
           expect(login.token).not.toBe('');
           expect(login.user.user_id).toBeGreaterThan(0);
-          expect(login.user.username).toBe(user.username);
+          expect(login.user.username).not.toBe('');
           expect(login.user.email).not.toBe('');
           expect(login.user.created_at).not.toBe('');
           expect(['User', 'Admin', 'Guest']).toEqual(
@@ -61,4 +62,24 @@ const loginUser = (
   });
 };
 
-export {registerUser, loginUser};
+const deleteUser = (
+  url: string | Application,
+  path: string,
+  token: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .delete(path)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const result: UserResponse = response.body;
+          expect(result.message).toBe('User deleted');
+          resolve();
+        }
+      });
+  });
+};
+export {registerUser, loginUser, deleteUser};

@@ -1,6 +1,6 @@
-/* eslint-disable node/no-unpublished-import */
+
 import app from '../src/app';
-import {UserWithLevel} from 'hybrid-types/DBTypes';
+import { UserWithUnhashedPassword, UserWithLevel } from 'hybrid-types/DBTypes';
 import {getFound, getNotFound} from './serverFunctions';
 import {
   createUser,
@@ -28,16 +28,18 @@ describe('GET /api/v1', () => {
   });
 
   // test user
-  const testuser: Pick<UserWithLevel, 'username' | 'email' | 'password'> = {
+  const testuser: Pick<UserWithUnhashedPassword, 'username' | 'email' | 'password'> & { user_level_id: number, password: string, password_hash: string } = {
     username: 'testuser' + randomstring.generate(5),
     email: randomstring.generate(5) + '@test.com',
     password: 'testpassword',
+    user_level_id: 1, // or any appropriate value
+    password_hash: 'testpassword', // or any appropriate hash value
   };
 
   // create a user
-  let user: UserWithLevel;
+  let user: Omit<UserWithUnhashedPassword, 'password_hash'> & { password: string; user_id: number; user_level_id: number };
   it('should create a user', async () => {
-    user = await createUser(app, userpath, testuser);
+    user = await createUser(app, userpath, { ...testuser, password_hash: 'testpassword' });
   });
 
   // test that you get all users
