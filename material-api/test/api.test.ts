@@ -16,6 +16,7 @@ import {
   getMediaByToken,
   deleteMediaItem,
 } from './testMediaItem';
+import { getFavoritesByUserId, postFavorite, deleteFavorite, getNegativeFavoriteStatus } from './testFavorite';
 import randomstring from 'randomstring';
 import {UploadResponse} from 'hybrid-types/MessageTypes';
 import {loginUser, registerUser, deleteUser} from './testUser';
@@ -146,6 +147,7 @@ describe('Media API Success Cases', () => {
   // test like operations
   it('Should add a like to media item', async () => {
     await postLike(app, testMediaItem.media_id, token);
+
   });
 
   it('Should get likes count by media id', async () => {
@@ -155,6 +157,7 @@ describe('Media API Success Cases', () => {
   let like: Like;
   it('Should get likes by user id', async () => {
     like = await getLikesByUser(app, testMediaItem.media_id, token);
+    expect(like.media_id).toBe(testMediaItem.media_id);
   });
 
   // test comment operations
@@ -174,6 +177,22 @@ describe('Media API Success Cases', () => {
 
   it('Should delete a like', async () => {
     await deleteLike(app, like.like_id, token);
+  });
+
+  it('Should add a favorite', async () => {
+    await postFavorite(app, testMediaItem.media_id, token);
+  });
+
+  it('Should get favorites by user id', async () => {
+    await getFavoritesByUserId(app, user.user_id, token);
+  });
+
+  it('Should delete a favorite', async () => {
+    await deleteFavorite(app, testMediaItem.media_id, token);
+  });
+
+  it('Should get negative favorite status', async () => {
+    await getNegativeFavoriteStatus(app, 99999, token);
   });
 
   it('Should delete a tag from media item', async () => {

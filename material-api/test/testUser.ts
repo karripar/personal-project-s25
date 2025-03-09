@@ -4,7 +4,7 @@ dotenv.config();
 import {User} from 'hybrid-types/DBTypes';
 import request from 'supertest';
 import {Application} from 'express';
-import {LoginResponse, UserResponse} from 'hybrid-types/MessageTypes';
+import {LoginResponse, UserDeleteResponse, UserResponse} from 'hybrid-types/MessageTypes';
 
 // functios to test succesful user routes
 const registerUser = (
@@ -66,7 +66,7 @@ const deleteUser = (
   url: string | Application,
   path: string,
   token: string,
-): Promise<void> => {
+): Promise<UserDeleteResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .delete(path)
@@ -77,7 +77,7 @@ const deleteUser = (
         } else {
           const result: UserResponse = response.body;
           expect(result.message).toBe('User deleted');
-          resolve();
+          resolve(result);
         }
       });
   });
