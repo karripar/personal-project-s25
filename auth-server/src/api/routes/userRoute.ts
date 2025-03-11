@@ -326,7 +326,9 @@ router.delete(
   userDelete,
 );
 
-router.route('/profile/picture/:user_id').get(profilePictureGet);
+router
+  .route('/profile/picture/:user_id')
+  .get(param('user_id').isNumeric(), validationErrors, profilePictureGet);
 
 router
   .route('/profile/picture')
@@ -395,12 +397,14 @@ router
     profilePictureDelete,
   );
 
-router.route('/update/picture/:user_id').put(
-  authenticate,
-  param('user_id').isNumeric(),
-  validationErrors,
-  profilePicturePut,
-);
+router
+  .route('/update/picture/:user_id')
+  .put(
+    authenticate,
+    param('user_id').isNumeric(),
+    validationErrors,
+    profilePicturePut,
+  );
 
 router.get(
   /**

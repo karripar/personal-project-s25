@@ -110,12 +110,13 @@ const deleteComment = async (
   user_id: number,
   user_level: UserLevel['level_name'],
 ): Promise<MessageResponse> => {
-  let sql = '';
-  if (user_level === 'Admin') {
-    sql = 'DELETE FROM Comments WHERE comment_id = ?';
-  } else {
-    sql = 'DELETE FROM Comments WHERE comment_id = ? AND user_id = ?';
+
+  if (user_level !== 'Admin') {
+    throw new CustomError(ERROR_MESSAGES.COMMENT.NOT_AUTHORIZED, 401);
   }
+
+  const sql = 'DELETE FROM Comments WHERE comment_id = ?';
+
   const params = user_level === 'Admin' ? [id] : [id, user_id];
 
   const [result] = await promisePool.execute<ResultSetHeader>(sql, params);

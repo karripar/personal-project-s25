@@ -197,4 +197,5 @@ INSERT INTO UserLevels (level_name) VALUES ('Admin'), ('User');
 INSERT INTO Tags (tag_name) VALUES ('tag1'), ('tag2'), ('tag3'), ('tag4'), ('tag5');
 INSERT INTO NotificationTypes (notification_type_name) VALUES ('Like'), ('Comment'), ('Follow');
 
-INSERT INTO Users (username, password_hash, email, bio, user_level_id) VALUES ('testuser1', 'SALAsana123', 'testi@gmail.com', 'This is a test user', 2), ('testuser2', 'SALAsana123', 'testi2@gmail.com', 'This is a test user', 2), ('testuser3', 'SALAsana123', 'testi3gmail.com', 'This is a test user', 2);
+INSERT INTO Users (username, password_hash, email, bio, user_level_id) VALUES ('testuser1', 'SALAsana123', 'testi@gmail.com', 'This is a test user', 2), ('testuser2', 'SALAsana123', 'testi2@gmail.com', 'This is a test user', 2), ('testuser3', 'SALAsana123', 'testi3gmail.com', 'This is a test user', 2),
+('admin', 'SALAsana123', 'admin@gmail.com', 'This is an admin user', 1);
