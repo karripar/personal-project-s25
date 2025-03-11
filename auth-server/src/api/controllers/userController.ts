@@ -340,8 +340,12 @@ const userDeleteAsAdmin = async (
       next(new CustomError('You are not authorized to do this', 401));
       return;
     }
-
-    const result = await deleteUser(Number(req.params.id), res.locals.token);
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      next(new CustomError('Token not found', 404));
+      return;
+    }
+    const result = await deleteUser(Number(req.params.id), token);
 
     if (!result) {
       next(new CustomError('User not found', 404));
@@ -462,7 +466,7 @@ const profilePicturePost = async (
 
 const profilePictureDelete = async (
   req: Request<{user_id: string}>,
-  res: Response<{message: string}>,
+  res: Response<{message: string} | null>,
   next: NextFunction,
 ) => {
   try {
