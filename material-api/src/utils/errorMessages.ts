@@ -46,6 +46,7 @@ export const ERROR_MESSAGES = {
     NOT_DELETED: 'Comment not deleted',
     NOT_UPDATED: 'Comment not updated',
     NO_ID: 'No comment id provided',
+    NOT_AUTHORIZED: 'User is not authorized to delete this comment, only admins can delete comments',
   },
   FOLLOW: {
     NOT_FOUND: 'No follows found',
