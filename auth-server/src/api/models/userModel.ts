@@ -247,9 +247,11 @@ const deleteUser = async (id: number, token: string): Promise<UserDeleteResponse
       const options = {
         method: 'DELETE',
         headers: {
+          "Content-Type": "application/json",
           Authorization: 'Bearer ' + token,
         },
       };
+
 
       try {
         const response = await fetchData<MessageResponse>(`${process.env.UPLOAD_SERVER}/delete/${filename}`, options);
@@ -262,17 +264,22 @@ const deleteUser = async (id: number, token: string): Promise<UserDeleteResponse
     const options = {
       method: 'DELETE',
       headers: {
+        "Content-Type": "application/json",
         Authorization: 'Bearer ' + token,
       },
       body: JSON.stringify({user_id: id}),
     };
 
+    const existingProfilePicture = await checkProfilePicture(id);
+
+    if (existingProfilePicture?.filename) {
     try {
       const response = await fetchData<MessageResponse>(`${process.env.AUTH_SERVER}/users/profile/picture`, options);
       console.log(response);
     } catch (e) {
       console.error(`Failed to delete profile picture for user ${id}:`, (e as Error).message);
     }
+  }
 
     // Delete related data from database
     await connection.execute('DELETE FROM Comments WHERE user_id = ?;', [id]);
@@ -460,13 +467,17 @@ const checkProfilePicture = async (
 const deleteProfilePicture = async (
   user_id: number,
   token: string,
-): Promise<MessageResponse> => {
+): Promise<MessageResponse | null> => {
   if (!token) {
     customLog('deleteProfilePicture: No token provided');
     throw new CustomError('No token provided', 401);
   }
   // First, get the existing profile picture
   const existingProfilePicture = await checkProfilePicture(user_id);
+
+  if (!existingProfilePicture) {
+    return null; // Return null if no profile picture exists
+  }
 
   //Update the database record
   const sql = `DELETE FROM ProfilePictures WHERE user_id = ?`;
