@@ -8,10 +8,6 @@
 
 ---
 
-HUOM. KATSO .ENV.SAMPLE ympäristömuuttujia varten.
-
----
-
 ## Kuvat käyttöliittymästä
 ![Päänäkymä](img/mainpage.png)
 ![Seuratut julkaisut](img/following.png)
@@ -29,13 +25,13 @@ HUOM. KATSO .ENV.SAMPLE ympäristömuuttujia varten.
 ## Linkit:
 
 ### Backend-sovellus:
-**[Auth-haara](https://10.120.32.64/auth/api/v1)**<br>
-**[Media-haara](https://10.120.32.64/media/api/v1)**<br>
+**[Auth-haara](https://10.120.32.64/auth/api/v1)**
+**[Media-haara](https://10.120.32.64/media/api/v1)**
 **[Upload-haara](https://10.120.32.64/upload/api/v1)**
 
 ### Apidoc-dokumentaatio:
-**[Auth-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/auth/)**<br>
-**[Media-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/media/)**<br>
+**[Auth-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/auth/)**
+**[Media-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/media/)**
 **[Upload-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/upload/)**
 
 ## Toiminnot:
@@ -75,6 +71,8 @@ HUOM. KATSO .ENV.SAMPLE ympäristömuuttujia varten.
 
 - API-kutsut eivät toimi mobiililaitteella tuntemattomasta syystä. Cors-asetukset ovat päällä ja rajoituksia ei pitäisi olla. USB-debuggausta on kokeiltu puhelimella mutta konsoliin ei ilmesty virheviestejä ja network-osiossa näkyy vain "waiting" kutsuissa ilman vastausta.
 
+- Service Worker toimii normaalisti, sovellusta ei kuitenkaan saa lisättyä aloitusnäyttöön ainakaan tietokoneella.
+
 - Alkuperäisestä suunnitelmasta poiketen ilmoitukset ei ole käytössä vaikka niille tehtiinkin endpointit.
 
 ## Tekninen toteutus:
@@ -96,6 +94,10 @@ HUOM. KATSO .ENV.SAMPLE ympäristömuuttujia varten.
 - **[DrawDB](https://www.drawdb.app/):** Tietokantamallin piirtämistä ja havainnollistamista varten.
 
 - Tekoälyä käytetty etenkin logiikkaan jolla sai indeksoitua kommentit ja asetettua ne oikeiden isäntäkommenttien alle. Eli vastaukset oikeiden kommenttien alle.
+
+## Referenssit:
+- **[FFmpegin asennus Windowsille, ongelma tiedostojen polussa](https://www.wikihow.com/Install-FFmpeg-on-Windows)**
+- **[FFmpegin asennus Linux virtuaalikoneelle (Fedora)](https://www.cyberciti.biz/faq/how-to-install-ffmpeg-on-fedora-linux-using-dnf/)**: Asennus vaatii hieman kikkailua. Asenna ohjeiden mukaan ja katso upload-serverin makeVideoThumbnail.ts tiedostosta kuinka asettaa polku ffmpeg ja ffprobe tiedostoille. Luonnollisesti Linux-ympäristössä on oma polkunsa --> '/bin/jaadajaada' jne. Ilman polkujen määrittämistä ffmpeg ei löytänyt ffprobea.
 
 ---
 
