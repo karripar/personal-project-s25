@@ -8,6 +8,32 @@
 
 ---
 
+## Kuvat käyttöliittymästä
+![Päänäkymä](img/mainpage.png)
+![Seuratut julkaisut](img/following.png)
+![Profiili](img/profile.png)
+![Profiilissa vierailu](img/visitprofile.png)
+![Julkaisu ja toimiva video](img/videosingle.png)
+![Kommentit](img/comments.png)
+![Mediahaku](img/searchmedia.png)
+![Käyttäjähaku](img/search.png)
+![Suosikit](img/saved.png)
+![Kirjautuminen/rekisteröityminen](img/creds.png)
+
+---
+
+## Linkit:
+
+### Backend-sovellus:
+**[Auth-haara](https://10.120.32.64/auth/api/v1)**
+**[Media-haara](https://10.120.32.64/media/api/v1)**
+**[Upload-haara](https://10.120.32.64/upload/api/v1)**
+
+### Apidoc-dokumentaatio:
+**[Auth-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/auth/)**
+**[Media-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/media/)**
+**[Upload-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/upload/)**
+
 ## Toiminnot:
 
 ### 1. Käyttäjäprofiilit:
@@ -62,7 +88,10 @@
 - **[Lucide React](https://lucide.dev/guide/):** Vapaasti käytettävä ikonikirjasto Reactille.
 - **[Robohash](https://robohash.org/):** Oletusprofiilikuvat käyttäjille.
 - **[FFmpeg](https://www.ffmpeg.org/about.html):** Multimedia framework mediatiedostojen käsittelylle taustapalvelussa.
-- **[Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction):** Kommenttien, tykkäysten ja suosikkien tilan ja arvojen varastoimiseen sekä käsittelyyn.§
+- **[Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction):** Kommenttien, tykkäysten ja suosikkien tilan ja arvojen varastoimiseen sekä käsittelyyn.
+- **[DrawDB](https://www.drawdb.app/):** Tietokantamallin piirtämistä ja havainnollistamista varten.
+
+- Tekoälyä käytetty etenkin logiikkaan jolla sai indeksoitua kommentit ja asetettua ne oikeiden isäntäkommenttien alle. Eli vastaukset oikeiden kommenttien alle.
 
 ---
 
