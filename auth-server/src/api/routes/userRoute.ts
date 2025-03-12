@@ -21,11 +21,13 @@ import {
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
 
+
 const router = express.Router();
+
 
 /**
  * @apiDefine UserGroup User API
- * All the APIs related to user
+ * All the APIs related to users
  */
 
 /**
@@ -45,7 +47,7 @@ const router = express.Router();
  * }
  */
 
-router.get(
+router.route('/').get(
   /**
    * @api {get} /users Get all users
    * @apiName GetUsers
@@ -79,7 +81,6 @@ router.get(
    *
    * @apiUse unauthorized
    */
-  '/',
   userListGet,
 );
 
@@ -123,9 +124,9 @@ router.post(
    * @apiDescription Create a new user
    * @apiPermission none
    *
-   * @apiParam {String} username Username of the user
-   * @apiParam {String} password Password of the user
-   * @apiParam {String} email Email of the user
+   * @apiBody {String} username Username of the user
+   * @apiBody {String} password Password of the user
+   * @apiBody {String} email Email of the user
    *
    * @apiSuccess {Number} id User ID
    * @apiSuccess {String} username Username
@@ -188,9 +189,9 @@ router.put(
    * @apiDescription Update user
    * @apiPermission token
    *
-   * @apiParam {String} [username] Username of the user
-   * @apiParam {String} [password] Password of the user
-   * @apiParam {String} [email] Email of the user
+   * @apiBody {String} [username] Username of the user
+   * @apiBody {String} [password] Password of the user
+   * @apiBody {String} [email] Email of the user
    *
    * @apiSuccess {Number} id User ID
    * @apiSuccess {String} username Username
@@ -328,7 +329,28 @@ router.delete(
 
 router
   .route('/profile/picture/:user_id')
-  .get(param('user_id').isNumeric(), validationErrors, profilePictureGet);
+  .get(
+    /**
+     * @api {get} /users/profile/picture/:user_id Get profile picture
+     * @apiName GetProfilePicture
+     * @apiGroup UserGroup
+     * @apiVersion 1.0.0
+     * @apiDescription Get profile picture
+     * @apiPermission none
+     *
+     * @apiParam {Number} user_id User ID
+     *
+     * @apiSuccess {String} picture Profile picture URL
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * HTTP/1.1 200 OK
+     * {
+     *  "picture": "http://example.com/picture.jpg"
+     * }
+     *
+     * @apiUse unauthorized
+     */
+    param('user_id').isNumeric(), validationErrors, profilePictureGet);
 
 router
   .route('/profile/picture')
@@ -341,8 +363,6 @@ router
      * @apiDescription Upload profile picture
      * @apiPermission token
      *
-     * @apiParam {File} file File to upload
-     *
      * @apiSuccess {String} message Profile picture uploaded
      *
      * @apiSuccessExample {json} Success-Response:
@@ -353,6 +373,7 @@ router
      *
      * @apiUse unauthorized
      */
+    validationErrors,
     authenticate,
     profilePicturePost,
   )
@@ -462,15 +483,16 @@ router
 
 router
   .route(
+    '/:id',
+  )
+  .delete(
     /**
      * @api {delete} /users/:id Delete user by ID
      * @apiName DeleteUserById
-     * @api
-     * Group UserGroup
+     * @apiGroup UserGroup
      * @apiVersion 1.0.0
      * @apiDescription Delete user by ID
      * @apiPermission token
-     * @apiHeader {String} Authorization Bearer <token>
      *
      * @apiParam {Number} id User ID
      *
@@ -479,9 +501,6 @@ router
      *
      * @apiUse unauthorized
      */
-    '/:id',
-  )
-  .delete(
     authenticate,
     param('id').isNumeric(),
     validationErrors,
@@ -528,7 +547,7 @@ router.get(
    * @apiDescription Search by username
    * @apiPermission none
    *
-   * @apiParam {String} [username] Username
+   * @apiQuery {String} username Username
    *
    * @apiSuccess {Object[]} users List of users
    * @apiSuccess {Number} users.id User ID

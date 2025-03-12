@@ -3,135 +3,306 @@
 ---
 
 ## Kuvaus:
-**MyLens** on etenkin retkeilijöiden ja luonnossa liikkuvien yhteisöllinen alusta, jossa käyttäjät voivat jakaa kuvia, videoita, huomioita ja muuta olennaista. Sovelluksen avulla voidaan löytää alueella havaittuja eläimiä, vedenlaatuongelmia, sinilevähuomioita, marjasadon tilanteita ja muuta aiheeseen liittyvää.
+
+**MyLens** on sosiaalinen medianjakoalusta, jossa käyttäjät voivat julkaista kuvia ja videoita, tykätä ja kommentoida vapaasti julkaisuja sekä tallentaa mediaa suosikeiksi. Käyttäjät voivat vapaasti seurata muita käyttäjiä. Sovellus on ottanut inspiraatiota suosituimpien sosiaalisten medioiden ja viihdealustojen käyttöliittymistä.
 
 ---
 
 ## Toiminnot:
 
 ### 1. Käyttäjäprofiilit:
+
 - Käyttäjät voivat luoda profiilin, johon he voivat lisätä tietoja itsestään
-- Profiilissa voi olla mahdollisuus seurata muita käyttäjiä ja saada ilmoituksia uusista julkaisuista.
+- Profiilin avulla saa auki mahdollisuuden tykätä, kommentoida, jakaa mediaa sekä seurata käyttäjiä.
+- Käyttäjän omaava saa auki "following"-feedin jossa näkyy vain seurattujen käyttäjien media.
+- Normaali käyttäjä voi poistaa julkaisunsa tai halutessaan koko tilinsä, joka poistaa myös tilin julkaiseman sisällön.
+- Profiilikuvan lisääminen ja vaihtaminen. Vaihtaessa profiilikuvan, vanha kuva poistetaan myös taustapalvelun tiedostoista.
+- Julkisesti esillä olevien tietojen muokkaaminen, kuten profiilin kuvauksen ja käyttäjänimen muokkaus.
+- Ilman aktiivista käyttäjätiliä interaktiivisuus on hyvin rajallista.
+- Muiden käyttäjien julkaisut näkee vierailemalla heidän tilillään.
 
 ### 2. Materiaalin jakaminen:
-- Käyttäjät voivat ladata ja jakaa mediatiedostoja, PDF-tiedostoja, kuvia ja muita materiaaleja.
-- Mahdollisuus lisätä kuvauksia ja tageja (esim. eläinlaji, aihe), jotta materiaalin löytäminen olisi helpompaa.
-- Julkaisujen yksityisyysasetukset, kuten "julkinen", "vain seuraajille".
+
+- Käyttäjät voivat ladata ja jakaa mediatiedostoja, eli kuvia ja videoita.
+- Mahdollisuus lisätä kuvauksia ja tageja (esim. aihe), jotta materiaalin löytäminen olisi helpompaa.
+- Julkaisussa olevaa tagia klikkaamalla tai oikeaan osoitteeseen navigoimalla saa esiin kaikki saman tagin sisältävät julkaisut.
 
 ### 3. Haku ja suodatus:
-- Materiaalit voidaan etsiä hakusanojen, nimen, aiheen tai jopa materiaalin tyypin (muistiinpanot, PDF, kuvat) perusteella.
-- Suodattimet
+
+- Materiaalit voidaan etsiä hakusanojen, nimen, aiheen tai tagien avulla.
+- Haku toimii dynaamisesti ilman haku-painikkeen painamista.
+- Mahdollisuus hakea myös muita käyttäjiä nimeltä.
 
 ### 4. Keskustelu ja kommentointi:
-- Käyttäjät voivat kommentoida ja keskustella jakamistaan mediioista, tarjota lisävinkkejä tai kysyä tarkennuksia.
-- Mahdollisuus lisätä keskusteluketjuja ja jakaa kysymyksiä ja vastauksia.
 
-### 5. Arvostelut ja suositukset:
-- Käyttäjät voivat arvostella ja suositella materiaaleja muiden käyttäjien käyttöön.
-- Arvostelujen perusteella käyttäjät voivat löytää suosituimmat ja hyödyllisimmät materiaalit.
+- Käyttäjät voivat kommentoida ja keskustella jakamistaan medioista kommenttikentissä. Sovelluksessa on mahdollisuus vastata kommentteihin, jolloin kommentti liitetään alkuperäisen kommentin alle.
 
-### 6. Ilmoitukset:
-- Käyttäjät saavat ilmoituksia uusista julkaisuista, kommenteista ja seurattujen käyttäjien aktiviteeteista.
+### 5. Ylläpitäjien oikeudet
 
-### 7. Yksityisyys ja turvallisuus:
-- Käyttäjät voivat valita, mitä materiaaleja he jakavat julkisesti ja mitä jää vain tietylle käyttäjäryhmälle.
-- Mahdollisuus määrittää materiaalin jakamisen aikarajat tai poistaa materiaali myöhemmin.
+- Ylläpitäjät voivat poistaa kommentteja (oikeus vain ylläpitäjillä), käyttäjien julkaisuja ja myös tilejä.
 
+### 6. Tiedossa olevat ongelmat ja puutteet:
 
-## Tekniset vaatimukset:
+- API-kutsut eivät toimi mobiililaitteella tuntemattomasta syystä. Cors-asetukset ovat päällä ja rajoituksia ei pitäisi olla. USB-debuggausta on kokeiltu puhelimella mutta konsoliin ei ilmesty virheviestejä ja network-osiossa näkyy vain "waiting" kutsuissa ilman vastausta.
+
+- Alkuperäisestä suunnitelmasta poiketen ilmoitukset ei ole käytössä vaikka niille tehtiinkin endpointit.
+
+## Tekninen toteutus:
 
 - **Frontend:** React ja TypeScript.
 - **Backend:** Node.js ja Express (RESTful-arkkitehtuuri).
 - **Tietokanta:** MySQL/MariaDB käyttäjätietojen, materiaalien ja keskusteluiden tallentamiseen.
 - **Tiedostojen hallinta:** Tiedostojen lataus ja tallennus
 - **Autentikointi:** Käyttäjien rekisteröinti ja kirjautuminen (JWT).
-- **Responsiivinen käyttöliittymä:** Bootstrap tai Tailwind CSS, valinta tarkentuu lähempänä varsinaista kehitystä.
+- **Responsiivinen käyttöliittymä:** Tailwind CSS
 - **Progressiivinen web-sovellus:** Vite PWA toiminnallisuus.
+
+## Kolmannen osapuolen kirjastot ja lisäosat:
+
+- **[Lucide React](https://lucide.dev/guide/):** Vapaasti käytettävä ikonikirjasto Reactille.
+- **[Robohash](https://robohash.org/):** Oletusprofiilikuvat käyttäjille.
+- **[FFmpeg](https://www.ffmpeg.org/about.html):** Multimedia framework mediatiedostojen käsittelylle taustapalvelussa.
+- **[Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction):** Kommenttien, tykkäysten ja suosikkien tilan ja arvojen varastoimiseen sekä käsittelyyn.§
 
 ---
 
-## Suunnitelma API-päätteille
+## Tietokannan kuvaus:
+
+# mylens documentation
+
+## Summary
+
+- [Introduction](#introduction)
+- [Database Type](#database-type)
+- [Table Structure](#table-structure)
+  - [Users](#Users)
+  - [UserLevels](#UserLevels)
+  - [ProfilePictures](#ProfilePictures)
+  - [MediaItems](#MediaItems)
+  - [Tags](#Tags)
+  - [MediaTags](#MediaTags)
+  - [Comments](#Comments)
+  - [Likes](#Likes)
+  - [Follows](#Follows)
+  - [Favorites](#Favorites)
+- [Relationships](#relationships)
+- [Database Diagram](#database-Diagram)
+
+## Introduction
+
+## Database type
+
+- **Database system:** MySQL
+
+## Table structure
 
 ### Users
 
-- POST /users 
-- GET /users
-- GET /users/:id 
-- PUT /users/:id
-- DELETE /users/:id
+| Name              | Type         | Settings                                | References          | Note |
+| ----------------- | ------------ | --------------------------------------- | ------------------- | ---- |
+| **user_id**       | INTEGER      | 🔑 PK, not null , unique, autoincrement |                     |      |
+| **username**      | VARCHAR(255) | not null , unique                       |                     |      |
+| **password_hash** | VARCHAR(255) | not null                                |                     |      |
+| **email**         | VARCHAR(255) | not null , unique                       |                     |      |
+| **bio**           | TEXT(65535)  | not null                                |                     |      |
+| **user_level_id** | INTEGER      | not null                                | Users.user_level_id |      |
+| **created_at**    | TIMESTAMP    | not null                                |                     |      |
 
-### User authentication
+### UserLevels
 
-- POST /auth/login
-- POST /auth/logout
-- POST /auth/refresh (tokenin päivitys)
+| Name              | Type         | Settings                                | References | Note |
+| ----------------- | ------------ | --------------------------------------- | ---------- | ---- |
+| **user_level_id** | INTEGER      | 🔑 PK, not null , unique, autoincrement |            |      |
+| **level_name**    | VARCHAR(255) | not null                                |            |      |
 
-### Media
+### ProfilePictures
 
-- POST /media 
-- GET /media 
-- GET /media/:id 
-- PUT /media/:id 
-- DELETE /media/:id 
+| Name                   | Type         | Settings                                | References    | Note |
+| ---------------------- | ------------ | --------------------------------------- | ------------- | ---- |
+| **profile_picture_id** | INTEGER      | 🔑 PK, not null , unique, autoincrement |               |      |
+| **user_id**            | INTEGER      | not null                                | Users.user_id |      |
+| **filename**           | VARCHAR(255) | not null                                |               |      |
+| **media_type**         | VARCHAR(255) | not null                                |               |      |
+| **filesize**           | INTEGER      | not null                                |               |      |
+| **created_at**         | TIMESTAMP    | not null                                |               |      |
+
+### MediaItems
+
+| Name            | Type         | Settings                                | References    | Note |
+| --------------- | ------------ | --------------------------------------- | ------------- | ---- |
+| **media_id**    | INTEGER      | 🔑 PK, not null , unique, autoincrement |               |      |
+| **user_id**     | INTEGER      | not null                                | Users.user_id |      |
+| **filename**    | VARCHAR(255) | not null                                |               |      |
+| **thumbnail**   | VARCHAR(255) | not null                                |               |      |
+| **filesize**    | INTEGER      | not null                                |               |      |
+| **media_type**  | VARCHAR(255) | not null                                |               |      |
+| **title**       | VARCHAR(255) | not null                                |               |      |
+| **description** | TEXT(65535)  | not null                                |               |      |
+| **created_at**  | TIMESTAMP    | not null                                |               |      |
 
 ### Tags
 
-- POST /tags 
-- GET /tags 
-- GET /tags/:id 
-- PUT /tags/:id 
-- DELETE /tags/:id 
+| Name         | Type         | Settings                                | References | Note |
+| ------------ | ------------ | --------------------------------------- | ---------- | ---- |
+| **tag_id**   | INTEGER      | 🔑 PK, not null , unique, autoincrement |            |      |
+| **tag_name** | VARCHAR(255) | not null                                |            |      |
 
-### Media Tags
+### MediaTags
 
-- POST /media/:id/tags - Add tags to a media.
-- DELETE /media/:id/tags/:tagId - Remove a tag from a media.
+| Name             | Type    | Settings                                | References          | Note |
+| ---------------- | ------- | --------------------------------------- | ------------------- | ---- |
+| **media_tag_id** | INTEGER | 🔑 PK, not null , unique, autoincrement |                     |      |
+| **media_id**     | INTEGER | not null                                | MediaItems.media_id |      |
+| **tag_id**       | INTEGER | not null                                | Tags.tag_id         |      |
 
 ### Comments
 
-- POST /media/:id/comments - Add a comment to a media.
-- GET /media/:id/comments - Get all comments for a media.
-- GET /comments/:id - Get a specific comment by ID.
-- PUT /comments/:id - Update a comment (admin).
-- DELETE /comments/:id - Delete a comment (author or admin).
+| Name                     | Type        | Settings                                | References          | Note |
+| ------------------------ | ----------- | --------------------------------------- | ------------------- | ---- |
+| **comment_id**           | INTEGER     | 🔑 PK, not null , unique, autoincrement |                     |      |
+| **media_id**             | INTEGER     | not null                                | MediaItems.media_id |      |
+| **user_id**              | INTEGER     | not null                                | Users.user_id       |      |
+| **comment_text**         | TEXT(65535) | not null                                |                     |      |
+| **reference_comment_id** | INTEGER     | not null                                | Comments.comment_id |      |
+| **created_at**           | TIMESTAMP   | not null                                |                     |      |
 
 ### Likes
 
-- POST /media/:id/likes - Like a media.
-- POST /comments/:id/likes - Like a comment.
-- DELETE /media/:id/likes - Remove a like from a media.
-- DELETE /comments/:id/likes - Remove a like from a comment.
-
-### Ratings
-
-- POST /media/:id/ratings - Rate a media.
-- GET /media/:id/ratings - Get all ratings for a media (average rating and individual ratings).
+| Name           | Type      | Settings                                | References          | Note |
+| -------------- | --------- | --------------------------------------- | ------------------- | ---- |
+| **like_id**    | INTEGER   | 🔑 PK, not null , unique, autoincrement |                     |      |
+| **media_id**   | INTEGER   | not null                                | MediaItems.media_id |      |
+| **user_id**    | INTEGER   | not null                                | Users.user_id       |      |
+| **created_at** | TIMESTAMP | not null                                |                     |      |
 
 ### Follows
 
-- POST /follows - Follow a user.
-- DELETE /follows/:id - Unfollow a user.
-- GET /users/:id/followers - Get all followers of a user.
-- GET /users/:id/following - Get all users a user is following.
+| Name            | Type      | Settings                                | References    | Note |
+| --------------- | --------- | --------------------------------------- | ------------- | ---- |
+| **follow_id**   | INTEGER   | 🔑 PK, not null , unique, autoincrement |               |      |
+| **follower_id** | INTEGER   | not null                                | Users.user_id |      |
+| **followed_id** | INTEGER   | not null                                | Users.user_id |      |
+| **created_at**  | TIMESTAMP | not null                                |               |      |
 
-### Notifications
+### Favorites
 
-- GET /notifications - Get all notifications for the current user.
-- PUT /notifications/:id/mark-read - Mark a notification as read.
-- DELETE /notifications/:id - Delete a notification.
+| Name            | Type      | Settings                                | References          | Note |
+| --------------- | --------- | --------------------------------------- | ------------------- | ---- |
+| **favorite_id** | INTEGER   | 🔑 PK, not null , unique, autoincrement |                     |      |
+| **user_id**     | INTEGER   | not null                                | Users.user_id       |      |
+| **media_id**    | INTEGER   | not null                                | MediaItems.media_id |      |
+| **created_at**  | TIMESTAMP | not null                                |                     |      |
 
-### Analytics
+## Relationships
 
-- GET /media/ratings - Get average ratings for all medias (from the mediaRatings view).
-- GET /media/comments - Get a list of medias and their comment counts (from the mediaComments view).
-- GET /users/activity - Get user activity stats (from the UserActivity view).
-- GET /users/:id/notifications - Get unread notification counts for a user (from the UserNotifications view).
+- **ProfilePictures to Users**: one_to_one
+- **Users to UserLevels**: one_to_one
+- **Favorites to MediaItems**: one_to_one
+- **Favorites to Users**: one_to_one
+- **Likes to MediaItems**: one_to_one
+- **Likes to Users**: one_to_one
+- **MediaTags to MediaItems**: one_to_one
+- **MediaTags to Tags**: one_to_one
+- **Comments to MediaItems**: one_to_one
+- **Comments to Users**: one_to_one
+- **Comments to Comments**: one_to_one
+- **Follows to Users**: one_to_one
+- **Follows to Users**: one_to_one
+- **MediaItems to Users**: one_to_one
 
-### Latest Data
+## Database Diagram
 
-- GET /media/latest - Get the latest uploaded medias (from the Latestmedias view).
-- GET /notifications/latest - Get the latest notifications (from the LatestNotifications view).
+```mermaid
+erDiagram
+	ProfilePictures ||--|| Users : references
+	Users ||--|| UserLevels : references
+	Favorites ||--|| MediaItems : references
+	Favorites ||--|| Users : references
+	Likes ||--|| MediaItems : references
+	Likes ||--|| Users : references
+	MediaTags ||--|| MediaItems : references
+	MediaTags ||--|| Tags : references
+	Comments ||--|| MediaItems : references
+	Comments ||--|| Users : references
+	Comments ||--|| Comments : references
+	Follows ||--|| Users : references
+	Follows ||--|| Users : references
+	MediaItems ||--|| Users : references
 
-### Search
+	Users {
+		INTEGER user_id
+		VARCHAR(255) username
+		VARCHAR(255) password_hash
+		VARCHAR(255) email
+		TEXT(65535) bio
+		INTEGER user_level_id
+		TIMESTAMP created_at
+	}
 
-- GET /search/media - Search for medias by title, tags, or description.
+	UserLevels {
+		INTEGER user_level_id
+		VARCHAR(255) level_name
+	}
+
+	ProfilePictures {
+		INTEGER profile_picture_id
+		INTEGER user_id
+		VARCHAR(255) filename
+		VARCHAR(255) media_type
+		INTEGER filesize
+		TIMESTAMP created_at
+	}
+
+	MediaItems {
+		INTEGER media_id
+		INTEGER user_id
+		VARCHAR(255) filename
+		VARCHAR(255) thumbnail
+		INTEGER filesize
+		VARCHAR(255) media_type
+		VARCHAR(255) title
+		TEXT(65535) description
+		TIMESTAMP created_at
+	}
+
+	Tags {
+		INTEGER tag_id
+		VARCHAR(255) tag_name
+	}
+
+	MediaTags {
+		INTEGER media_tag_id
+		INTEGER media_id
+		INTEGER tag_id
+	}
+
+	Comments {
+		INTEGER comment_id
+		INTEGER media_id
+		INTEGER user_id
+		TEXT(65535) comment_text
+		INTEGER reference_comment_id
+		TIMESTAMP created_at
+	}
+
+	Likes {
+		INTEGER like_id
+		INTEGER media_id
+		INTEGER user_id
+		TIMESTAMP created_at
+	}
+
+	Follows {
+		INTEGER follow_id
+		INTEGER follower_id
+		INTEGER followed_id
+		TIMESTAMP created_at
+	}
+
+	Favorites {
+		INTEGER favorite_id
+		INTEGER user_id
+		INTEGER media_id
+		TIMESTAMP created_at
+	}
+```

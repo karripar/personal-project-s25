@@ -5,7 +5,7 @@ import {
   tagPost,
   tagDelete,
   tagFilesByTagGet,
-  tagDeleteFromMedia
+  tagDeleteFromMedia,
 } from '../controllers/tagController';
 import {authenticate, validationErrors} from '../../middlewares';
 import {body, param} from 'express-validator';
@@ -15,6 +15,23 @@ const tagRouter = express.Router();
 /**
  * @apiDefine tagGroup Tag API
  * All the APIs related to tags
+ */
+
+/**
+ * @apiDefine token Authentication required in the form of a token
+ * token should be passed in the header as 'Authorization':
+ * 'Bearer <token>'
+ * @apiHeader {String} Authorization Bearer <token>
+ */
+
+/**
+ * @apiDefine unauthorized Unauthorized
+ * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+ * @apiErrorExample {json} Unauthorized
+ *   HTTP/1.1 401 Unauthorized
+ *  {
+ *   "error": "Unauthorized"
+ * }
  */
 
 tagRouter
@@ -41,8 +58,14 @@ tagRouter
      * ]
      *
      * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
      */
-    tagListGet)
+    tagListGet,
+  )
   .post(
     /**
      * @api {post} /tags Create Tag
@@ -55,8 +78,8 @@ tagRouter
      * @apiUse token
      * @apiUse unauthorized
      *
-     * @apiParam {String[]} tags Tags
-     * @apiParam {Number} media_id Media ID
+     * @apiBody {String[]} tags Tags
+     * @apiBody {Number} media_id Media ID
      *
      * @apiSuccess {Number} tag_id Tag ID
      * @apiSuccess {String} tag_name Tag Name
@@ -70,6 +93,20 @@ tagRouter
      *  "tag_name": "tag1",
      *  "media_id": 1,
      *  "createdAt": "2021-07-01T00:00:00.000Z"
+     * }
+     *
+     * @apiError (Error 400) {String} BadRequest Invalid request
+     * @apiErrorExample {json} BadRequest
+     *    HTTP/1.1 400 Bad Request
+     *    {
+     *      "error": "Invalid request"
+     *    }
+     *
+     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     * @apiErrorExample {json} Unauthorized
+     *   HTTP/1.1 401 Unauthorized
+     *  {
+     *   "error": "Unauthorized"
      * }
      */
     authenticate,
@@ -87,152 +124,156 @@ tagRouter
     tagPost,
   );
 
-tagRouter
-  .route('/bymedia/:id')
-  .get(
-    /**
-     * @api {get} /tags/bymedia/:id Get Tags by Media ID
-     * @apiName GetTagsByMediaId
-     * @apiGroup tagGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Get tags by media ID
-     * @apiPermission none
-     *
-     * @apiParam {Number} id Media ID
-     *
-     * @apiSuccess {object[]} tags List of tags
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  {
-     *    "tag_id": 1,
-     *    "tag_name": "tag1",
-     *    "media_id": 1,
-     *    "createdAt": "2021-07-01T00:00:00.000Z"
-     *  }
-     * ]
-     */
-    param('id').isInt({min: 1}).toInt(),
-    validationErrors,
-    tagListByMediaIdGet,
-  );
+tagRouter.route('/bymedia/:id').get(
+  /**
+   * @api {get} /tags/bymedia/:id Get Tags by Media ID
+   * @apiName GetTagsByMediaId
+   * @apiGroup tagGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get tags by media ID
+   * @apiPermission none
+   *
+   * @apiParam {Number} id Media ID
+   *
+   * @apiSuccess {object[]} tags List of tags
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "tag_id": 1,
+   *    "tag_name": "tag1",
+   *    "media_id": 1,
+   *    "createdAt": "2021-07-01T00:00:00.000Z"
+   *  }
+   * ]
+   */
+  param('id').isInt({min: 1}).toInt(),
+  validationErrors,
+  tagListByMediaIdGet,
+);
 
-tagRouter
-  .route('/bymedia/:media_id/:tag_id')
-  .delete(
-    /**
-     * @api {delete} /tags/bymedia/:media_id/:tag_id Delete Tag from Media
-     * @apiName DeleteTagFromMedia
-     * @apiGroup tagGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Delete a tag from media
-     * @apiPermission token
-     *
-     * @apiUse token
-     * @apiUse unauthorized
-     *
-     * @apiParam {Number} media_id Media ID
-     * @apiParam {Number} tag_id Tag ID
-     *
-     * @apiSuccess {String} message Success message
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *  "message": "Tag deleted from media"
-     * }
-     *
-     * @apiError (Error 400) {String} BadRequest Invalid request
-     * @apiErrorExample {json} BadRequest
-     *    HTTP/1.1 400 Bad Request
-     *    {
-     *      "error": "Invalid request"
-     *    }
-     *
-     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
-     */
-    authenticate,
-    param('media_id').isInt({min: 1}).toInt(),
-    param('tag_id').isInt({min: 1}).toInt(),
-    validationErrors,
-    tagDeleteFromMedia,
-  );
+tagRouter.route('/bymedia/:media_id/:tag_id').delete(
+  /**
+   * @api {delete} /tags/bymedia/:media_id/:tag_id Delete Tag from Media
+   * @apiName DeleteTagFromMedia
+   * @apiGroup tagGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Delete a tag from media
+   * @apiPermission token
+   *
+   * @apiUse token
+   * @apiUse unauthorized
+   *
+   * @apiParam {Number} media_id Media ID
+   * @apiParam {Number} tag_id Tag ID
+   *
+   * @apiSuccess {String} message Success message
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *  "message": "Tag deleted from media"
+   * }
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *    HTTP/1.1 400 Bad Request
+   *    {
+   *      "error": "Invalid request"
+   *    }
+   *
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
+   */
+  authenticate,
+  param('media_id').isInt({min: 1}).toInt(),
+  param('tag_id').isInt({min: 1}).toInt(),
+  validationErrors,
+  tagDeleteFromMedia,
+);
 
-tagRouter
-  .route('/bytag/:tag_id')
-  .get(
-    /**
-     * @api {get} /tags/bytag/:tag_id Get Tag Files
-     * @apiName GetTagFiles
-     * @apiGroup tagGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Get files by tag
-     * @apiPermission none
-     *
-     * @apiParam {Number} tag_id Tag ID
-     *
-     * @apiSuccess {object[]} files List of files
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  {
-     *    "media_id": 1,
-     *    "title": "title1",
-     *    "description": "description1",
-     *    "filename": "filename1",
-     *    "filetype": "filetype1",
-     *    "filesize": 1,
-     *    "createdAt": "2021-07-01T00:00:00.000Z"
-     *  }
-     * ]
-     *
-     * @apiError (Error 400) {String} BadRequest Invalid request
-     * @apiErrorExample {json} BadRequest
-     *    HTTP/1.1 400 Bad Request
-     *    {
-     *      "error": "Invalid request"
-     *    }
-     */
-    param('tag_id').isInt({min: 1}).toInt(),
-    validationErrors,
-    tagFilesByTagGet,
-  );
+tagRouter.route('/bytag/:tag_id').get(
+  /**
+   * @api {get} /tags/bytag/:tag_id Get Tag Files
+   * @apiName GetTagFiles
+   * @apiGroup tagGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get files by tag
+   * @apiPermission none
+   *
+   * @apiParam {Number} tag_id Tag ID
+   *
+   * @apiSuccess {object[]} files List of files
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "media_id": 1,
+   *    "title": "title1",
+   *    "description": "description1",
+   *    "filename": "filename1",
+   *    "filetype": "filetype1",
+   *    "filesize": 1,
+   *    "createdAt": "2021-07-01T00:00:00.000Z"
+   *  }
+   * ]
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *    HTTP/1.1 400 Bad Request
+   *    {
+   *      "error": "Invalid request"
+   *    }
+   *
+   */
+  param('tag_id').isInt({min: 1}).toInt(),
+  validationErrors,
+  tagFilesByTagGet,
+);
 
-tagRouter
-  .route('/:id')
-  .delete(
-    /**
-     * @api {delete} /tags/:id Delete Tag
-     * @apiName DeleteTag
-     * @apiGroup tagGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Delete a tag
-     * @apiPermission token
-     *
-     * @apiUse token
-     * @apiUse unauthorized
-     *
-     * @apiParam {Number} id Tag ID
-     *
-     * @apiSuccess {String} message Success message
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * {
-     *  "message": "Tag deleted"
-     * }
-     *
-     * @apiError (Error 400) {String} BadRequest Invalid request
-     * @apiErrorExample {json} BadRequest
-     *    HTTP/1.1 400 Bad Request
-     *    {
-     *      "error": "Invalid request"
-     *    }
-     *
-     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
-     */
-    authenticate,
-    param('id').isInt({min: 1}).toInt(),
-    validationErrors,
-    tagDelete,
-  );
+tagRouter.route('/:id').delete(
+  /**
+   * @api {delete} /tags/:id Delete Tag
+   * @apiName DeleteTag
+   * @apiGroup tagGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Delete a tag
+   * @apiPermission token
+   *
+   * @apiUse token
+   * @apiUse unauthorized
+   *
+   * @apiParam {Number} id Tag ID
+   *
+   * @apiSuccess {String} message Success message
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *  "message": "Tag deleted"
+   * }
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *    HTTP/1.1 400 Bad Request
+   *    {
+   *      "error": "Invalid request"
+   *    }
+   *
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   * @apiUse unauthorized
+   * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
+   */
+  authenticate,
+  param('id').isInt({min: 1}).toInt(),
+  validationErrors,
+  tagDelete,
+);
 
 export default tagRouter;

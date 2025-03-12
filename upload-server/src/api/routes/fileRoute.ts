@@ -12,6 +12,20 @@ import { param } from 'express-validator';
  * File upload routes
  */
 
+/**
+ * @apiDefine token
+ * @apiHeader {String} Authorization User's access token
+ * @apiHeaderExample {json} Authorization
+ *  {
+ *    "Authorization": "bearer <token>"
+ *  }
+ */
+
+/**
+ * @apiDefine unauthorized
+ * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+ */
+
 const storage = multer.diskStorage({
   destination: './uploads/',
   filename: (req, file, cb) => {
@@ -70,7 +84,7 @@ router.route('/upload').post(
    * @apiGroup FileUploadGroup
    * @apiPermission user
    * @apiDescription Upload a file
-   * @apiParam {File} file File to upload
+   *
    * @apiUse token
    * @apiUse unauthorized
    * @apiSuccess {String} message File uploaded successfully
@@ -108,7 +122,6 @@ router.route('/profile').post(
    * @apiGroup FileUploadGroup
    * @apiPermission user
    * @apiDescription Upload a profile picture
-   * @apiParam {File} file File to upload
    * @apiUse token
    * @apiUse unauthorized
    * @apiSuccess {String} message File uploaded successfully

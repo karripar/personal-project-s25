@@ -1,18 +1,19 @@
 import express from 'express';
 import {login} from '../controllers/authController';
-const router = express.Router();
 import {body} from 'express-validator';
 import {validationErrors} from '../../middlewares';
 
+const router = express.Router();
 
 /**
- * @apiDefine AuthGroup Auth API
- * All the APIs related to authentication
+ * @apiDefine all All APIs
+ * All the APIs
  */
+
 
 /**
  * @apiDefine token Authentication required in the form of a token
- * token should be passed in the header as 'Authorization': 'Bearer <token>'
+ * @apiHeader token should be passed in the header as 'Authorization': 'Bearer <token>'
  */
 
 /**
@@ -34,8 +35,8 @@ router.post(
    * @apiDescription Login to the application
    * @apiPermission none
    *
-   * @apiParam {String} email Email of the user
-   * @apiParam {String} password Password of the user
+   * @apiBody {String} email Email of the user
+   * @apiBody {String} password Password of the user
    *
    * @apiSuccess {String} token Token to be used for authentication
    * @apiSuccess {object} user User object

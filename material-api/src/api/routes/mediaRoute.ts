@@ -19,9 +19,27 @@ import {body, param, query} from 'express-validator';
 const mediaRouter = express.Router();
 
 /**
- * @apiDefine mediaGroup Media API
+ * @apiDefine mediaGroup Media
  * All the APIs related to media
  */
+
+/**
+ * @apiDefine token Authentication required in the form of a token
+ * token should be passed in the header as 'Authorization':
+ * 'Bearer <token>'
+ * @apiHeader {String} Authorization Bearer <token>
+ */
+
+/**
+ * @apiDefine unauthorized Unauthorized
+ * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+ * @apiErrorExample {json} Unauthorized
+ *   HTTP/1.1 401 Unauthorized
+ *  {
+ *   "error": "Unauthorized"
+ * }
+ */
+
 
 mediaRouter
   .route('/')
@@ -33,9 +51,6 @@ mediaRouter
      * @apiVersion 1.0.0
      * @apiDescription Get all media
      * @apiPermission none
-     *
-     * @apiParam {Number} [page=1] Page number
-     * @apiParam {Number} [limit=10] Number of items per page
      *
      * @apiSuccess {object[]} media List of media
      * @apiSuccessExample {json} Success-Response:
@@ -72,11 +87,11 @@ mediaRouter
      * @apiUse token
      * @apiUse unauthorized
      *
-     * @apiParam {String} title Media title
-     * @apiParam {String} description Media description
-     * @apiParam {String} filename Media filename
-     * @apiParam {String} media_type Media type
-     * @apiParam {Number} filesize Media filesize
+     * @apiBody {String} title Media title
+     * @apiBody {String} description Media description
+     * @apiBody {String} filename Media filename
+     * @apiBody {String} media_type Media type
+     * @apiBody {Number} filesize Media filesize
      *
      * @apiSuccess {Number} media_id Media ID
      * @apiSuccess {String} title Media title
@@ -118,7 +133,7 @@ mediaRouter
       .escape(),
     body('description')
       .trim()
-      .notEmpty()
+      .optional()
       .isString()
       .isLength({max: 1000})
       .escape(),
@@ -161,136 +176,134 @@ mediaRouter.route('/mostliked').get(
    *
    * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
    */
-  mediaListMostLikedGet);
+  mediaListMostLikedGet,
+);
 
-mediaRouter
-  .route('/search')
-  .get(
-    /**
-     * @api {get} /media/search Search Media
-     * @apiName SearchMedia
-     * @apiGroup mediaGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Search media
-     * @apiPermission none
-     *
-     * @apiParam {String} [search] Search string to search by title, description, or tags
-     * @apiParam {String} [searchBy=title] Search by field
-     * @apiParam {Number} [page=1] Page number
-     * @apiParam {Number} [limit=10] Number of items per page
-     *
-     * @apiSuccess {object[]} media List of media
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  {
-     *    "media_id": 1,
-     *    "title": "Media Title",
-     *    "description": "Media Description",
-     *    "filename": "media.jpg",
-     *    "media_type": "image/jpeg",
-     *    "filesize": 1024,
-     *    "user_id": 1,
-     *    "createdAt": "2021-07-01T00:00:00.000Z"
-     * }
-     * ]
-     *
-     * @apiError (Error 400) {String} BadRequest Invalid request
-     * @apiErrorExample {json} BadRequest
-     *    HTTP/1.1 400 Bad Request
-     *    {
-     *      "error": "Invalid request"
-     *    }
-     */
-    query('search').optional().isString().trim().escape(),
-    query('searchBy')
-      .optional()
-      .isIn(['title', 'description', 'tags'])
-      .withMessage('Invalid searchBy value'),
-    query('page').optional().isInt({min: 1}).toInt(),
-    query('limit').optional().isInt({min: 1}).toInt(),
-    validationErrors,
-    mediaWithSearchGet,
-  );
+mediaRouter.route('/search').get(
+  /**
+   * @api {get} /media/search Search Media
+   * @apiName SearchMedia
+   * @apiGroup mediaGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Search media
+   * @apiPermission none
+   *
+   * @apiParam {String} [search] Search string to search by title, description, or tags
+   * @apiParam {String} [searchBy=title] Search by field
+   * @apiParam {Number} [page=1] Page number
+   * @apiParam {Number} [limit=10] Number of items per page
+   *
+   * @apiSuccess {object[]} media List of media
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "media_id": 1,
+   *    "title": "Media Title",
+   *    "description": "Media Description",
+   *    "filename": "media.jpg",
+   *    "media_type": "image/jpeg",
+   *    "filesize": 1024,
+   *    "user_id": 1,
+   *    "createdAt": "2021-07-01T00:00:00.000Z"
+   * }
+   * ]
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *    HTTP/1.1 400 Bad Request
+   *    {
+   *      "error": "Invalid request"
+   *    }
+   */
+  query('search').optional().isString().trim().escape(),
+  query('searchBy')
+    .optional()
+    .isIn(['title', 'description', 'tags'])
+    .withMessage('Invalid searchBy value'),
+  query('page').optional().isInt({min: 1}).toInt(),
+  query('limit').optional().isInt({min: 1}).toInt(),
+  validationErrors,
+  mediaWithSearchGet,
+);
 
-mediaRouter
-  .route('/followed')
-  .get(
-    /**
-     * @api {get} /media/followed Get Media from Followed Users
-     * @apiName GetFollowedMedia
-     * @apiGroup mediaGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Get media followed by user
-     * @apiPermission token
-     *
-     * @apiUse token
-     * @apiUse unauthorized
-     *
-     * @apiSuccess {object[]} media List of media
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  {
-     *    "media_id": 1,
-     *    "title": "Media Title",
-     *    "description": "Media Description",
-     *    "filename": "media.jpg",
-     *    "media_type": "image/jpeg",
-     *    "filesize": 1024,
-     *    "user_id": 1,
-     *    "createdAt": "2021-07-01T00:00:00.000Z"
-     * }
-     * ]
-     *
-     * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
-     */
-    authenticate, validationErrors, mediaListFollowedGet);
+mediaRouter.route('/followed').get(
+  /**
+   * @api {get} /media/followed Get Media from Followed Users
+   * @apiName GetFollowedMedia
+   * @apiGroup mediaGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get media followed by user
+   * @apiPermission token
+   *
+   * @apiUse token
+   * @apiUse unauthorized
+   *
+   * @apiSuccess {object[]} media List of media
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "media_id": 1,
+   *    "title": "Media Title",
+   *    "description": "Media Description",
+   *    "filename": "media.jpg",
+   *    "media_type": "image/jpeg",
+   *    "filesize": 1024,
+   *    "user_id": 1,
+   *    "createdAt": "2021-07-01T00:00:00.000Z"
+   * }
+   * ]
+   *
+   * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
+   */
+  authenticate,
+  validationErrors,
+  mediaListFollowedGet,
+);
 
-
-mediaRouter
-  .route('/bytagname/:tagname')
-  .get(
-    /**
-     * @api {get} /media/bytagname/:tagname Get Media by Tagname
-     * @apiName GetMediaByTagname
-     * @apiGroup mediaGroup
-     * @apiVersion 1.0.0
-     * @apiDescription Get media by tagname
-     * @apiPermission none
-     *
-     * @apiParam {String} tagname Tagname
-     *
-     * @apiSuccess {object[]} media List of media
-     * @apiSuccessExample {json} Success-Response:
-     * HTTP/1.1 200 OK
-     * [
-     *  {
-     *    "media_id": 1,
-     *    "title": "Media Title",
-     *    "description": "Media Description",
-     *    "filename": "media.jpg",
-     *    "media_type": "image/jpeg",
-     *    "filesize": 1024,
-     *    "user_id": 1,
-     *    "createdAt": "2021-07-01T00:00:00.000Z"
-     * }
-     * ]
-     *
-     * @apiError (Error 400) {String} BadRequest Invalid request
-     * @apiErrorExample {json} BadRequest
-     *    HTTP/1.1 400 Bad Request
-     *    {
-     *      "error": "Invalid request"
-     *    }
-     */
-    param('tagname')
-      .trim()
-      .isString()
-      .isLength({min: 1, max: 50})
-      .escape(),
-    mediaByTagnameGet,
-  );
+mediaRouter.route('/bytagname/:tagname').get(
+  /**
+   * @api {get} /media/bytagname/:tagname Get Media by Tagname
+   * @apiName GetMediaByTagname
+   * @apiGroup mediaGroup
+   * @apiVersion 1.0.0
+   * @apiDescription Get media by tagname
+   * @apiPermission none
+   *
+   * @apiParam {String} tagname Tagname
+   *
+   * @apiSuccess {object[]} media List of media
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *  {
+   *    "media_id": 1,
+   *    "title": "Media Title",
+   *    "description": "Media Description",
+   *    "filename": "media.jpg",
+   *    "media_type": "image/jpeg",
+   *    "filesize": 1024,
+   *    "user_id": 1,
+   *    "createdAt": "2021-07-01T00:00:00.000Z"
+   * }
+   * ]
+   *
+   * @apiError (Error 400) {String} BadRequest Invalid request
+   * @apiErrorExample {json} BadRequest
+   *    HTTP/1.1 400 Bad Request
+   *    {
+   *      "error": "Invalid request"
+   *    }
+   */
+  param('tagname').trim().isString().isLength({min: 1, max: 50}).escape(),
+  mediaByTagnameGet,
+);
 
 mediaRouter
   .route('/byid/:id')
@@ -298,13 +311,10 @@ mediaRouter
     /**
      * @api {get} /media/byid/:id Get Media by ID
      * @apiName GetMediaById
-     * @api
-     * Group mediaGroup
+     * @apiGroup mediaGroup
      * @apiVersion 1.0.0
      * @apiDescription Get media by ID
      * @apiPermission none
-     *
-     * @apiParam {Number} id Media ID
      *
      * @apiSuccess {Number} media_id Media ID
      * @apiSuccess {String} title Media title
@@ -335,7 +345,10 @@ mediaRouter
      *      "error": "Invalid request"
      *    }
      */
-    param('id').isInt({min: 1}).toInt(), validationErrors, mediaGet)
+    param('id').isInt({min: 1}).toInt(),
+    validationErrors,
+    mediaGet,
+  )
   .put(
     /**
      * @api {put} /media/byid/:id Update Media
@@ -349,8 +362,9 @@ mediaRouter
      * @apiUse unauthorized
      *
      * @apiParam {Number} id Media ID
-     * @apiParam {String} [title] Media title
-     * @apiParam {String} [description] Media description
+     *
+     * @apiBody {String} [title] Media title
+     * @apiBody {String} [description] Media description
      *
      * @apiSuccess {Number} media_id Media ID
      * @apiSuccess {String} title Media title
@@ -382,6 +396,11 @@ mediaRouter
      *    }
      *
      * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
      */
     authenticate,
     param('id').isInt({min: 1}).toInt(),
@@ -434,6 +453,11 @@ mediaRouter
      *    }
      *
      * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+     * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
      */
     authenticate,
     param('id').isInt({min: 1}).toInt(),
@@ -480,7 +504,8 @@ mediaRouter.route('/byusername/:username').get(
     .isString()
     .isLength({min: 3, max: 50})
     .withMessage('Invalid username format'),
-  mediaByUsernameGet);
+  mediaByUsernameGet,
+);
 
 mediaRouter.route('/byuser/:user_id').get(
   /**
@@ -518,7 +543,8 @@ mediaRouter.route('/byuser/:user_id').get(
    */
   param('user_id').isInt({min: 1}).toInt(),
   validationErrors,
-  mediaByUserGet);
+  mediaByUserGet,
+);
 
 mediaRouter.route('/bytoken').get(
   /**
@@ -549,7 +575,14 @@ mediaRouter.route('/bytoken').get(
    * ]
    *
    * @apiError (Error 401) {String} Unauthorized User is not authorized to access the resource
+   * @apiErrorExample {json} Unauthorized
+   *   HTTP/1.1 401 Unauthorized
+   *  {
+   *   "error": "Unauthorized"
+   * }
    */
-  authenticate, mediaByTokenGet);
+  authenticate,
+  mediaByTokenGet,
+);
 
 export default mediaRouter;

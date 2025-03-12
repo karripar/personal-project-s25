@@ -14,7 +14,7 @@ import {UserWithLevel, TokenContent} from 'hybrid-types/DBTypes';
  * @description Login user
  */
 const login = async (
-  req: Request<object, object, {email: string; password: string}>,
+  req: Request<unknown, unknown, {email: string; password: string}>,
   res: Response<LoginResponse>,
   next: NextFunction,
 ) => {

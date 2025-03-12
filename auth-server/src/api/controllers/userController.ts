@@ -34,8 +34,8 @@ const salt = bcrypt.genSaltSync(12);
 
 // Get user by username
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserWithNoPassword>}
  * @description Get user by username
@@ -55,8 +55,8 @@ const userByUsernameGet = async (
 
 // Get all users
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserWithNoPassword[]>}
  * @description Get all users
@@ -89,14 +89,14 @@ const profilePictureGet = async (
 
 // modify profile picture
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<ProfilePicture>}
  * @description modify profile picture
  */
 const profilePicturePut = async (
-  req: Request<{user_id: string}, object, ProfilePicture>,
+  req: Request<{user_id: string}, unknown, ProfilePicture>,
   res: Response<ProfilePicture | null, {user: TokenContent; token: string}>,
   next: NextFunction,
 ) => {
@@ -117,8 +117,8 @@ const profilePicturePut = async (
 
 // Get user by id
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserWithNoPassword>}
  * @description Get user by id
@@ -138,14 +138,14 @@ const userGet = async (
 
 // Create a new user
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserResponse>} - message and user
  * @description Create a new user
  */
 const userPost = async (
-  req: Request<object, object, UserWithUnhashedPassword>,
+  req: Request<unknown, unknown, UserWithUnhashedPassword>,
   res: Response<UserResponse>,
   next: NextFunction,
 ) => {
@@ -180,14 +180,14 @@ const userPost = async (
 
 // Update a user
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserResponse>} - message and user
  * @description Update a user
  */
 const userPut = async (
-  req: Request<object, object, User>,
+  req: Request<unknown, unknown, User>,
   res: Response<UserResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
@@ -222,14 +222,14 @@ const userPut = async (
 
 // Update user profile
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserWithNoPassword>} - updated user
  * @description Update user profile
  */
 const profilePut = async (
-  req: Request<object, object, User>,
+  req: Request<unknown, unknown, User>,
   res: Response<UserWithNoPassword>,
   next: NextFunction,
 ) => {
@@ -249,8 +249,8 @@ const profilePut = async (
 
 // Delete a user
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserDeleteResponse>} - message and user
  * @description Delete a user
@@ -284,14 +284,14 @@ const userDelete = async (
 
 // Update a user as an admin
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserResponse>} - message and user
  * @description Update a user as an admin
  */
 const userPutAsAdmin = async (
-  req: Request<{id: string}, object, User>,
+  req: Request<{id: string}, unknown, User>,
   res: Response<UserResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
@@ -324,8 +324,8 @@ const userPutAsAdmin = async (
 
 // Delete a user as an admin
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserDeleteResponse>} - message and user
  * @description Delete a user as an admin
@@ -360,8 +360,8 @@ const userDeleteAsAdmin = async (
 
 // Check if token is valid
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserResponse>} - message and user
  * @description Check if token is valid
@@ -390,8 +390,8 @@ const checkToken = async (
 
 // Check if email exists
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<{available: boolean}>}
  * @description Check if email exists
@@ -412,8 +412,8 @@ const checkEmailExists = async (
 
 // Check if username exists
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<{available: boolean}>}
  * @description Check if username exists
@@ -433,16 +433,16 @@ const checkUsernameExists = async (
 
 // Post profile picture
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<{message: string; profile_picture_id: number}>}
  * @description Post profile picture
  */
 const profilePicturePost = async (
   req: Request<
-    object,
-    object,
+    unknown,
+    unknown,
     Omit<ProfilePicture, 'profile_picture_id' | 'created_at'>
   >,
   res: Response<
@@ -485,8 +485,8 @@ const profilePictureDelete = async (
 
 // Search for users by username
 /**
- * @param req - Express Request object
- * @param res - Express Response object
+ * @param req - Express Request unknown
+ * @param res - Express Response unknown
  * @param next - Express NextFunction
  * @returns {Promise<UserWithNoSensitiveInfo[]>}
  * @description Search for users by username (case insensitive)
