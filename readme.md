@@ -8,6 +8,10 @@
 
 ---
 
+HUOM. KATSO .ENV.SAMPLE ympäristömuuttujia varten.
+
+---
+
 ## Kuvat käyttöliittymästä
 ![Päänäkymä](img/mainpage.png)
 ![Seuratut julkaisut](img/following.png)
