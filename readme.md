@@ -25,13 +25,13 @@
 ## Linkit:
 
 ### Backend-sovellus:
-**[Auth-haara](https://10.120.32.64/auth/api/v1)**
-**[Media-haara](https://10.120.32.64/media/api/v1)**
+**[Auth-haara](https://10.120.32.64/auth/api/v1)**<br>
+**[Media-haara](https://10.120.32.64/media/api/v1)**<br>
 **[Upload-haara](https://10.120.32.64/upload/api/v1)**
 
 ### Apidoc-dokumentaatio:
-**[Auth-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/auth/)**
-**[Media-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/media/)**
+**[Auth-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/auth/)**<br>
+**[Media-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/media/)**<br>
 **[Upload-apidoc](https://users.metropolia.fi/~karripar/mylens/apidoc/upload/)**
 
 ## Toiminnot:
