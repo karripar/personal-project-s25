@@ -69,9 +69,7 @@
 
 ### 6. Tiedossa olevat ongelmat ja puutteet:
 
-- API-kutsut eivät toimi mobiililaitteella tuntemattomasta syystä. Cors-asetukset ovat päällä ja rajoituksia ei pitäisi olla. USB-debuggausta on kokeiltu puhelimella mutta konsoliin ei ilmesty virheviestejä ja network-osiossa näkyy vain "waiting" kutsuissa ilman vastausta.
-
-- Service Worker toimii normaalisti, sovellusta ei kuitenkaan saa lisättyä aloitusnäyttöön ainakaan tietokoneella (kokeiltu puhelimella ja toimii)
+- Huom. taustapalvelussa vanhan tiedoston poistaminen ei onnistu koska DELETE ei luote ecloudin tarjoamaan SSL-sertifikaattiin. Toiminnallisuus on testattu hyvin toimivaksi localhostilla mutta taustapalvelussa tiedoston poistaminen ei toimi levyltä vaikka median poistaminen toimii (esim. profiilikuva). ERROR: Self-signed sertificate.
 
 - Alkuperäisestä suunnitelmasta poiketen ilmoitukset ei ole käytössä vaikka niille tehtiinkin endpointit.
 
